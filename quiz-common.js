@@ -120,11 +120,16 @@ class QuizManager {
 
     createQCMHTML(question, index) {
         const options = this.options.shuffleOptions ? shuffle(question.options) : question.options;
-        const optionsHTML = options.map(opt => `
-            <label>
-                <input type="radio" name="q${index}" value="${opt}"> ${opt}
-            </label>
-        `).join('');
+        const optionsHTML = options.map(opt => {
+            // Décoder les entités HTML puis les échapper pour l'affichage sécurisé
+            const decodedOpt = this.decodeHtmlEntities(opt);
+            const escapedOpt = this.escapeHtml(decodedOpt);
+            return `
+                <label>
+                    <input type="radio" name="q${index}" value="${opt}"> ${escapedOpt}
+                </label>
+            `;
+        }).join('');
         
         return `
             <h2>${question.titre}</h2>
@@ -241,6 +246,26 @@ class QuizManager {
         return div.innerHTML;
     }
 
+    /**
+     * Décode les entités HTML pour l'affichage
+     * @param {string} text - Le texte avec des entités HTML
+     * @returns {string} - Le texte décodé
+     */
+    decodeHtmlEntities(text) {
+        if (typeof text !== 'string') {
+            return '';
+        }
+        
+        // Décoder les entités HTML courantes
+        return text
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&nbsp;/g, ' ');
+    }
+
     validateQCMAnswer(question, index, resultEl) {
         const checked = document.querySelector(`input[name="q${index}"]:checked`);
         
@@ -268,7 +293,10 @@ class QuizManager {
                 resultEl.innerHTML += `<br><small class="meta">Bonnes réponses : ${newCount}/5</small>`;
             }
         } else {
-            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(checked.value)}</small><br><small>Réponse correcte : ${this.escapeHtml(question.reponse)}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
+            // Décoder les entités HTML pour un affichage cohérent
+            const decodedUserAnswer = this.decodeHtmlEntities(checked.value);
+            const decodedCorrectAnswer = this.decodeHtmlEntities(question.reponse);
+            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(decodedUserAnswer)}</small><br><small>Réponse correcte : ${this.escapeHtml(decodedCorrectAnswer)}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
             resultEl.className = "wrong";
         }
     }
@@ -296,7 +324,9 @@ class QuizManager {
                 resultEl.innerHTML += `<br><small class="meta">Bonnes réponses : ${newCount}/5</small>`;
             }
         } else {
-            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(userAnswer || '(vide)')}</small><br><small>Réponse correcte : ${this.escapeHtml(question.reponse)}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
+            // Décoder les entités HTML pour un affichage cohérent
+            const decodedCorrectAnswer = this.decodeHtmlEntities(question.reponse);
+            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(userAnswer || '(vide)')}</small><br><small>Réponse correcte : ${this.escapeHtml(decodedCorrectAnswer)}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
             resultEl.className = "wrong";
         }
     }
@@ -325,7 +355,9 @@ class QuizManager {
                 resultEl.innerHTML += `<br><small class="meta">Bonnes réponses : ${newCount}/5</small>`;
             }
         } else {
-            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(input.value || '(vide)')}</small><br><small>Réponse correcte : ${this.escapeHtml((question.reponse || []).join(", "))}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
+            // Décoder les entités HTML pour un affichage cohérent
+            const decodedCorrectAnswer = this.decodeHtmlEntities((question.reponse || []).join(", "));
+            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${this.escapeHtml(input.value || '(vide)')}</small><br><small>Réponse correcte : ${this.escapeHtml(decodedCorrectAnswer)}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${this.escapeHtml(question.explication)}</small>` : ''}`;
             resultEl.className = "wrong";
         }
     }

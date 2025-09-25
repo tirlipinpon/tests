@@ -125,8 +125,14 @@ const quizData = [
     id: "html-12",
     titre: "1️⃣2️⃣ En XHTML, comment doit-on écrire l'attribut checked sur un input checkbox ?",
     code: '&lt;input type="checkbox" checked&gt;',
+    options: [
+      '&lt;input type="checkbox" checked&gt;',
+      '&lt;input type="checkbox" checked="checked" /&gt;',
+      '&lt;input type="checkbox" checked="true" /&gt;',
+      '&lt;input type="checkbox" checked="false" /&gt;'
+    ],
     reponse: '&lt;input type="checkbox" checked="checked" /&gt;',
-    type: "input",
+    type: "qcm",
     explication: "En XHTML, les attributs booléens doivent avoir la valeur explicite."
   },
   {
