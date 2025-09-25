@@ -18,6 +18,7 @@
 const quizData = [
   // Scope global / function / block
   {
+    id: "scope-1",
     titre: "1️⃣ Scope global vs fonction",
     code: `let a = 5;
 function test() { 
@@ -28,6 +29,7 @@ test();`,
     explication: "Variable 'a' est globale, accessible dans la fonction."
   },
   {
+    id: "scope-2",
     titre: "2️⃣ Scope fonction",
     code: `function test() { 
   let b = 10; 
@@ -39,6 +41,7 @@ console.log(b);`,
     explication: "b existe seulement dans la fonction, hors de la fonction elle n'existe pas."
   },
   {
+    id: "scope-3",
     titre: "3️⃣ Scope bloc avec let",
     code: `if(true) { 
   let c = 15; 
@@ -49,6 +52,7 @@ console.log(c);`,
     explication: "c est dans un bloc, donc inaccessible hors du bloc."
   },
   {
+    id: "scope-4",
     titre: "4️⃣ Shadowing",
     code: `let x = 1;
 function test() { 
@@ -61,6 +65,7 @@ console.log(x);`,
     explication: "La variable locale masque la globale dans la fonction, mais hors de la fonction la globale reste."
   },
   {
+    id: "scope-5",
     titre: "5️⃣ Scope imbriqué",
     code: `let a = 1;
 function foo() { 
@@ -78,6 +83,7 @@ foo();`,
 
   // Hoisting
   {
+    id: "scope-6",
     titre: "6️⃣ Hoisting var",
     code: `console.log(a);
 var a = 5;`,
@@ -85,6 +91,7 @@ var a = 5;`,
     explication: "var est levée mais pas initialisée, donc undefined."
   },
   {
+    id: "scope-7",
     titre: "7️⃣ Hoisting let / const",
     code: `console.log(b);
 let b = 10;`,
@@ -92,6 +99,7 @@ let b = 10;`,
     explication: "let/const sont levées mais en zone morte (TDZ) avant initialisation → ReferenceError."
   },
   {
+    id: "scope-8",
     titre: "8️⃣ Hoisting fonction déclarée",
     code: `foo();
 function foo() { 
@@ -101,6 +109,7 @@ function foo() {
     explication: "Les déclarations de fonction sont levées entièrement, donc appel possible avant."
   },
   {
+    id: "scope-9",
     titre: "9️⃣ Hoisting function expression",
     code: `bar();
 const bar = function() { 
@@ -110,6 +119,7 @@ const bar = function() {
     explication: "Les expressions de fonction ne sont pas levées, ReferenceError si appelée avant."
   },
   {
+    id: "scope-10",
     titre: "🔟 Hoisting arrow function",
     code: `baz();
 const baz = () => console.log('Hey');`,
@@ -119,6 +129,7 @@ const baz = () => console.log('Hey');`,
 
   // Combinaisons piégeuses
   {
+    id: "scope-11",
     titre: "1️⃣1️⃣ var dans bloc",
     code: `if(true) { 
   var v = 20; 
@@ -128,6 +139,7 @@ console.log(v);`,
     explication: "var n'a pas de block scope, donc accessible hors du bloc."
   },
   {
+    id: "scope-12",
     titre: "1️⃣2️⃣ let dans bloc",
     code: `if(true) { 
   let l = 25; 
@@ -137,6 +149,7 @@ console.log(l);`,
     explication: "let a scope limité au bloc, donc inaccessible hors du bloc."
   },
   {
+    id: "scope-13",
     titre: "1️⃣3️⃣ fonction dans bloc",
     code: `if(true) { 
   function f() { 
@@ -148,6 +161,7 @@ console.log(l);`,
     explication: "Dans certains navigateurs, function déclarée dans bloc est accessible seulement dans bloc (strict mode)."
   },
   {
+    id: "scope-14",
     titre: "1️⃣4️⃣ Shadowing + Hoisting",
     code: `var x = 5; 
 function test() { 
@@ -162,6 +176,7 @@ test();`,
 
   // Closure / IIFE
   {
+    id: "scope-15",
     titre: "1️⃣5️⃣ Closure et scope privé",
     code: `function create() { 
   let n = 50; 
@@ -175,6 +190,7 @@ fn();`,
     explication: "La closure garde l'accès à la variable n même après la fin de la fonction create."
   },
   {
+    id: "scope-16",
     titre: "1️⃣6️⃣ IIFE pour scope privé",
     code: `(function() { 
   let secret = 99; 

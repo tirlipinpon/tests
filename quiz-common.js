@@ -20,6 +20,11 @@ function shuffle(array) {
  * @returns {string} - Réponse normalisée
  */
 function normalizeInputAnswer(input) {
+    // Vérifier que input est une chaîne de caractères
+    if (typeof input !== 'string') {
+        return '';
+    }
+    
     return input.trim()
         .replace(/\s+/g, ' ')
         .replace(/"/g, "'")
@@ -32,6 +37,11 @@ function normalizeInputAnswer(input) {
  * @returns {Array} - Tableau des réponses normalisées
  */
 function normalizeMultiAnswer(input) {
+    // Vérifier que input est une chaîne de caractères
+    if (typeof input !== 'string') {
+        return [];
+    }
+    
     return input.trim()
         .toLowerCase()
         .replace(/\s*,\s*/g, " ")
@@ -106,7 +116,7 @@ class QuizManager {
             <h2>${question.titre}</h2>
             <pre>${question.code || ''}</pre>
             ${optionsHTML}
-            <button id="btn${index}">Valider</button>
+            <button id="btn${index}" disabled>Valider</button>
             <span id="result${index}" aria-live="polite"></span>
         `;
     }
@@ -116,7 +126,7 @@ class QuizManager {
             <h2>${question.titre}</h2>
             <pre>${question.code || ''}</pre>
             <input type="text" id="input${index}" aria-label="Réponse">
-            <button id="btn${index}">Valider</button>
+            <button id="btn${index}" disabled>Valider</button>
             <span id="result${index}" aria-live="polite"></span>
         `;
     }
@@ -137,11 +147,48 @@ class QuizManager {
         button.addEventListener('click', () => {
             this.validateAnswer(question, index);
         });
+
+        // Ajouter les événements pour activer/désactiver le bouton
+        if (question.type === 'qcm') {
+            this.attachQCMListeners(question, index);
+        } else if (question.type === 'input') {
+            this.attachInputListeners(question, index);
+        } else {
+            // Type par défaut
+            if (question.options) {
+                this.attachQCMListeners(question, index);
+            } else {
+                this.attachInputListeners(question, index);
+            }
+        }
+    }
+
+    attachQCMListeners(question, index) {
+        const button = document.getElementById(`btn${index}`);
+        const radioButtons = document.querySelectorAll(`input[name="q${index}"]`);
+        
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', () => {
+                button.disabled = false;
+            });
+        });
+    }
+
+    attachInputListeners(question, index) {
+        const button = document.getElementById(`btn${index}`);
+        const input = document.getElementById(`input${index}`);
+        
+        if (input) {
+            input.addEventListener('input', () => {
+                button.disabled = input.value.trim() === '';
+            });
+        }
     }
 
     validateAnswer(question, index) {
         const resultEl = document.getElementById(`result${index}`);
-        if (!resultEl) return;
+        const button = document.getElementById(`btn${index}`);
+        if (!resultEl || !button) return;
 
         resultEl.className = '';
 
@@ -157,6 +204,9 @@ class QuizManager {
                 this.validateInputAnswer(question, index, resultEl);
             }
         }
+
+        // Désactiver le bouton après validation
+        button.disabled = true;
     }
 
     validateQCMAnswer(question, index, resultEl) {
@@ -183,9 +233,9 @@ class QuizManager {
         const input = document.getElementById(`input${index}`);
         if (!input) return;
 
-        const userAnswer = input.value;
+        const userAnswer = input.value || '';
         const normalizedUser = normalizeInputAnswer(userAnswer);
-        const normalizedCorrect = normalizeInputAnswer(question.reponse);
+        const normalizedCorrect = normalizeInputAnswer(question.reponse || '');
         
         const isCorrect = normalizedUser === normalizedCorrect;
         
@@ -193,7 +243,7 @@ class QuizManager {
             resultEl.innerHTML = `✅ Correct !${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
             resultEl.className = "correct";
         } else {
-            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${userAnswer}</small><br><small>Réponse correcte : ${question.reponse}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
+            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${userAnswer || '(vide)'}</small><br><small>Réponse correcte : ${question.reponse}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
             resultEl.className = "wrong";
         }
     }
@@ -203,8 +253,8 @@ class QuizManager {
         const input = document.getElementById(`input${index}`);
         if (!input) return;
 
-        const userAnswers = normalizeMultiAnswer(input.value);
-        const correctAnswers = question.reponse.map(s => s.toLowerCase());
+        const userAnswers = normalizeMultiAnswer(input.value || '');
+        const correctAnswers = (question.reponse || []).map(s => s.toLowerCase());
         
         const isCorrect = correctAnswers.length === userAnswers.length && 
                          userAnswers.every(r => correctAnswers.includes(r));
@@ -213,7 +263,7 @@ class QuizManager {
             resultEl.innerHTML = `✅ Correct !${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
             resultEl.className = "correct";
         } else {
-            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${input.value}</small><br><small>Réponse correcte : ${question.reponse.join(", ")}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
+            resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${input.value || '(vide)'}</small><br><small>Réponse correcte : ${(question.reponse || []).join(", ")}</small>${this.options.showExplanations ? `<br><small class="meta">Explication : ${question.explication}</small>` : ''}`;
             resultEl.className = "wrong";
         }
     }

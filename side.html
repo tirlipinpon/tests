@@ -18,6 +18,7 @@
 const quizData = [
   // ===== Pure functions & Side Effects =====
   {
+    id: "side-1",
     titre: "1️⃣ Pure function simple",
     code: `function add(a, b) { return a + b; }
 console.log(add(2, 3));`,
@@ -26,6 +27,7 @@ console.log(add(2, 3));`,
   },
 
   {
+    id: "side-2",
     titre: "2️⃣ Fonction avec side effect",
     code: `let x = 1;
 function increment() { x++; }
@@ -36,6 +38,7 @@ console.log(x);`,
   },
 
   {
+    id: "side-3",
     titre: "3️⃣ Pure function vs side effect",
     code: `let y = 10;
 function pureAdd(a, b) { return a + b; }
@@ -47,6 +50,7 @@ console.log(pureAdd(2,3), impureAdd(2,3));`,
 
   // ===== Destructuring & Spread/Rest =====
   {
+    id: "side-4",
     titre: "4️⃣ Destructuring objet",
     code: `const user = {name: 'Alice', age: 25};
 const {name, age} = user;
@@ -56,6 +60,7 @@ console.log(name, age);`,
   },
 
   {
+    id: "side-5",
     titre: "5️⃣ Destructuring tableau",
     code: `const nums = [1,2,3];
 const [a,,c] = nums;
@@ -65,6 +70,7 @@ console.log(a, c);`,
   },
 
   {
+    id: "side-6",
     titre: "6️⃣ Spread operator pour copier",
     code: `const arr1 = [1,2];
 const arr2 = [...arr1,3];
@@ -74,6 +80,7 @@ console.log(arr2);`,
   },
 
   {
+    id: "side-7",
     titre: "7️⃣ Rest operator dans fonction",
     code: `function sum(...nums) { return nums.reduce((a,b) => a+b,0); }
 console.log(sum(1,2,3,4));`,
@@ -83,6 +90,7 @@ console.log(sum(1,2,3,4));`,
 
   // ===== Immutabilité & State Management =====
   {
+    id: "side-8",
     titre: "8️⃣ Immutabilité tableau",
     code: `const arr = [1,2,3];
 const newArr = arr.map(x => x*2);
@@ -93,6 +101,7 @@ console.log(newArr);`,
   },
 
   {
+    id: "side-9",
     titre: "9️⃣ Immutabilité objet",
     code: `const user = {name: 'Bob', age: 30};
 const updatedUser = {...user, age: 31};
@@ -102,6 +111,7 @@ console.log(user.age, updatedUser.age);`,
   },
 
   {
+    id: "side-10",
     titre: "🔟 State management simple",
     code: `let state = {count: 0};
 function increment(state) {
@@ -114,6 +124,7 @@ console.log(state.count);`,
   },
 
   {
+    id: "side-11",
     titre: "1️⃣1️⃣ Side effect caché",
     code: `let total = 0;
 function addToTotal(x) { total += x; return total; }
@@ -124,6 +135,7 @@ console.log(addToTotal(3));`,
   },
 
   {
+    id: "side-12",
     titre: "1️⃣2️⃣ Combinaison destructuring & immutabilité",
     code: `const user = {name: 'Eve', scores: [10,20]};
 const {scores} = user;
@@ -136,6 +148,7 @@ console.log(newScores);`,
 
   // ===== Plus d'exemples Pure Functions & Side Effects =====
   {
+    id: "side-13",
     titre: "1️⃣3️⃣ Fonction pure avec objet",
     code: `function createUser(name, age) {
   return {name, age, id: Math.random()};
@@ -148,6 +161,7 @@ console.log(user1 === user2);`,
   },
 
   {
+    id: "side-14",
     titre: "1️⃣4️⃣ Side effect avec console.log",
     code: `function impureLog(x) {
   console.log('Calcul en cours...');
@@ -160,6 +174,7 @@ console.log(result);`,
   },
 
   {
+    id: "side-15",
     titre: "1️⃣5️⃣ Fonction pure vs impure avec Date",
     code: `function pureGetTime() {
   return new Date().getTime();
@@ -175,6 +190,7 @@ console.log(pureGetTime() === pureGetTime());`,
   },
 
   {
+    id: "side-16",
     titre: "1️⃣6️⃣ Fonction avec closure et side effect",
     code: `function createCounter() {
   let count = 0;
@@ -190,6 +206,7 @@ console.log(counter(), counter());`,
   },
 
   {
+    id: "side-17",
     titre: "1️⃣7️⃣ Fonction pure avec array methods",
     code: `const numbers = [1,2,3,4,5];
 function getEvenNumbers(arr) {
@@ -204,6 +221,7 @@ console.log(evens);`,
 
   // ===== Plus d'exemples Destructuring & Spread/Rest =====
   {
+    id: "side-18",
     titre: "1️⃣8️⃣ Destructuring avec valeurs par défaut",
     code: `const user = {name: 'Bob'};
 const {name, age = 25, city = 'Paris'} = user;
@@ -213,6 +231,7 @@ console.log(name, age, city);`,
   },
 
   {
+    id: "side-19",
     titre: "1️⃣9️⃣ Destructuring avec renommage",
     code: `const person = {firstName: 'Alice', lastName: 'Smith'};
 const {firstName: prenom, lastName: nom} = person;
@@ -222,6 +241,7 @@ console.log(prenom, nom);`,
   },
 
   {
+    id: "side-20",
     titre: "2️⃣0️⃣ Destructuring de tableau avec rest",
     code: `const numbers = [1,2,3,4,5];
 const [first, second, ...rest] = numbers;
@@ -231,6 +251,7 @@ console.log(first, second, rest);`,
   },
 
   {
+    id: "side-21",
     titre: "2️⃣1️⃣ Destructuring d'objet avec rest",
     code: `const user = {name: 'Eve', age: 30, city: 'Lyon', country: 'France'};
 const {name, ...details} = user;
@@ -240,6 +261,7 @@ console.log(name, details);`,
   },
 
   {
+    id: "side-22",
     titre: "2️⃣2️⃣ Spread pour fusionner des objets",
     code: `const user = {name: 'Alice', age: 25};
 const address = {city: 'Paris', country: 'France'};
@@ -250,6 +272,7 @@ console.log(profile);`,
   },
 
   {
+    id: "side-23",
     titre: "2️⃣3️⃣ Spread pour passer des arguments",
     code: `function multiply(a, b, c) {
   return a * b * c;
@@ -261,6 +284,7 @@ console.log(multiply(...numbers));`,
   },
 
   {
+    id: "side-24",
     titre: "2️⃣4️⃣ Rest dans les paramètres de fonction",
     code: `function greet(greeting, ...names) {
   return names.map(name => \`\${greeting} \${name}\`).join(', ');
@@ -272,6 +296,7 @@ console.log(greet('Bonjour', 'Alice', 'Bob', 'Charlie'));`,
 
   // ===== Plus d'exemples Immutabilité & State Management =====
   {
+    id: "side-25",
     titre: "2️⃣5️⃣ Immutabilité avec objets imbriqués",
     code: `const user = {name: 'Alice', address: {city: 'Paris', zip: 75001}};
 const newUser = {...user, address: {...user.address, zip: 75002}};
@@ -281,6 +306,7 @@ console.log(user.address.zip, newUser.address.zip);`,
   },
 
   {
+    id: "side-26",
     titre: "2️⃣6️⃣ Immutabilité avec tableaux imbriqués",
     code: `const matrix = [[1,2], [3,4]];
 const newMatrix = matrix.map(row => [...row]);
@@ -291,6 +317,7 @@ console.log(matrix[0][0], newMatrix[0][0]);`,
   },
 
   {
+    id: "side-27",
     titre: "2️⃣7️⃣ State management avec actions",
     code: `let state = {count: 0, user: 'Guest'};
 function reducer(state, action) {
@@ -308,6 +335,7 @@ console.log(state.count, state.user);`,
   },
 
   {
+    id: "side-28",
     titre: "2️⃣8️⃣ Immutabilité avec Object.freeze",
     code: `const config = Object.freeze({api: 'https://api.com', timeout: 5000});
 try {
@@ -319,6 +347,7 @@ console.log(config.timeout);`,
   },
 
   {
+    id: "side-29",
     titre: "2️⃣9️⃣ Immutabilité avec array methods",
     code: `const numbers = [1,2,3,4,5];
 const doubled = numbers.map(x => x * 2);
@@ -330,6 +359,7 @@ console.log(numbers, doubled, filtered, reduced);`,
   },
 
   {
+    id: "side-30",
     titre: "3️⃣0️⃣ State management complexe",
     code: `let appState = {
   users: [{id: 1, name: 'Alice'}],
@@ -357,6 +387,7 @@ console.log(appState.users.length, appState.currentUser.name);`,
 
   // ===== Scénarios avancés combinant plusieurs concepts =====
   {
+    id: "side-31",
     titre: "3️⃣1️⃣ Fonction pure avec destructuring et spread",
     code: `function updateUser({name, age, ...rest}, updates) {
   return {...rest, name, age, ...updates};
@@ -369,6 +400,7 @@ console.log(user.age, updated.age, updated.verified);`,
   },
 
   {
+    id: "side-32",
     titre: "3️⃣2️⃣ Immutabilité avec destructuring et side effects",
     code: `let globalState = {items: [], total: 0};
 function addItem(state, item) {
@@ -387,6 +419,7 @@ console.log(globalState.total, result.total);`,
   },
 
   {
+    id: "side-33",
     titre: "3️⃣3️⃣ Rest et spread avec fonctions pures",
     code: `function processData(...data) {
   return data
@@ -402,6 +435,7 @@ console.log(result);`,
   },
 
   {
+    id: "side-34",
     titre: "3️⃣4️⃣ State management avec destructuring et immutabilité",
     code: `const initialState = {users: [], selectedUser: null, filters: {}};
 function userReducer(state, action) {
@@ -425,6 +459,7 @@ console.log(state.users.length, state.selectedUser);`,
   },
 
   {
+    id: "side-35",
     titre: "3️⃣5️⃣ Fonction impure avec destructuring et side effects",
     code: `let cache = {};
 function memoizedAdd(a, b) {
