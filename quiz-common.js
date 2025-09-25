@@ -124,9 +124,11 @@ class QuizManager {
             // Décoder les entités HTML puis les échapper pour l'affichage sécurisé
             const decodedOpt = this.decodeHtmlEntities(opt);
             const escapedOpt = this.escapeHtml(decodedOpt);
+            // Échapper les guillemets dans la valeur pour éviter de casser le HTML
+            const escapedValue = opt.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
                 <label>
-                    <input type="radio" name="q${index}" value="${opt}"> ${escapedOpt}
+                    <input type="radio" name="q${index}" value="${escapedValue}"> ${escapedOpt}
                 </label>
             `;
         }).join('');
