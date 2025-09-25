@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz JS : Pure Functions, Destructuring & Immutabilité</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #fafafa; }
+  section { margin-bottom: 30px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  input { width: 250px; padding: 5px; }
+  button { margin-left: 10px; padding: 5px 10px; cursor: pointer; }
+  .correct { color: green; display: block; margin-top: 5px; }
+  .wrong { color: red; display: block; margin-top: 5px; }
+  h2 { margin-top: 0; }
+
+  /* Menu de navigation */
+  .nav-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+  }
+
+  .nav-menu h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .nav-links a:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .nav-links a.current {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-color: #27ae60;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      width: 100%;
+      text-align: center;
+      max-width: 200px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav-menu">
+  <h3>📚 Navigation</h3>
+  <div class="nav-links">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="promise.html">⚡ Promises</a>
+    <a href="scope.html">🔍 Scope & Hoisting</a>
+    <a href="this.html">🎯 This & Closures</a>
+    <a href="side.html" class="current">🔄 Side Effects</a>
+    <a href="wcag.html">♿ Accessibilité</a>
+  </div>
+</nav>
+
+<h1>Quiz JS : Pure Functions, Destructuring & Immutabilité ++</h1>
+<p>Complète ce que la console afficherait ou indique la valeur finale. Clique sur "Valider".</p>
+
+<div id="quizContainer"></div>
+
+<script>
+const quizData = [
+  // ===== Pure functions & Side Effects =====
+  {
+    titre: "1️⃣ Pure function simple",
+    code: `function add(a, b) { return a + b; }
+console.log(add(2, 3));`,
+    reponse: ["5"],
+    explication: "La fonction ne modifie aucune variable externe et retourne toujours le même résultat pour les mêmes paramètres."
+  },
+
+  {
+    titre: "2️⃣ Fonction avec side effect",
+    code: `let x = 1;
+function increment() { x++; }
+increment();
+console.log(x);`,
+    reponse: ["2"],
+    explication: "La fonction modifie une variable externe → side effect."
+  },
+
+  {
+    titre: "3️⃣ Pure function vs side effect",
+    code: `let y = 10;
+function pureAdd(a, b) { return a + b; }
+function impureAdd(a, b) { y += a + b; return y; }
+console.log(pureAdd(2,3), impureAdd(2,3));`,
+    reponse: ["5","15"],
+    explication: "pureAdd est pure, impureAdd modifie y → side effect."
+  },
+
+  // ===== Destructuring & Spread/Rest =====
+  {
+    titre: "4️⃣ Destructuring objet",
+    code: `const user = {name: 'Alice', age: 25};
+const {name, age} = user;
+console.log(name, age);`,
+    reponse: ["Alice","25"],
+    explication: "Destructuring permet de créer des variables directement depuis les propriétés de l'objet."
+  },
+
+  {
+    titre: "5️⃣ Destructuring tableau",
+    code: `const nums = [1,2,3];
+const [a,,c] = nums;
+console.log(a, c);`,
+    reponse: ["1","3"],
+    explication: "On peut sauter des éléments avec des virgules."
+  },
+
+  {
+    titre: "6️⃣ Spread operator pour copier",
+    code: `const arr1 = [1,2];
+const arr2 = [...arr1,3];
+console.log(arr2);`,
+    reponse: ["1,2,3"],
+    explication: "Spread operator permet de copier un tableau et ajouter des éléments."
+  },
+
+  {
+    titre: "7️⃣ Rest operator dans fonction",
+    code: `function sum(...nums) { return nums.reduce((a,b) => a+b,0); }
+console.log(sum(1,2,3,4));`,
+    reponse: ["10"],
+    explication: "Rest operator rassemble tous les arguments restants dans un tableau."
+  },
+
+  // ===== Immutabilité & State Management =====
+  {
+    titre: "8️⃣ Immutabilité tableau",
+    code: `const arr = [1,2,3];
+const newArr = arr.map(x => x*2);
+console.log(arr);
+console.log(newArr);`,
+    reponse: ["1,2,3","2,4,6"],
+    explication: "map retourne un nouveau tableau, l'original reste inchangé → immutabilité."
+  },
+
+  {
+    titre: "9️⃣ Immutabilité objet",
+    code: `const user = {name: 'Bob', age: 30};
+const updatedUser = {...user, age: 31};
+console.log(user.age, updatedUser.age);`,
+    reponse: ["30","31"],
+    explication: "Spread operator permet de créer un nouvel objet avec des modifications sans changer l'original."
+  },
+
+  {
+    titre: "🔟 State management simple",
+    code: `let state = {count: 0};
+function increment(state) {
+  return {...state, count: state.count+1};
+}
+state = increment(state);
+console.log(state.count);`,
+    reponse: ["1"],
+    explication: "On retourne un nouvel objet pour garder l'état immuable."
+  },
+
+  {
+    titre: "1️⃣1️⃣ Side effect caché",
+    code: `let total = 0;
+function addToTotal(x) { total += x; return total; }
+console.log(addToTotal(5));
+console.log(addToTotal(3));`,
+    reponse: ["5","8"],
+    explication: "La fonction modifie une variable externe → side effect, résultat dépend de l'état précédent."
+  },
+
+  {
+    titre: "1️⃣2️⃣ Combinaison destructuring & immutabilité",
+    code: `const user = {name: 'Eve', scores: [10,20]};
+const {scores} = user;
+const newScores = [...scores,30];
+console.log(scores);
+console.log(newScores);`,
+    reponse: ["10,20","10,20,30"],
+    explication: "On ne modifie pas le tableau original, on crée un nouveau → immutabilité."
+  },
+
+  // ===== Plus d'exemples Pure Functions & Side Effects =====
+  {
+    titre: "1️⃣3️⃣ Fonction pure avec objet",
+    code: `function createUser(name, age) {
+  return {name, age, id: Math.random()};
+}
+const user1 = createUser('Alice', 25);
+const user2 = createUser('Alice', 25);
+console.log(user1 === user2);`,
+    reponse: ["false"],
+    explication: "Même si les paramètres sont identiques, Math.random() crée des objets différents → fonction pure mais résultat différent."
+  },
+
+  {
+    titre: "1️⃣4️⃣ Side effect avec console.log",
+    code: `function impureLog(x) {
+  console.log('Calcul en cours...');
+  return x * 2;
+}
+const result = impureLog(5);
+console.log(result);`,
+    reponse: ["Calcul en cours...","10"],
+    explication: "console.log est un side effect car cela interagit avec l'environnement externe."
+  },
+
+  {
+    titre: "1️⃣5️⃣ Fonction pure vs impure avec Date",
+    code: `function pureGetTime() {
+  return new Date().getTime();
+}
+function impureGetTime() {
+  const now = new Date().getTime();
+  console.log('Timestamp:', now);
+  return now;
+}
+console.log(pureGetTime() === pureGetTime());`,
+    reponse: ["false"],
+    explication: "Même les fonctions 'pures' avec Date() ne sont pas vraiment pures car le temps change."
+  },
+
+  {
+    titre: "1️⃣6️⃣ Fonction avec closure et side effect",
+    code: `function createCounter() {
+  let count = 0;
+  return function() {
+    count++;
+    return count;
+  };
+}
+const counter = createCounter();
+console.log(counter(), counter());`,
+    reponse: ["1","2"],
+    explication: "La closure maintient l'état entre les appels → side effect caché."
+  },
+
+  {
+    titre: "1️⃣7️⃣ Fonction pure avec array methods",
+    code: `const numbers = [1,2,3,4,5];
+function getEvenNumbers(arr) {
+  return arr.filter(x => x % 2 === 0);
+}
+const evens = getEvenNumbers(numbers);
+console.log(numbers);
+console.log(evens);`,
+    reponse: ["1,2,3,4,5","2,4"],
+    explication: "filter() retourne un nouveau tableau, ne modifie pas l'original → fonction pure."
+  },
+
+  // ===== Plus d'exemples Destructuring & Spread/Rest =====
+  {
+    titre: "1️⃣8️⃣ Destructuring avec valeurs par défaut",
+    code: `const user = {name: 'Bob'};
+const {name, age = 25, city = 'Paris'} = user;
+console.log(name, age, city);`,
+    reponse: ["Bob","25","Paris"],
+    explication: "On peut définir des valeurs par défaut lors du destructuring."
+  },
+
+  {
+    titre: "1️⃣9️⃣ Destructuring avec renommage",
+    code: `const person = {firstName: 'Alice', lastName: 'Smith'};
+const {firstName: prenom, lastName: nom} = person;
+console.log(prenom, nom);`,
+    reponse: ["Alice","Smith"],
+    explication: "On peut renommer les propriétés lors du destructuring avec la syntaxe 'ancien: nouveau'."
+  },
+
+  {
+    titre: "2️⃣0️⃣ Destructuring de tableau avec rest",
+    code: `const numbers = [1,2,3,4,5];
+const [first, second, ...rest] = numbers;
+console.log(first, second, rest);`,
+    reponse: ["1","2","3,4,5"],
+    explication: "Le rest operator dans le destructuring collecte les éléments restants."
+  },
+
+  {
+    titre: "2️⃣1️⃣ Destructuring d'objet avec rest",
+    code: `const user = {name: 'Eve', age: 30, city: 'Lyon', country: 'France'};
+const {name, ...details} = user;
+console.log(name, details);`,
+    reponse: ["Eve","[object Object]"],
+    explication: "Le rest operator collecte les propriétés restantes dans un objet."
+  },
+
+  {
+    titre: "2️⃣2️⃣ Spread pour fusionner des objets",
+    code: `const user = {name: 'Alice', age: 25};
+const address = {city: 'Paris', country: 'France'};
+const profile = {...user, ...address, verified: true};
+console.log(profile);`,
+    reponse: ["[object Object]"],
+    explication: "Spread permet de fusionner plusieurs objets en un seul."
+  },
+
+  {
+    titre: "2️⃣3️⃣ Spread pour passer des arguments",
+    code: `function multiply(a, b, c) {
+  return a * b * c;
+}
+const numbers = [2, 3, 4];
+console.log(multiply(...numbers));`,
+    reponse: ["24"],
+    explication: "Spread permet de décomposer un tableau en arguments individuels."
+  },
+
+  {
+    titre: "2️⃣4️⃣ Rest dans les paramètres de fonction",
+    code: `function greet(greeting, ...names) {
+  return names.map(name => \`\${greeting} \${name}\`).join(', ');
+}
+console.log(greet('Bonjour', 'Alice', 'Bob', 'Charlie'));`,
+    reponse: ["Bonjour Alice, Bonjour Bob, Bonjour Charlie"],
+    explication: "Rest collecte tous les arguments restants dans un tableau."
+  },
+
+  // ===== Plus d'exemples Immutabilité & State Management =====
+  {
+    titre: "2️⃣5️⃣ Immutabilité avec objets imbriqués",
+    code: `const user = {name: 'Alice', address: {city: 'Paris', zip: 75001}};
+const newUser = {...user, address: {...user.address, zip: 75002}};
+console.log(user.address.zip, newUser.address.zip);`,
+    reponse: ["75001","75002"],
+    explication: "Pour les objets imbriqués, il faut copier chaque niveau pour maintenir l'immutabilité."
+  },
+
+  {
+    titre: "2️⃣6️⃣ Immutabilité avec tableaux imbriqués",
+    code: `const matrix = [[1,2], [3,4]];
+const newMatrix = matrix.map(row => [...row]);
+newMatrix[0][0] = 99;
+console.log(matrix[0][0], newMatrix[0][0]);`,
+    reponse: ["1","99"],
+    explication: "Pour les tableaux imbriqués, il faut copier chaque niveau pour éviter les mutations."
+  },
+
+  {
+    titre: "2️⃣7️⃣ State management avec actions",
+    code: `let state = {count: 0, user: 'Guest'};
+function reducer(state, action) {
+  switch(action.type) {
+    case 'INCREMENT': return {...state, count: state.count + 1};
+    case 'SET_USER': return {...state, user: action.payload};
+    default: return state;
+  }
+}
+state = reducer(state, {type: 'INCREMENT'});
+state = reducer(state, {type: 'SET_USER', payload: 'Alice'});
+console.log(state.count, state.user);`,
+    reponse: ["1","Alice"],
+    explication: "Pattern reducer pour gérer l'état de manière prévisible et immuable."
+  },
+
+  {
+    titre: "2️⃣8️⃣ Immutabilité avec Object.freeze",
+    code: `const config = Object.freeze({api: 'https://api.com', timeout: 5000});
+try {
+  config.timeout = 3000;
+} catch(e) {}
+console.log(config.timeout);`,
+    reponse: ["5000"],
+    explication: "Object.freeze empêche la modification des propriétés d'un objet."
+  },
+
+  {
+    titre: "2️⃣9️⃣ Immutabilité avec array methods",
+    code: `const numbers = [1,2,3,4,5];
+const doubled = numbers.map(x => x * 2);
+const filtered = numbers.filter(x => x > 2);
+const reduced = numbers.reduce((acc, x) => acc + x, 0);
+console.log(numbers, doubled, filtered, reduced);`,
+    reponse: ["1,2,3,4,5","2,4,6,8,10","3,4,5","15"],
+    explication: "Les méthodes fonctionnelles retournent de nouveaux tableaux sans modifier l'original."
+  },
+
+  {
+    titre: "3️⃣0️⃣ State management complexe",
+    code: `let appState = {
+  users: [{id: 1, name: 'Alice'}],
+  currentUser: null,
+  loading: false
+};
+
+function addUser(state, user) {
+  return {
+    ...state,
+    users: [...state.users, {...user, id: Date.now()}]
+  };
+}
+
+function setCurrentUser(state, user) {
+  return {...state, currentUser: user};
+}
+
+appState = addUser(appState, {name: 'Bob'});
+appState = setCurrentUser(appState, appState.users[1]);
+console.log(appState.users.length, appState.currentUser.name);`,
+    reponse: ["2","Bob"],
+    explication: "Gestion d'état complexe avec plusieurs propriétés, toutes immuables."
+  },
+
+  // ===== Scénarios avancés combinant plusieurs concepts =====
+  {
+    titre: "3️⃣1️⃣ Fonction pure avec destructuring et spread",
+    code: `function updateUser({name, age, ...rest}, updates) {
+  return {...rest, name, age, ...updates};
+}
+const user = {name: 'Alice', age: 25, city: 'Paris'};
+const updated = updateUser(user, {age: 26, verified: true});
+console.log(user.age, updated.age, updated.verified);`,
+    reponse: ["25","26","true"],
+    explication: "Fonction pure utilisant destructuring pour extraire des propriétés et spread pour les fusionner."
+  },
+
+  {
+    titre: "3️⃣2️⃣ Immutabilité avec destructuring et side effects",
+    code: `let globalState = {items: [], total: 0};
+function addItem(state, item) {
+  const newState = {
+    ...state,
+    items: [...state.items, item],
+    total: state.total + item.price
+  };
+  globalState = newState; // Side effect
+  return newState;
+}
+const result = addItem(globalState, {name: 'Laptop', price: 1000});
+console.log(globalState.total, result.total);`,
+    reponse: ["1000","1000"],
+    explication: "Même avec un side effect, la fonction retourne un nouvel état immuable."
+  },
+
+  {
+    titre: "3️⃣3️⃣ Rest et spread avec fonctions pures",
+    code: `function processData(...data) {
+  return data
+    .filter(x => x > 0)
+    .map(x => x * 2)
+    .reduce((acc, x) => acc + x, 0);
+}
+const numbers = [1, -2, 3, -4, 5];
+const result = processData(...numbers);
+console.log(result);`,
+    reponse: ["18"],
+    explication: "Fonction pure utilisant rest pour collecter les arguments et spread pour les passer."
+  },
+
+  {
+    titre: "3️⃣4️⃣ State management avec destructuring et immutabilité",
+    code: `const initialState = {users: [], selectedUser: null, filters: {}};
+function userReducer(state, action) {
+  const {type, payload} = action;
+  switch(type) {
+    case 'ADD_USER':
+      return {...state, users: [...state.users, payload]};
+    case 'SELECT_USER':
+      return {...state, selectedUser: payload};
+    case 'SET_FILTER':
+      return {...state, filters: {...state.filters, ...payload}};
+    default:
+      return state;
+  }
+}
+let state = userReducer(initialState, {type: 'ADD_USER', payload: {id: 1, name: 'Alice'}});
+state = userReducer(state, {type: 'SELECT_USER', payload: 1});
+console.log(state.users.length, state.selectedUser);`,
+    reponse: ["1","1"],
+    explication: "Reducer complexe utilisant destructuring pour extraire type et payload, avec état immuable."
+  },
+
+  {
+    titre: "3️⃣5️⃣ Fonction impure avec destructuring et side effects",
+    code: `let cache = {};
+function memoizedAdd(a, b) {
+  const key = \`\${a}-\${b}\`;
+  if (cache[key]) {
+    console.log('Cache hit!');
+    return cache[key];
+  }
+  const result = a + b;
+  cache[key] = result; // Side effect
+  console.log('Calculated:', result);
+  return result;
+}
+console.log(memoizedAdd(2, 3));
+console.log(memoizedAdd(2, 3));`,
+    reponse: ["Calculated: 5","Cache hit!","5"],
+    explication: "Fonction avec side effect (cache) utilisant destructuring pour les paramètres."
+  }
+];
+
+// Mélanger les questions
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+const container = document.getElementById('quizContainer');
+const quizShuffled = shuffle(quizData);
+
+// Générer les exercices
+quizShuffled.forEach((q, index) => {
+  const section = document.createElement('section');
+  section.innerHTML = `
+    <h2>${q.titre}</h2>
+    <pre>${q.code}</pre>
+    <label>Que va afficher la console ? (séparer plusieurs valeurs par un espace ou une virgule) </label>
+    <input type="text" id="input${index}">
+    <button id="btn${index}">Valider</button>
+    <span id="result${index}"></span>
+  `;
+  container.appendChild(section);
+
+  document.getElementById(`btn${index}`).addEventListener('click', () => {
+    let rep = document.getElementById(`input${index}`).value.trim().toLowerCase();
+    rep = rep.replace(/\s*,\s*/g," ").replace(/\s+/g," ").split(" "); // normalisation
+
+    const correct = q.reponse.map(s => s.toLowerCase());
+    const resultEl = document.getElementById(`result${index}`);
+
+    let correctFlag = correct.length === rep.length && rep.every(r => correct.includes(r));
+
+    if(correctFlag) {
+      resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+      resultEl.className = "correct";
+    } else {
+      resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${document.getElementById(`input${index}`).value}<br>Réponse correcte : ${q.reponse.join(", ")}<br>Explication : ${q.explication}`;
+      resultEl.className = "wrong";
+    }
+  });
+});
+</script>
+
+</body>
+</html>

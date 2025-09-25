@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Expert HTML5 & XHTML</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #fafafa; }
+  section { margin-bottom: 30px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  input[type="text"] { width: 300px; padding: 5px; }
+  button { margin-top: 10px; padding: 5px 10px; cursor: pointer; }
+  .correct { color: green; display: block; margin-top: 5px; }
+  .wrong { color: red; display: block; margin-top: 5px; }
+  h2 { margin-top: 0; }
+  label { display: block; margin: 5px 0; }
+  /* Menu de navigation */
+  .nav-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+  }
+
+  .nav-menu h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .nav-links a:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .nav-links a.current {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-color: #27ae60;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      width: 100%;
+      text-align: center;
+      max-width: 200px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <nav class="nav-menu">
+    <h3>📚 Navigation</h3>
+    <div class="nav-links">
+      <a href="index.html">🏠 Accueil</a>
+      <a href="promise.html">⚡ Promises</a>
+      <a href="scope.html">🔍 Scope & Hoisting</a>
+      <a href="this.html" class="current">🎯 This & Closures</a>
+      <a href="side.html">🔄 Side Effects</a>
+      <a href="wcag.html">♿ Accessibilité</a>
+    </div>
+  </nav>
+
+<h1>Quiz Expert : HTML5 & XHTML</h1>
+<p>Réponds aux questions avec QCM ou saisie libre. Certaines questions sont des pièges pour tester ta maîtrise.</p>
+
+<div id="quizContainer"></div>
+
+<script>
+// --- Données du quiz ---
+const quizData = [
+  {
+    titre: "1️⃣ Quelle balise HTML5 est auto-fermante et valide en XHTML ?",
+    code: "&lt;img src='logo.png' /&gt;",
+    options: ["&lt;img src='logo.png' /&gt;", "&lt;br /&gt;", "&lt;input type='text' /&gt;", "&lt;div&gt;"],
+    reponse: "&lt;img src='logo.png' /&gt;",
+    type: "qcm",
+    explication: "En XHTML, les balises auto-fermantes doivent se terminer par />."
+  },
+  {
+    titre: "2️⃣ Quelle déclaration DOCTYPE est correcte pour XHTML 1.0 Strict ?",
+    code: "",
+    options: [
+      '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;',
+      "&lt;!DOCTYPE html5&gt;",
+      '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"&gt;',
+      "&lt;!DOCTYPE xhtml&gt;"
+    ],
+    reponse: '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;',
+    type: "qcm",
+    explication: "XHTML 1.0 Strict nécessite cette déclaration DOCTYPE exacte."
+  },
+  {
+    titre: "3️⃣ En HTML5, quelle balise n'est PAS considérée comme 'sectioning content' ?",
+    code: "",
+    options: ["article", "section", "div", "nav"],
+    reponse: "div",
+    type: "qcm",
+    explication: "div n'est pas un élément de type 'sectioning content', contrairement à article, section et nav."
+  },
+  {
+    titre: "4️⃣ Saisir la version correcte d'une balise br valide en XHTML",
+    code: "&lt;br&gt;",
+    reponse: "&lt;br /&gt;",
+    type: "input",
+    explication: "En XHTML, les balises vides doivent être auto-fermantes : <br />."
+  },
+  {
+    titre: "5️⃣ En HTML5, quelle est la différence entre <b> et <strong> ?",
+    code: "",
+    options: ["b est stylistique, strong est sémantique", "b est sémantique, strong stylistique", "b et strong sont identiques", "b est déprécié"],
+    reponse: "b est stylistique, strong est sémantique",
+    type: "qcm",
+    explication: "b est juste pour le rendu en gras, strong indique l’importance sémantique."
+  },
+  {
+    titre: "6️⃣ En XHTML, que se passe-t-il si une balise n'est pas correctement fermée ?",
+    code: "",
+    options: ["Erreur de parsing", "Le navigateur ferme automatiquement", "Ignoré", "La page s’affiche normalement"],
+    reponse: "Erreur de parsing",
+    type: "qcm",
+    explication: "XHTML est strict et bien formé : toute balise non fermée provoque une erreur de parsing."
+  },
+  {
+    titre: "7️⃣ Saisir le type MIME correct pour un fichier XHTML",
+    code: "",
+    reponse: "application/xhtml+xml",
+    type: "input",
+    explication: "Le type MIME officiel pour XHTML est application/xhtml+xml."
+  },
+  {
+    titre: "8️⃣ Quelle balise HTML5 est utilisée pour contenir du contenu indépendant pouvant être syndiqué ?",
+    code: "",
+    options: ["article", "section", "div", "aside"],
+    reponse: "article",
+    type: "qcm",
+    explication: "article est pour du contenu indépendant et potentiellement syndiquable."
+  },
+  {
+    titre: "9️⃣ Quel attribut est obligatoire pour la balise <html> en XHTML ?",
+    code: "",
+    options: ["xmlns", "lang", "xml", "id"],
+    reponse: "xmlns",
+    type: "qcm",
+    explication: "L'attribut xmlns définit l'espace de noms en XHTML."
+  },
+  {
+    titre: "🔟 Saisir l'écriture correcte d'une balise link pour CSS en XHTML",
+    code: '&lt;link rel="stylesheet" href="style.css"&gt;',
+    reponse: '&lt;link rel="stylesheet" href="style.css" /&gt;',
+    type: "input",
+    explication: "Toutes les balises vides doivent être auto-fermantes en XHTML."
+  },
+  {
+    titre: "1️⃣1️⃣ Quelle balise HTML5 peut contenir uniquement des phrases de navigation ?",
+    code: "",
+    options: ["nav", "footer", "header", "aside"],
+    reponse: "nav",
+    type: "qcm",
+    explication: "nav contient uniquement des liens de navigation principaux."
+  },
+  {
+    titre: "1️⃣2️⃣ En XHTML, comment doit-on écrire l'attribut checked sur un input checkbox ?",
+    code: '&lt;input type="checkbox" checked&gt;',
+    reponse: '&lt;input type="checkbox" checked="checked" /&gt;',
+    type: "input",
+    explication: "En XHTML, les attributs booléens doivent avoir la valeur explicite."
+  },
+  {
+    titre: "1️⃣3️⃣ Quel élément HTML5 est sémantiquement destiné aux citations courtes ?",
+    code: "",
+    options: ["q", "blockquote", "cite", "span"],
+    reponse: "q",
+    type: "qcm",
+    explication: "q est pour les citations courtes en ligne, blockquote pour citations longues."
+  },
+  {
+    titre: "1️⃣4️⃣ Saisir la bonne manière de déclarer un caractère spécial & en XHTML",
+    code: "&",
+    reponse: "&amp;",
+    type: "input",
+    explication: "Le caractère & doit être échappé en XHTML comme &amp;."
+  },
+  {
+    titre: "1️⃣5️⃣ Quel élément HTML5 n'est PAS un élément de formulaire valide ?",
+    code: "",
+    options: ["input", "textarea", "select", "label", "container"],
+    reponse: "container",
+    type: "qcm",
+    explication: "container n'existe pas en HTML5 pour les formulaires."
+  },
+  {
+    titre: "1️⃣6️⃣ En XHTML, comment fermer correctement un commentaire ?",
+    code: "&lt;!-- commentaire",
+    reponse: "&lt;!-- commentaire --&gt;",
+    type: "input",
+    explication: "Les commentaires doivent être fermés avec --> en XHTML."
+  },
+  {
+    titre: "1️⃣7️⃣ Quel attribut HTML5 est obsolète mais souvent utilisé en piège ?",
+    code: "",
+    options: ["align", "id", "class", "src"],
+    reponse: "align",
+    type: "qcm",
+    explication: "align est obsolète en HTML5, remplacé par CSS."
+  },
+  {
+    titre: "1️⃣8️⃣ Quelle est la différence entre <em> et <i> ?",
+    code: "",
+    options: ["em est sémantique, i stylistique", "em est stylistique, i sémantique", "em et i identiques", "em déprécié"],
+    reponse: "em est sémantique, i stylistique",
+    type: "qcm",
+    explication: "em indique l’emphase (importance) sémantique, i juste le style italique."
+  },
+  {
+    titre: "1️⃣9️⃣ Saisir l'écriture correcte d'une balise meta charset UTF-8 en XHTML",
+    code: '&lt;meta charset="UTF-8"&gt;',
+    reponse: '&lt;meta charset="UTF-8" /&gt;',
+    type: "input",
+    explication: "En XHTML, toutes les balises vides doivent être auto-fermantes."
+  },
+  {
+    titre: "2️⃣0️⃣ Quelle balise HTML5 est destinée à des contenus secondaires liés au contenu principal ?",
+    code: "",
+    options: ["aside", "section", "article", "footer"],
+    reponse: "aside",
+    type: "qcm",
+    explication: "aside contient du contenu complémentaire ou lié au contenu principal."
+  }
+];
+
+// --- Mélange des questions et options ---
+function shuffle(array) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const container = document.getElementById('quizContainer');
+const quizShuffled = shuffle(quizData);
+
+// --- Génération du quiz ---
+quizShuffled.forEach((q,index) => {
+  const section = document.createElement('section');
+
+  if(q.type === "qcm"){
+    const optionsShuffled = shuffle(q.options);
+    let optionsHtml = optionsShuffled.map(opt => `
+      <label>
+        <input type="radio" name="q${index}" value="${opt}"> ${opt}
+      </label>
+    `).join('');
+    section.innerHTML = `<h2>${q.titre}</h2><pre>${q.code}</pre>${optionsHtml}<button id="btn${index}">Valider</button><span id="result${index}"></span>`;
+  } else {
+    section.innerHTML = `<h2>${q.titre}</h2><pre>${q.code}</pre><input type="text" id="input${index}"><button id="btn${index}">Valider</button><span id="result${index}"></span>`;
+  }
+  container.appendChild(section);
+
+  document.getElementById(`btn${index}`).addEventListener('click', () => {
+    const resultEl = document.getElementById(`result${index}`);
+    if(q.type === "qcm"){
+      const checked = document.querySelector(`input[name="q${index}"]:checked`);
+      if(!checked){
+        resultEl.innerHTML = "⚠️ Sélectionne une réponse.";
+        resultEl.className = "wrong";
+        return;
+      }
+      if(checked.value === q.reponse){
+        resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+        resultEl.className = "correct";
+      } else {
+        resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${checked.value}<br>Réponse correcte : ${q.reponse}<br>Explication : ${q.explication}`;
+        resultEl.className = "wrong";
+      }
+    } else {
+      let rep = document.getElementById(`input${index}`).value.trim();
+      // normalisation pour éviter les espaces ou guillemets différents
+      let repNorm = rep.replace(/\s+/g,'').replace(/"/g,"'").toLowerCase();
+      let correctNorm = q.reponse.replace(/\s+/g,'').replace(/"/g,"'").toLowerCase();
+      if(repNorm === correctNorm){
+        resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+        resultEl.className = "correct";
+      } else {
+        resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${rep}<br>Réponse correcte : ${q.reponse}<br>Explication : ${q.explication}`;
+        resultEl.className = "wrong";
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>

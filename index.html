@@ -132,6 +132,70 @@
             opacity: 0.8;
         }
 
+        /* Menu de navigation */
+        .nav-menu {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .nav-menu h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-links a.current {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-color: #27ae60;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                max-width: 200px;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -150,6 +214,18 @@
 </head>
 <body>
     <div class="container">
+        <nav class="nav-menu">
+            <h3>📚 Navigation</h3>
+            <div class="nav-links">
+                <a href="index.html" class="current">🏠 Accueil</a>
+                <a href="promise.html">⚡ Promises</a>
+                <a href="scope.html">🔍 Scope & Hoisting</a>
+                <a href="this.html">🎯 This & Closures</a>
+                <a href="side.html">🔄 Side Effects</a>
+                <a href="wcag.html">♿ Accessibilité</a>
+            </div>
+        </nav>
+
         <header>
             <h1>🎯 Collection de Quiz JavaScript </h1>
             <p class="subtitle">Maîtrisez les concepts avancés de JavaScript à travers des exercices interactifs</p>
