@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz JS : this et closure</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #fafafa; }
+  section { margin-bottom: 30px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  input { width: 200px; padding: 5px; }
+  button { margin-left: 10px; padding: 5px 10px; cursor: pointer; }
+  .correct { color: green; display: block; margin-top: 5px; }
+  .wrong { color: red; display: block; margin-top: 5px; }
+  h2 { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>Quiz JS : this et closure</h1>
+<p>Remplis ce que la console afficherait pour chaque code et clique sur "Valider".</p>
+
+<div id="quizContainer"></div>
+
+<script>
+const quizData = [
+  {
+    titre: "1️⃣ Fonction normale directe",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    console.log(this.nom);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "Fonction normale : 'this' fait référence à l'objet appelant (obj), donc this.nom = 'Akira'."
+  },
+  {
+    titre: "2️⃣ Fonction fléchée directe",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: () => {
+    console.log(this.nom);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["undefined"],
+    explication: "Fonction fléchée : 'this' n'est pas lié à l'objet, mais au contexte de création (global), donc undefined."
+  },
+  {
+    titre: "3️⃣ Flèche à l'intérieur d'une fonction normale",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    const f = () => console.log(this.nom);
+    f();
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "La flèche hérite de 'this' de la fonction normale (obj), donc affiche 'Akira'."
+  },
+  {
+    titre: "4️⃣ setTimeout classique",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    setTimeout(function() {
+      console.log(this.nom);
+    }, 0);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["undefined"],
+    explication: "Dans setTimeout classique, 'this' perd sa référence à l'objet et devient global ou undefined."
+  },
+  {
+    titre: "5️⃣ setTimeout avec flèche",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    setTimeout(() => console.log(this.nom), 0);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "La flèche prend 'this' du contexte de la fonction normale, donc 'Akira'."
+  },
+  {
+    titre: "6️⃣ setTimeout avec bind",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    setTimeout(function() {
+      console.log(this.nom);
+    }.bind(this), 0);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "bind(this) lie 'this' de la fonction à l'objet obj, donc affiche 'Akira'."
+  },
+  {
+    titre: "7️⃣ setTimeout avec variable self",
+    code: `
+const obj = {
+  nom: "Akira",
+  direNom: function() {
+    const self = this;
+    setTimeout(function() {
+      console.log(self.nom);
+    }, 0);
+  }
+};
+obj.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "On capture 'this' dans self et on l'utilise dans setTimeout, donc affiche 'Akira'."
+  },
+  {
+    titre: "8️⃣ Closure simple",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    direNom: function() {
+      console.log(nom);
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira"],
+    explication: "Variable 'nom' est privée dans la closure, accessible par la méthode direNom()."
+  },
+  {
+    titre: "9️⃣ Closure + propriété publique",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    nom: "Visible",
+    direNom: function() {
+      console.log(nom);
+      console.log(this.nom);
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira", "visible"],
+    explication: "'nom' dans la closure est privé (Akira), this.nom est la propriété publique de l'objet (Visible)."
+  },
+  {
+    titre: "🔟 Closure + flèche à l'intérieur",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    nom: "Visible",
+    direNom: function() {
+      const f = () => {
+        console.log(nom);
+        console.log(this.nom);
+      };
+      f();
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira", "visible"],
+    explication: "La flèche hérite du 'this' de la méthode normale (obj) et peut accéder à la variable privée (closure)."
+  },
+  {
+    titre: "1️⃣1️⃣ Closure + setTimeout classique",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    nom: "Visible",
+    direNom: function() {
+      setTimeout(function() {
+        console.log(nom);
+        console.log(this.nom);
+      }, 0);
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira", "undefined"],
+    explication: "setTimeout classique perd le 'this', mais la closure permet d'accéder à nom = Akira."
+  },
+  {
+    titre: "1️⃣2️⃣ Closure + setTimeout avec flèche",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    nom: "Visible",
+    direNom: function() {
+      setTimeout(() => {
+        console.log(nom);
+        console.log(this.nom);
+      }, 0);
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira", "visible"],
+    explication: "Flèche dans setTimeout hérite de 'this' de la méthode normale et peut accéder à la closure."
+  },
+  {
+    titre: "1️⃣3️⃣ Closure + setTimeout + bind",
+    code: `
+function creerPersonne() {
+  let nom = "Akira";
+  return {
+    nom: "Visible",
+    direNom: function() {
+      setTimeout(function() {
+        console.log(nom);
+        console.log(this.nom);
+      }.bind(this), 0);
+    }
+  };
+}
+const p = creerPersonne();
+p.direNom();
+    `,
+    reponse: ["akira", "visible"],
+    explication: "Bind lie 'this' à l'objet et la closure permet d'accéder à nom privé."
+  }
+];
+
+// Mélanger l'ordre des questions
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+const container = document.getElementById('quizContainer');
+const quizShuffled = shuffle(quizData);
+
+// Générer les exercices
+quizShuffled.forEach((q, index) => {
+  const section = document.createElement('section');
+  section.innerHTML = `
+    <h2>${q.titre}</h2>
+    <pre>${q.code}</pre>
+    <label>Que va afficher la console ? (séparer plusieurs valeurs par un espace ou une virgule) </label>
+    <input type="text" id="input${index}">
+    <button id="btn${index}">Valider</button>
+    <span id="result${index}"></span>
+  `;
+  container.appendChild(section);
+
+  document.getElementById(`btn${index}`).addEventListener('click', () => {
+    let rep = document.getElementById(`input${index}`).value.trim().toLowerCase();
+    rep = rep.replace(/\s*,\s*/g," ").replace(/\s+/g," ").split(" "); // normalisation
+
+    const correct = q.reponse.map(s => s.toLowerCase());
+    const resultEl = document.getElementById(`result${index}`);
+
+    let correctFlag = correct.length === rep.length && rep.every(r => correct.includes(r));
+
+    if(correctFlag) {
+      resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+      resultEl.className = "correct";
+    } else {
+      resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${document.getElementById(`input${index}`).value}<br>Réponse correcte : ${q.reponse.join(", ")}<br>Explication : ${q.explication}`;
+      resultEl.className = "wrong";
+    }
+  });
+});
+</script>
+
+</body>
+</html>

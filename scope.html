@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz JS : Scope et Hoisting</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #fafafa; }
+  section { margin-bottom: 25px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  input { width: 200px; padding: 5px; }
+  button { margin-left: 10px; padding: 5px 10px; cursor: pointer; }
+  .correct { color: green; display: block; margin-top: 5px; }
+  .wrong { color: red; display: block; margin-top: 5px; }
+  h2 { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>Quiz JS : Scope et Hoisting</h1>
+<p>Remplis ce que la console afficherait pour chaque code et clique sur "Valider".</p>
+
+<div id="quizContainer"></div>
+
+<script>
+const quizData = [
+  // Scope global / function / block
+  {
+    titre: "1️⃣ Scope global vs fonction",
+    code: `let a = 5;
+function test() { 
+  console.log(a); 
+}
+test();`,
+    reponse: ["5"],
+    explication: "Variable 'a' est globale, accessible dans la fonction."
+  },
+  {
+    titre: "2️⃣ Scope fonction",
+    code: `function test() { 
+  let b = 10; 
+  console.log(b); 
+}
+test();
+console.log(b);`,
+    reponse: ["10", "referenceerror"],
+    explication: "b existe seulement dans la fonction, hors de la fonction elle n'existe pas."
+  },
+  {
+    titre: "3️⃣ Scope bloc avec let",
+    code: `if(true) { 
+  let c = 15; 
+  console.log(c); 
+}
+console.log(c);`,
+    reponse: ["15", "referenceerror"],
+    explication: "c est dans un bloc, donc inaccessible hors du bloc."
+  },
+  {
+    titre: "4️⃣ Shadowing",
+    code: `let x = 1;
+function test() { 
+  let x = 2; 
+  console.log(x); 
+}
+test();
+console.log(x);`,
+    reponse: ["2", "1"],
+    explication: "La variable locale masque la globale dans la fonction, mais hors de la fonction la globale reste."
+  },
+  {
+    titre: "5️⃣ Scope imbriqué",
+    code: `let a = 1;
+function foo() { 
+  let b = 2; 
+  function bar() { 
+    let c = 3; 
+    console.log(a, b, c); 
+  } 
+  bar(); 
+}
+foo();`,
+    reponse: ["1", "2", "3"],
+    explication: "Les fonctions imbriquées ont accès aux variables externes jusqu'au scope global."
+  },
+
+  // Hoisting
+  {
+    titre: "6️⃣ Hoisting var",
+    code: `console.log(a);
+var a = 5;`,
+    reponse: ["undefined"],
+    explication: "var est levée mais pas initialisée, donc undefined."
+  },
+  {
+    titre: "7️⃣ Hoisting let / const",
+    code: `console.log(b);
+let b = 10;`,
+    reponse: ["referenceerror"],
+    explication: "let/const sont levées mais en zone morte (TDZ) avant initialisation → ReferenceError."
+  },
+  {
+    titre: "8️⃣ Hoisting fonction déclarée",
+    code: `foo();
+function foo() { 
+  console.log('Salut'); 
+}`,
+    reponse: ["salut"],
+    explication: "Les déclarations de fonction sont levées entièrement, donc appel possible avant."
+  },
+  {
+    titre: "9️⃣ Hoisting function expression",
+    code: `bar();
+const bar = function() { 
+  console.log('Hello'); 
+};`,
+    reponse: ["referenceerror"],
+    explication: "Les expressions de fonction ne sont pas levées, ReferenceError si appelée avant."
+  },
+  {
+    titre: "🔟 Hoisting arrow function",
+    code: `baz();
+const baz = () => console.log('Hey');`,
+    reponse: ["referenceerror"],
+    explication: "Même comportement qu'une function expression."
+  },
+
+  // Combinaisons piégeuses
+  {
+    titre: "1️⃣1️⃣ var dans bloc",
+    code: `if(true) { 
+  var v = 20; 
+} 
+console.log(v);`,
+    reponse: ["20"],
+    explication: "var n'a pas de block scope, donc accessible hors du bloc."
+  },
+  {
+    titre: "1️⃣2️⃣ let dans bloc",
+    code: `if(true) { 
+  let l = 25; 
+} 
+console.log(l);`,
+    reponse: ["referenceerror"],
+    explication: "let a scope limité au bloc, donc inaccessible hors du bloc."
+  },
+  {
+    titre: "1️⃣3️⃣ fonction dans bloc",
+    code: `if(true) { 
+  function f() { 
+    console.log('ok'); 
+  } 
+  f(); 
+}`,
+    reponse: ["ok"],
+    explication: "Dans certains navigateurs, function déclarée dans bloc est accessible seulement dans bloc (strict mode)."
+  },
+  {
+    titre: "1️⃣4️⃣ Shadowing + Hoisting",
+    code: `var x = 5; 
+function test() { 
+  console.log(x); 
+  var x = 10; 
+  console.log(x); 
+} 
+test();`,
+    reponse: ["undefined", "10"],
+    explication: "x est levé au début de la fonction mais non initialisé → undefined, ensuite x=10."
+  },
+
+  // Closure / IIFE
+  {
+    titre: "1️⃣5️⃣ Closure et scope privé",
+    code: `function create() { 
+  let n = 50; 
+  return function() { 
+    console.log(n); 
+  }; 
+}
+const fn = create(); 
+fn();`,
+    reponse: ["50"],
+    explication: "La closure garde l'accès à la variable n même après la fin de la fonction create."
+  },
+  {
+    titre: "1️⃣6️⃣ IIFE pour scope privé",
+    code: `(function() { 
+  let secret = 99; 
+  console.log(secret); 
+})(); 
+console.log(typeof secret);`,
+    reponse: ["99", "undefined"],
+    explication: "La variable secret est dans le scope privé de l'IIFE, inaccessible globalement."
+  }
+];
+
+// Mélanger l'ordre des questions
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+const container = document.getElementById('quizContainer');
+const quizShuffled = shuffle(quizData);
+
+quizShuffled.forEach((q, index) => {
+  const section = document.createElement('section');
+  section.innerHTML = `
+    <h2>${q.titre}</h2>
+    <pre>${q.code}</pre>
+    <label>Que va afficher la console ? (séparer plusieurs valeurs par un espace ou une virgule) </label>
+    <input type="text" id="input${index}">
+    <button id="btn${index}">Valider</button>
+    <span id="result${index}"></span>
+  `;
+  container.appendChild(section);
+
+  document.getElementById(`btn${index}`).addEventListener('click', () => {
+    let rep = document.getElementById(`input${index}`).value.trim().toLowerCase();
+    rep = rep.replace(/\s*,\s*/g," ").replace(/\s+/g," ").split(" "); // normalisation
+
+    const correct = q.reponse.map(s => s.toLowerCase());
+    const resultEl = document.getElementById(`result${index}`);
+
+    let correctFlag = correct.length === rep.length && rep.every(r => correct.includes(r));
+
+    if(correctFlag) {
+      resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+      resultEl.className = "correct";
+    } else {
+      resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${document.getElementById(`input${index}`).value}<br>Réponse correcte : ${q.reponse.join(", ")}<br>Explication : ${q.explication}`;
+      resultEl.className = "wrong";
+    }
+  });
+});
+</script>
+
+</body>
+</html>

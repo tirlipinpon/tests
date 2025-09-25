@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz JS : Promises et async/await</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #fafafa; }
+  section { margin-bottom: 30px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  input { width: 250px; padding: 5px; }
+  button { margin-left: 10px; padding: 5px 10px; cursor: pointer; }
+  .correct { color: green; display: block; margin-top: 5px; }
+  .wrong { color: red; display: block; margin-top: 5px; }
+  h2 { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>Quiz JS : Promises et async/await</h1>
+<p>Complète ce que la console afficherait pour chaque code et clique sur "Valider".</p>
+
+<div id="quizContainer"></div>
+
+<script>
+const quizData = [
+  // ===== DÉBUTANT =====
+  {
+    titre: "1️⃣ Promise simple resolve",
+    code: `const p = new Promise((resolve, reject) => { 
+  resolve('OK'); 
+});
+p.then(console.log);`,
+    reponse: ["ok"],
+    explication: "Une promise résolue avec 'OK' : then récupère la valeur et l'affiche."
+  },
+  
+  {
+    titre: "2️⃣ Promise simple reject",
+    code: `const p = new Promise((resolve, reject) => { 
+  reject('Erreur'); 
+});
+p.catch(console.log);`,
+    reponse: ["erreur"],
+    explication: "Une promise rejetée : catch récupère l'erreur et l'affiche."
+  },
+  
+  {
+    titre: "3️⃣ Chaînage then",
+    code: `Promise.resolve(1)
+  .then(x => x + 1)
+  .then(console.log);`,
+    reponse: ["2"],
+    explication: "La première then ajoute 1 à 1, la deuxième affiche 2."
+  },
+  
+  {
+    titre: "4️⃣ Chaînage then avec erreur",
+    code: `Promise.resolve(1)
+  .then(x => { 
+    throw 'Erreur'; 
+  })
+  .then(x => x + 1)
+  .catch(console.log);`,
+    reponse: ["erreur"],
+    explication: "L'erreur levée interrompt le chain, catch récupère 'Erreur'."
+  },
+
+  // ===== ASYNC / AWAIT =====
+  {
+    titre: "5️⃣ Async / await simple",
+    code: `async function f() { 
+  return 42; 
+}
+f().then(console.log);`,
+    reponse: ["42"],
+    explication: "Une fonction async retourne une promise résolue avec 42."
+  },
+  
+  {
+    titre: "6️⃣ Await valeur promise",
+    code: `async function f() { 
+  let x = await Promise.resolve(10); 
+  console.log(x); 
+}
+f();`,
+    reponse: ["10"],
+    explication: "await attend la résolution de la promise et affiche 10."
+  },
+  
+  {
+    titre: "7️⃣ Async / await avec try/catch",
+    code: `async function f() { 
+  try { 
+    await Promise.reject('Oops'); 
+  } catch(e) { 
+    console.log(e); 
+  } 
+}
+f();`,
+    reponse: ["oops"],
+    explication: "La promise est rejetée, le catch récupère l'erreur et l'affiche."
+  },
+
+  // ===== SÉQUENTIEL VS PARALLÈLE =====
+  {
+    titre: "8️⃣ Exécution séquentielle",
+    code: `async function f() { 
+  let a = await Promise.resolve(1); 
+  let b = await Promise.resolve(2); 
+  console.log(a, b); 
+}
+f();`,
+    reponse: ["1 2"],
+    explication: "Les await successifs s'exécutent séquentiellement, affichant 1 puis 2."
+  },
+  
+  {
+    titre: "9️⃣ Exécution parallèle avec Promise.all",
+    code: `Promise.all([
+  Promise.resolve(1), 
+  Promise.resolve(2)
+]).then(console.log);`,
+    reponse: ["1,2"],
+    explication: "Promise.all résout toutes les promises en parallèle et retourne un tableau des résultats."
+  },
+
+  // ===== INTERACTIONS AVEC SETTIMEOUT =====
+  {
+    titre: "🔟 Promise + setTimeout",
+    code: `new Promise(resolve => 
+  setTimeout(() => resolve('ok'), 0)
+).then(console.log);
+console.log('done');`,
+    reponse: ["done","ok"],
+    explication: "setTimeout décalé, 'done' s'affiche avant la promise résolue."
+  },
+  
+  {
+    titre: "1️⃣1️⃣ Async / await + setTimeout",
+    code: `async function f() { 
+  let x = await new Promise(resolve => 
+    setTimeout(() => resolve('ok'), 0)
+  ); 
+  console.log(x); 
+}
+console.log('start'); 
+f();`,
+    reponse: ["start","ok"],
+    explication: "'start' s'affiche d'abord, await attend la resolution de la promise."
+  },
+
+  // ===== EXPERT =====
+  {
+    titre: "1️⃣2️⃣ Promise.race",
+    code: `Promise.race([
+  Promise.resolve('A'), 
+  new Promise(resolve => 
+    setTimeout(() => resolve('B'), 10)
+  )
+]).then(console.log);`,
+    reponse: ["a"],
+    explication: "Promise.race prend la première promise résolue : 'A'."
+  },
+  
+  {
+    titre: "1️⃣3️⃣ Promise.allSettled",
+    code: `Promise.allSettled([
+  Promise.resolve('ok'), 
+  Promise.reject('erreur')
+]).then(console.log);`,
+    reponse: ["ok","erreur"],
+    explication: "allSettled retourne le résultat de toutes les promises, même rejetées."
+  },
+  
+  {
+    titre: "1️⃣4️⃣ Async / await + erreur non catchée",
+    code: `async function f() { 
+  await Promise.reject('Oops'); 
+}
+f().catch(console.log);`,
+    reponse: ["oops"],
+    explication: "La promise rejetée est catchée par f().catch, affichant 'Oops'."
+  },
+  
+  {
+    titre: "1️⃣5️⃣ Chaînage complexe",
+    code: `Promise.resolve(1)
+  .then(x => x + 1)
+  .then(x => { 
+    throw 'Erreur'; 
+  })
+  .catch(e => 'recup')
+  .then(console.log);`,
+    reponse: ["recup"],
+    explication: "Erreur capturée par catch, valeur retournée 'recup' affichée ensuite."
+  }
+];
+
+// Mélanger l'ordre des questions
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+const container = document.getElementById('quizContainer');
+const quizShuffled = shuffle(quizData);
+
+// Générer les exercices
+quizShuffled.forEach((q, index) => {
+  const section = document.createElement('section');
+  section.innerHTML = `
+    <h2>${q.titre}</h2>
+    <pre>${q.code}</pre>
+    <label>Que va afficher la console ? (séparer plusieurs valeurs par un espace ou une virgule) </label>
+    <input type="text" id="input${index}">
+    <button id="btn${index}">Valider</button>
+    <span id="result${index}"></span>
+  `;
+  container.appendChild(section);
+
+  document.getElementById(`btn${index}`).addEventListener('click', () => {
+    let rep = document.getElementById(`input${index}`).value.trim().toLowerCase();
+    rep = rep.replace(/\s*,\s*/g," ").replace(/\s+/g," ").split(" "); // normalisation
+
+    const correct = q.reponse.map(s => s.toLowerCase());
+    const resultEl = document.getElementById(`result${index}`);
+
+    let correctFlag = correct.length === rep.length && rep.every(r => correct.includes(r));
+
+    if(correctFlag) {
+      resultEl.innerHTML = `✅ Correct !<br>Explication : ${q.explication}`;
+      resultEl.className = "correct";
+    } else {
+      resultEl.innerHTML = `❌ Faux<br>Ta réponse : ${document.getElementById(`input${index}`).value}<br>Réponse correcte : ${q.reponse.join(", ")}<br>Explication : ${q.explication}`;
+      resultEl.className = "wrong";
+    }
+  });
+});
+</script>
+
+</body>
+</html>

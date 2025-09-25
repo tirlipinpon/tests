@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection de Quiz JavaScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .quiz-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .quiz-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .quiz-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .quiz-features li {
+            padding: 5px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .quiz-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .quiz-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .quiz-link:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .quiz-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .quiz-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Collection de Quiz JavaScript</h1>
+            <p class="subtitle">Maîtrisez les concepts avancés de JavaScript à travers des exercices interactifs</p>
+        </header>
+
+        <div class="quiz-grid">
+            <div class="quiz-card">
+                <h2 class="quiz-title">📋 Quiz : Promises et async/await</h2>
+                <p class="quiz-description">
+                    Explorez le monde de la programmation asynchrone en JavaScript. Ce quiz couvre les concepts fondamentaux des Promises, async/await, et la gestion des opérations asynchrones.
+                </p>
+                <ul class="quiz-features">
+                    <li>15 exercices progressifs</li>
+                    <li>Promises simples et chaînage</li>
+                    <li>Async/await et gestion d'erreurs</li>
+                    <li>Exécution séquentielle vs parallèle</li>
+                    <li>Promise.all, Promise.race, Promise.allSettled</li>
+                    <li>Interactions avec setTimeout</li>
+                </ul>
+                <a href="promise.html" class="quiz-link">Commencer le quiz</a>
+            </div>
+
+            <div class="quiz-card">
+                <h2 class="quiz-title">🔍 Quiz : Scope et Hoisting</h2>
+                <p class="quiz-description">
+                    Comprenez la portée des variables et le mécanisme de hoisting en JavaScript. Ce quiz vous aidera à maîtriser les subtilités de la déclaration et de l'utilisation des variables.
+                </p>
+                <ul class="quiz-features">
+                    <li>16 exercices détaillés</li>
+                    <li>Scope global, fonction et bloc</li>
+                    <li>Différences entre var, let et const</li>
+                    <li>Hoisting des variables et fonctions</li>
+                    <li>Shadowing et scope imbriqué</li>
+                    <li>Closures et IIFE</li>
+                </ul>
+                <a href="scope.html" class="quiz-link">Commencer le quiz</a>
+            </div>
+
+            <div class="quiz-card">
+                <h2 class="quiz-title">🎯 Quiz : this et closures</h2>
+                <p class="quiz-description">
+                    Maîtrisez le concept de 'this' en JavaScript et les closures. Ce quiz aborde les pièges courants et les bonnes pratiques pour une programmation orientée objet efficace.
+                </p>
+                <ul class="quiz-features">
+                    <li>13 exercices pratiques</li>
+                    <li>Comportement de 'this' dans différents contextes</li>
+                    <li>Fonctions normales vs fléchées</li>
+                    <li>setTimeout et perte de contexte</li>
+                    <li>Closures et variables privées</li>
+                    <li>Techniques de binding (bind, call, apply)</li>
+                </ul>
+                <a href="this.html" class="quiz-link">Commencer le quiz</a>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>💡 Chaque quiz contient des explications détaillées pour vous aider à comprendre les concepts</p>
+        </footer>
+    </div>
+</body>
+</html>
