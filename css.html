@@ -4,99 +4,12 @@
 <meta charset="utf-8" />
 <title>Quiz CSS3 - Base → Expert (25 questions)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<style>
-  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; background:#fbfbfd; color:#111; }
-  header { max-width:900px; margin:0 auto 20px; }
-  h1 { margin:0 0 6px; font-size:1.6rem; }
-  p.lead { margin:0 0 16px; color:#444; }
-  #quizContainer { max-width:900px; margin:0 auto 60px; }
-  section { margin-bottom:20px; padding:14px 16px; background:#fff; border-radius:8px; box-shadow:0 1px 4px rgba(20,20,30,0.04); }
-  pre { background:#f6f7fb; padding:10px; border-radius:6px; font-size:0.95rem; overflow:auto; white-space:pre-wrap; word-break:break-word; }
-  label { display:block; margin:6px 0; cursor:pointer; }
-  input[type="text"] { width:100%; max-width:520px; padding:8px; border:1px solid #ddd; border-radius:6px; }
-  button { margin-top:8px; padding:6px 10px; border-radius:6px; border:0; background:#0b76f6; color:#fff; cursor:pointer; }
-  .correct { color:green; margin-top:8px; display:block; }
-  .wrong { color:#c62828; margin-top:8px; display:block; }
-  small.meta { color:#666; display:block; margin-top:6px; }
-  /* Menu de navigation */
-  .nav-menu {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 15px 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 20px;
-    z-index: 100;
-  }
-
-  .nav-menu h3 {
-    margin: 0 0 15px 0;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    text-align: center;
-  }
-
-  .nav-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .nav-links a {
-    display: inline-block;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    text-decoration: none;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-  }
-
-  .nav-links a:hover {
-    background: linear-gradient(135deg, #5a6fd8, #6a4190);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-
-  .nav-links a.current {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    border-color: #27ae60;
-  }
-
-  @media (max-width: 768px) {
-    .nav-links {
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .nav-links a {
-      width: 100%;
-      text-align: center;
-      max-width: 200px;
-    }
-  }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
 
-  <nav class="nav-menu">
-    <h3>📚 Navigation</h3>
-    <div class="nav-links">
-      <a href="index.html">🏠 Accueil</a>
-      <a href="promise.html">⚡ Promises</a>
-      <a href="scope.html">🔍 Scope & Hoisting</a>
-      <a href="this.html" class="current">🎯 This & Closures</a>
-      <a href="side.html">🔄 Side Effects</a>
-      <a href="wcag.html">♿ Accessibilité</a>
-    </div>
-  </nav>
+  <div id="navigation"></div>
 
   <h1>Quiz CSS3 — Base → Expert (25 questions)</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
@@ -277,76 +190,19 @@ const quizData = [
     explication: "Les propriétés inline-start/inline-end s'adaptent en fonction du sens d'écriture (ltr/rtl)." }
 ];
 
-// =============== utilitaires ===============
-function shuffle(array){
-  const a = array.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function normalizeInputAnswer(s){
-  // normalisation légère : trim, collapse espaces, quotes unifiées, lowercase
-  return s.trim().replace(/\s+/g,' ').replace(/"/g,"'").toLowerCase();
-}
-
-// =============== génération (après DOM ready) ===============
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('quizContainer');
-  const quizShuffled = shuffle(quizData);
-
-  quizShuffled.forEach((q, index) => {
-    const section = document.createElement('section');
-
-    if(q.type === "qcm"){
-      const optionsShuffled = shuffle(q.options);
-      const optionsHtml = optionsShuffled.map((opt, i) => `
-        <label>
-          <input type="radio" name="q${index}" value="${opt}"> ${opt}
-        </label>
-      `).join('');
-      section.innerHTML = `<h2>${q.titre}</h2><pre>${q.code || ''}</pre>${optionsHtml}<button id="btn${index}">Valider</button><span id="result${index}" aria-live="polite"></span>`;
-    } else { // input
-      section.innerHTML = `<h2>${q.titre}</h2><pre>${q.code || ''}</pre><input type="text" id="input${index}" aria-label="Réponse"><button id="btn${index}">Valider</button><span id="result${index}" aria-live="polite"></span>`;
-    }
-
-    container.appendChild(section);
-
-    // event listener
-    document.getElementById(`btn${index}`).addEventListener('click', () => {
-      const resultEl = document.getElementById(`result${index}`);
-      resultEl.className = '';
-      if(q.type === "qcm"){
-        const checked = document.querySelector(`input[name="q${index}"]:checked`);
-        if(!checked){
-          resultEl.textContent = "⚠️ Sélectionne une réponse.";
-          resultEl.className = "wrong";
-          return;
-        }
-        if(checked.value === q.reponse){
-          resultEl.innerHTML = `✅ Correct !<br><small class="meta">Explication : ${q.explication}</small>`;
-          resultEl.className = "correct";
-        } else {
-          resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${checked.value}</small><br><small>Réponse correcte : ${q.reponse}</small><br><small class="meta">Explication : ${q.explication}</small>`;
-          resultEl.className = "wrong";
-        }
-      } else { // input
-        const raw = document.getElementById(`input${index}`).value;
-        const user = normalizeInputAnswer(raw);
-        const correct = normalizeInputAnswer(q.reponse);
-        if(user === correct){
-          resultEl.innerHTML = `✅ Correct !<br><small class="meta">Explication : ${q.explication}</small>`;
-          resultEl.className = "correct";
-        } else {
-          resultEl.innerHTML = `❌ Faux<br><small>Ta réponse : ${raw}</small><br><small>Réponse correcte : ${q.reponse}</small><br><small class="meta">Explication : ${q.explication}</small>`;
-          resultEl.className = "wrong";
-        }
-      }
-    });
-  });
-});
 </script>
+
+<script src="quiz-common.js"></script>
+<script>
+// Initialiser le quiz avec les fonctions communes
+const quiz = new QuizManager('quizContainer', quizData);
+</script>
+
+<script src="navigation.js"></script>
+<script>
+  // Initialiser la navigation pour la page CSS
+  createNavigation('css');
+</script>
+
 </body>
 </html>
