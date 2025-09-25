@@ -482,10 +482,13 @@ console.log(memoizedAdd(2, 3));`,
 
 </script>
 
+<script src="cookie-manager.js"></script>
 <script src="quiz-common.js"></script>
 <script>
 // Initialiser le quiz avec les fonctions communes
-const quiz = new QuizManager('quizContainer', quizData);
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'side' // ID unique pour cette page
+});
 </script>
 
 <script src="navigation.js"></script>

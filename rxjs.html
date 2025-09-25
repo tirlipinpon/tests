@@ -160,10 +160,13 @@ const quizData = [
 ];
 </script>
 
+<script src="cookie-manager.js"></script>
 <script src="quiz-common.js"></script>
 <script>
 // Initialiser le quiz RxJS
-const quiz = new QuizManager('quizContainer', quizData);
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'rxjs' // ID unique pour cette page
+});
 </script>
 
 <script src="navigation.js"></script>

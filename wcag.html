@@ -40,10 +40,13 @@ const quizData = [
 
 </script>
 
+<script src="cookie-manager.js"></script>
 <script src="quiz-common.js"></script>
 <script>
 // Initialiser le quiz avec les fonctions communes
-const quiz = new QuizManager('quizContainer', quizData);
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'wcag' // ID unique pour cette page
+});
 </script>
 
 <script src="navigation.js"></script>
