@@ -326,21 +326,25 @@ function validateJson() {
             throw new Error('Le JSON doit contenir un tableau de questions');
         }
         
-        // Valider chaque question
+        // Valider chaque question selon la vraie structure DB
         const validatedQuestions = questions.map((q, index) => {
-            if (!q.id || !q.titre || !q.reponse) {
-                throw new Error(`Question ${index + 1}: id, titre et reponse sont obligatoires`);
+            // L'id est auto-généré par la DB, donc pas obligatoire dans le JSON
+            if (!q.title || !q.correct_answer) {
+                throw new Error(`Question ${index + 1}: title et correct_answer sont obligatoires`);
             }
             
             return {
-                id: q.id,
-                titre: q.titre,
+                // id sera généré automatiquement par Supabase
+                question_id: q.question_id || `question-${index + 1}`,
+                title: q.title,
                 code: q.code || '',
                 options: q.options || [],
-                reponse: q.reponse,
-                type: q.type || 'qcm',
-                explication: q.explication || '',
-                exemple: q.exemple || ''
+                correct_answer: q.correct_answer,
+                question_type: q.question_type || 'qcm',
+                explanation: q.explanation || '',
+                exemple: q.exemple || '',
+                category: q.category || 'general',
+                deleted: false
             };
         });
         
@@ -362,11 +366,11 @@ function showPreview(questions) {
     
     const html = questions.map((q, index) => `
         <div class="preview-item">
-            <h4>Question ${index + 1}: ${q.titre}</h4>
-            <p><strong>Type:</strong> ${q.type}</p>
-            <p><strong>Réponse:</strong> ${q.reponse}</p>
+            <h4>Question ${index + 1}: ${q.title}</h4>
+            <p><strong>Type:</strong> ${q.question_type}</p>
+            <p><strong>Réponse:</strong> ${q.correct_answer}</p>
             ${q.options.length > 0 ? `<p><strong>Options:</strong> ${q.options.join(', ')}</p>` : ''}
-            ${q.explication ? `<p><strong>Explication:</strong> ${q.explication}</p>` : ''}
+            ${q.explanation ? `<p><strong>Explication:</strong> ${q.explanation}</p>` : ''}
         </div>
     `).join('');
     
@@ -392,16 +396,16 @@ async function importQuestions() {
     try {
         const questions = JSON.parse(jsonText);
         
-        // Transformer les questions pour Supabase
+        // Transformer les questions pour Supabase (utiliser les champs déjà validés)
         const transformedQuestions = questions.map(q => ({
-            question_id: q.id,
+            question_id: q.question_id || q.id,
             category: category,
-            title: q.titre,
+            title: q.title,
             code: q.code || '',
             options: q.options || [],
-            correct_answer: q.reponse,
-            question_type: q.type || 'qcm',
-            explanation: q.explication || '',
+            correct_answer: q.correct_answer,
+            question_type: q.question_type || 'qcm',
+            explanation: q.explanation || '',
             exemple: q.exemple || '',
             deleted: false
         }));
