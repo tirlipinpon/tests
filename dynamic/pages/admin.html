@@ -598,11 +598,23 @@
         <div id="questions-section" class="admin-section">
             <h2>Gestion des Questions</h2>
             
+            <!-- Sélection de niveau -->
+            <div class="form-group">
+                <label for="questions-level">Sélectionner un niveau *</label>
+                <select id="questions-level" required onchange="loadCategoriesForLevel('questions-category')">
+                    <option value="">-- Choisir un niveau --</option>
+                    <option value="Débutant">Débutant</option>
+                    <option value="Intermédiaire">Intermédiaire</option>
+                    <option value="Avancé">Avancé</option>
+                    <option value="Expert">Expert</option>
+                </select>
+            </div>
+            
             <!-- Sélection de catégorie -->
             <div class="form-group">
                 <label for="questions-category">Sélectionner une catégorie *</label>
-                <select id="questions-category" required onchange="loadQuestionsForCategory()">
-                    <option value="">-- Choisir une catégorie --</option>
+                <select id="questions-category" required onchange="loadQuestionsForCategory()" disabled>
+                    <option value="">-- Choisir d'abord un niveau --</option>
                 </select>
             </div>
             
@@ -638,11 +650,23 @@
         <div id="import-section" class="admin-section">
             <h2>Import de Questions</h2>
             
+            <!-- Sélection de niveau -->
+            <div class="form-group">
+                <label for="import-level">Sélectionner un niveau *</label>
+                <select id="import-level" required onchange="loadCategoriesForLevel('import-category')">
+                    <option value="">-- Choisir un niveau --</option>
+                    <option value="Débutant">Débutant</option>
+                    <option value="Intermédiaire">Intermédiaire</option>
+                    <option value="Avancé">Avancé</option>
+                    <option value="Expert">Expert</option>
+                </select>
+            </div>
+            
             <!-- Sélection de catégorie -->
             <div class="form-group">
                 <label for="import-category">Catégorie de destination *</label>
-                <select id="import-category" required>
-                    <option value="">-- Sélectionner une catégorie --</option>
+                <select id="import-category" required disabled>
+                    <option value="">-- Choisir d'abord un niveau --</option>
                 </select>
             </div>
             

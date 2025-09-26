@@ -135,8 +135,30 @@ async function loadQuestionCounts() {
 // Mettre à jour le select des catégories
 function updateCategorySelect() {
     const select = document.getElementById('import-category');
-    select.innerHTML = '<option value="">-- Sélectionner une catégorie --</option>' +
-        categories.map(cat => `<option value="${cat.name}">${cat.display_name}</option>`).join('');
+    select.innerHTML = '<option value="">-- Choisir d\'abord un niveau --</option>';
+    select.disabled = true;
+}
+
+// Charger les catégories selon le niveau sélectionné
+function loadCategoriesForLevel(targetSelectId) {
+    const levelSelect = event.target;
+    const categorySelect = document.getElementById(targetSelectId);
+    const selectedLevel = levelSelect.value;
+    
+    if (!selectedLevel) {
+        categorySelect.innerHTML = '<option value="">-- Choisir d\'abord un niveau --</option>';
+        categorySelect.disabled = true;
+        return;
+    }
+    
+    // Filtrer les catégories par niveau
+    const filteredCategories = categories.filter(cat => cat.level === selectedLevel);
+    
+    categorySelect.innerHTML = '<option value="">-- Choisir une catégorie --</option>' +
+        filteredCategories.map(cat => `<option value="${cat.name}">${cat.display_name}</option>`).join('');
+    categorySelect.disabled = false;
+    
+    console.log(`Catégories chargées pour le niveau ${selectedLevel}:`, filteredCategories.length);
 }
 
 // Gérer la soumission du formulaire de catégorie
@@ -527,6 +549,9 @@ function showSection(sectionName) {
     document.getElementById(`${sectionName}-section`).classList.add('active');
     event.target.classList.add('active');
     
+    // Réinitialiser les sélecteurs de niveau et catégorie
+    resetLevelCategorySelectors();
+    
     // Recharger les données si nécessaire
     if (sectionName === 'questions') {
         // La section des questions se charge automatiquement quand on sélectionne une catégorie
@@ -534,6 +559,28 @@ function showSection(sectionName) {
     } else if (sectionName === 'stats') {
         loadStats();
     }
+}
+
+// Réinitialiser les sélecteurs de niveau et catégorie
+function resetLevelCategorySelectors() {
+    // Réinitialiser les sélecteurs de niveau
+    const levelSelects = ['questions-level', 'import-level'];
+    levelSelects.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            select.value = '';
+        }
+    });
+    
+    // Réinitialiser les sélecteurs de catégorie
+    const categorySelects = ['questions-category', 'import-category'];
+    categorySelects.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            select.innerHTML = '<option value="">-- Choisir d\'abord un niveau --</option>';
+            select.disabled = true;
+        }
+    });
 }
 
 // Fonction debounce
@@ -849,10 +896,8 @@ function updateQuestionsCategorySelect() {
     const select = document.getElementById('questions-category');
     if (!select) return;
     
-    select.innerHTML = '<option value="">-- Choisir une catégorie --</option>' +
-        categories.map(category => 
-            `<option value="${category.name}">${category.display_name || category.name}</option>`
-        ).join('');
+    select.innerHTML = '<option value="">-- Choisir d\'abord un niveau --</option>';
+    select.disabled = true;
 }
 
 // Mettre à jour un champ de question
