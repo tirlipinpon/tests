@@ -19,6 +19,65 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
 
+// Rendre supabase accessible globalement
+window.supabase = supabase;
+
+// Fonction pour charger les catégories
+async function loadCategories() {
+  try {
+    if (!supabase) {
+      console.error('❌ Supabase non initialisé');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('quiz_categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) {
+      console.error('❌ Erreur lors du chargement des catégories:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des catégories:', error);
+    return [];
+  }
+}
+
+// Fonction pour obtenir les statistiques d'une catégorie
+async function getCategoryStats(categoryName) {
+  try {
+    if (!supabase) {
+      console.error('❌ Supabase non initialisé');
+      return 0;
+    }
+
+    const { count, error } = await supabase
+      .from('quiz_questions')
+      .select('*', { count: 'exact', head: true })
+      .eq('category', categoryName)
+      .eq('deleted', false);
+
+    if (error) {
+      console.error('❌ Erreur lors du chargement des statistiques:', error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des statistiques:', error);
+    return 0;
+  }
+}
+
+// Exposer les fonctions globalement
+window.loadCategories = loadCategories;
+window.getCategoryStats = getCategoryStats;
+
 // Charger les données depuis Supabase
 async function loadQuizDataFromSupabase(category) {
   try {

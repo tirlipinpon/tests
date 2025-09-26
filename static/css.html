@@ -2,34 +2,37 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Quiz Expert Promises</title>
+<title>Quiz Expert CSS</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header>
   <div id="navigation"></div>
-  <h1>Quiz Expert : Promises</h1>
+  <h1>Quiz Expert : CSS</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
 </header>
 
 <div id="quizContainer"></div>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/config.local.js"></script>
-<script src="js/quiz-supabase.js"></script>
-<script src="js/quiz-stats.js"></script>
 <script src="js/cookie-manager.js"></script>
 <script src="js/quiz-common.js"></script>
+<script src="data/css-fallback-data.js"></script>
 <script>
-// Initialiser le quiz avec les données chargées
-initializeQuiz('promise');
+// Initialiser le quiz avec les données de fallback
+const quizData = getFallbackQuizData();
+const quizManager = new QuizManager('quizContainer', quizData, {
+  pageId: 'css',
+  shuffleQuestions: true,
+  shuffleOptions: true,
+  showExplanations: true
+});
 </script>
 
 <script src="js/navigation.js"></script>
 <script>
-  // Initialiser la navigation pour la page promise
-  createNavigation('promise');
+  // Initialiser la navigation pour la page css
+  createNavigation('css');
 </script>
 
 </body>

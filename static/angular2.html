@@ -2,34 +2,37 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Quiz Expert RxJS</title>
+<title>Quiz Expert Angular - Architecture & Patterns</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header>
   <div id="navigation"></div>
-  <h1>Quiz Expert : RxJS</h1>
+  <h1>Quiz Expert : Angular - Architecture & Patterns</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
 </header>
 
 <div id="quizContainer"></div>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/config.local.js"></script>
-<script src="js/quiz-supabase.js"></script>
-<script src="js/quiz-stats.js"></script>
 <script src="js/cookie-manager.js"></script>
 <script src="js/quiz-common.js"></script>
+<script src="data/angular-fallback-data.js"></script>
 <script>
-// Initialiser le quiz avec les données chargées
-initializeQuiz('rxjs');
+// Initialiser le quiz avec les données de fallback
+const quizData = getFallbackQuizData();
+const quizManager = new QuizManager('quizContainer', quizData, {
+  pageId: 'angular2',
+  shuffleQuestions: true,
+  shuffleOptions: true,
+  showExplanations: true
+});
 </script>
 
 <script src="js/navigation.js"></script>
 <script>
-  // Initialiser la navigation pour la page rxjs
-  createNavigation('rxjs');
+  // Initialiser la navigation pour la page Angular
+  createNavigation('angular');
 </script>
 
 </body>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Quiz System</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Styles spécifiques pour l'administration */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .admin-nav button {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-nav button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .admin-nav button:hover {
+            background: #e9ecef;
+        }
+        
+        .admin-nav button.active:hover {
+            background: #5a6fd8;
+        }
+        
+        .admin-section {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn-danger {
+            background: #ff4757;
+        }
+        
+        .btn-danger:hover {
+            background: #ff3742;
+        }
+        
+        .btn-success {
+            background: #2ed573;
+        }
+        
+        .btn-success:hover {
+            background: #26c965;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .json-textarea {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            height: 300px;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .preview-item {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .preview-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        
+        .preview-item p {
+            margin: 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .category-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+        
+        .category-info h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .category-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .category-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>🔧 Administration du Système de Quiz</h1>
+            <p>Gérez vos catégories et importez des questions</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <button class="active" onclick="showSection('categories')">📁 Gestion des Catégories</button>
+            <button onclick="showSection('import')">📥 Import de Questions</button>
+            <button onclick="showSection('stats')">📊 Statistiques</button>
+        </div>
+
+        <!-- Section Gestion des Catégories -->
+        <div id="categories-section" class="admin-section active">
+            <h2>Gestion des Catégories</h2>
+            
+            <!-- Formulaire d'ajout/modification -->
+            <div class="form-group">
+                <h3 id="category-form-title">Ajouter une nouvelle catégorie</h3>
+                <form id="category-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category-name">Nom de la catégorie *</label>
+                            <input type="text" id="category-name" required placeholder="ex: react, vue, nodejs">
+                        </div>
+                        <div class="form-group">
+                            <label for="category-level">Niveau</label>
+                            <select id="category-level">
+                                <option value="Débutant">Débutant</option>
+                                <option value="Intermédiaire">Intermédiaire</option>
+                                <option value="Expert" selected>Expert</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category-display-name">Nom d'affichage *</label>
+                        <input type="text" id="category-display-name" required placeholder="ex: React Expert">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category-description">Description</label>
+                        <textarea id="category-description" placeholder="Description de la catégorie..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category-color">Couleur</label>
+                            <input type="color" id="category-color" value="#667eea">
+                        </div>
+                        <div class="form-group">
+                            <label for="category-icon">Icône</label>
+                            <input type="text" id="category-icon" placeholder="🎯" maxlength="2">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn" id="category-submit-btn">Ajouter la catégorie</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetCategoryForm()" style="margin-left: 1rem;">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Liste des catégories -->
+            <div id="categories-list">
+                <div class="loading">Chargement des catégories...</div>
+            </div>
+        </div>
+
+        <!-- Section Import de Questions -->
+        <div id="import-section" class="admin-section">
+            <h2>Import de Questions</h2>
+            
+            <!-- Sélection de catégorie -->
+            <div class="form-group">
+                <label for="import-category">Catégorie de destination *</label>
+                <select id="import-category" required>
+                    <option value="">-- Sélectionner une catégorie --</option>
+                </select>
+            </div>
+            
+            <!-- Zone d'upload -->
+            <div class="form-group">
+                <label>Import des questions</label>
+                <div class="file-upload" id="file-upload-zone">
+                    <p>📁 Glissez-déposez un fichier JSON ici ou cliquez pour sélectionner</p>
+                    <input type="file" id="json-file" accept=".json" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Zone de texte JSON -->
+            <div class="form-group">
+                <label for="json-text">Ou collez directement le JSON :</label>
+                <textarea id="json-text" class="json-textarea" placeholder='[
+  {
+    "id": "categorie-1",
+    "titre": "Question 1",
+    "code": "Code à afficher",
+    "options": ["Option A", "Option B"],
+    "reponse": "Réponse correcte",
+    "type": "qcm",
+    "explication": "Explication détaillée",
+    "exemple": "Exemple de code"
+  }
+]'></textarea>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="form-group">
+                <button class="btn" onclick="validateJson()">Valider le JSON</button>
+                <button class="btn btn-success" onclick="importQuestions()" id="import-btn" disabled>Importer les questions</button>
+                <button class="btn btn-secondary" onclick="clearImport()">Effacer</button>
+            </div>
+            
+            <!-- Prévisualisation -->
+            <div id="preview-section" class="preview-section" style="display: none;">
+                <h3>Prévisualisation des questions</h3>
+                <div id="preview-content"></div>
+            </div>
+        </div>
+
+        <!-- Section Statistiques -->
+        <div id="stats-section" class="admin-section">
+            <h2>Statistiques du Système</h2>
+            <div id="stats-content">
+                <div class="loading">Chargement des statistiques...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.local.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/quiz-supabase.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
