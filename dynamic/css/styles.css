@@ -321,3 +321,52 @@ small.meta {
         font-size: 0.85rem;
     }
 }
+
+/* ===== COMPTEUR INTELLIGENT POUR INPUT ===== */
+.input-container {
+    position: relative;
+    margin: 15px 0;
+}
+
+.smart-counter {
+    position: absolute;
+    bottom: -25px;
+    right: 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.smart-counter.warning {
+    border-color: #ff4757;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+.smart-counter span {
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+/* Responsive pour le compteur intelligent */
+@media (max-width: 768px) {
+    .smart-counter {
+        position: static;
+        text-align: center;
+        margin-top: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 6px 12px;
+        border-radius: 6px;
+    }
+}

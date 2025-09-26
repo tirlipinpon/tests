@@ -119,9 +119,11 @@ async function loadQuizDataFromSupabase(category) {
         code: q.code,
         options: q.options || [],
         reponse: q.correct_answer,
+        correct_answer: q.correct_answer, // Ajouter le mapping correct
         explication: q.explanation || q.explication,
         exemple: q.exemple || '',
         type: q.question_type,
+        question_type: q.question_type, // Ajouter le mapping correct
         deleted: q.deleted || false
       }));
     } else {

@@ -149,10 +149,19 @@ class QuizManager {
     }
 
     createInputHTML(question, index) {
+        // Calculer la longueur de la réponse correcte pour le compteur
+        const correctAnswerLength = question.correct_answer ? question.correct_answer.length : 0;
+        const maxLength = Math.max(correctAnswerLength * 2, 100); // 2x la longueur de la réponse ou 100 minimum
+        
         return `
             <h2>${question.titre}</h2>
             <pre>${question.code || ''}</pre>
-            <input type="text" id="input${index}" aria-label="Réponse">
+            <div class="input-container">
+                <input type="text" id="input${index}" aria-label="Réponse" maxlength="${maxLength}">
+                <div class="smart-counter" id="smartCounter${index}">
+                    ${correctAnswerLength} lettres restantes
+                </div>
+            </div>
             <button id="btn${index}" disabled>Valider</button>
             <span id="result${index}" aria-live="polite"></span>
         `;
@@ -204,8 +213,26 @@ class QuizManager {
     attachInputListeners(question, index) {
         const button = document.getElementById(`btn${index}`);
         const input = document.getElementById(`input${index}`);
+        const smartCounter = document.getElementById(`smartCounter${index}`);
         
         if (input) {
+            // Créer le compteur intelligent
+            if (smartCounter && window.createSmartCounter) {
+                console.log('Création du compteur intelligent pour la question', index, question);
+                const counter = window.createSmartCounter(question, input, smartCounter);
+                // Stocker le compteur dans un tableau pour éviter les conflits
+                if (!this.smartCounters) {
+                    this.smartCounters = [];
+                }
+                this.smartCounters[index] = counter;
+            } else {
+                console.warn('Impossible de créer le compteur intelligent:', {
+                    smartCounter: !!smartCounter,
+                    createSmartCounter: !!window.createSmartCounter,
+                    question: question
+                });
+            }
+            
             input.addEventListener('input', () => {
                 button.disabled = input.value.trim() === '';
             });

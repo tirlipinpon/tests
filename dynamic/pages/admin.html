@@ -70,6 +70,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
+            color: #333; /* Ajouter la couleur du texte */
         }
         
         .admin-nav button.active {
@@ -80,10 +81,23 @@
         
         .admin-nav button:hover {
             background: #e9ecef;
+            color: #333; /* S'assurer que le texte reste visible au survol */
+            border-color: #adb5bd;
         }
         
         .admin-nav button.active:hover {
             background: #5a6fd8;
+        }
+        
+        /* Améliorer la lisibilité des icônes et du texte */
+        .admin-nav button i {
+            margin-right: 0.5rem;
+            font-size: 1.1em;
+        }
+        
+        /* S'assurer que tous les textes sont visibles */
+        .admin-nav button:not(.active) {
+            color: #333 !important;
         }
         
         .admin-section {
