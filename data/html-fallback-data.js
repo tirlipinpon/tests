@@ -1,0 +1,190 @@
+// html-fallback-data.js - Données de fallback pour html.html
+function getFallbackQuizData() {
+  console.log('⚠️ Utilisation des données de fallback pour html');
+  return [
+  {
+    id: "html-1",
+    titre: "1️⃣ Quelle balise HTML5 est auto-fermante et valide en XHTML ?",
+    code: "&lt;img src='logo.png' /&gt;",
+    options: ["&lt;img src='logo.png' /&gt;", "&lt;br /&gt;", "&lt;input type='text' /&gt;", "&lt;div&gt;"],
+    reponse: "&lt;img src='logo.png' /&gt;",
+    type: "qcm",
+    explication: "En XHTML, les balises auto-fermantes doivent se terminer par />."
+  },
+  {
+    id: "html-2",
+    titre: "2️⃣ Quelle déclaration DOCTYPE est correcte pour XHTML 1.0 Strict ?",
+    code: "",
+    options: [
+      '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;',
+      "&lt;!DOCTYPE html5&gt;",
+      '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"&gt;',
+      "&lt;!DOCTYPE xhtml&gt;"
+    ],
+    reponse: '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;',
+    type: "qcm",
+    explication: "XHTML 1.0 Strict nécessite cette déclaration DOCTYPE exacte."
+  },
+  {
+    id: "html-3",
+    titre: "3️⃣ En HTML5, quelle balise n'est PAS considérée comme 'sectioning content' ?",
+    code: "",
+    options: ["article", "section", "div", "nav"],
+    reponse: "div",
+    type: "qcm",
+    explication: "div n'est pas un élément de type 'sectioning content', contrairement à article, section et nav."
+  },
+  {
+    id: "html-4",
+    titre: "4️⃣ Saisir la version correcte d'une balise br valide en XHTML",
+    code: "&lt;br&gt;",
+    reponse: "&lt;br /&gt;",
+    type: "input",
+    explication: "En XHTML, les balises vides doivent être auto-fermantes : <br />."
+  },
+  {
+    id: "html-5",
+    titre: "5️⃣ En HTML5, quelle est la différence entre <b> et <strong> ?",
+    code: "",
+    options: ["b est stylistique, strong est sémantique", "b est sémantique, strong stylistique", "b et strong sont identiques", "b est déprécié"],
+    reponse: "b est stylistique, strong est sémantique",
+    type: "qcm",
+    explication: "b est juste pour le rendu en gras, strong indique l’importance sémantique."
+  },
+  {
+    id: "html-6",
+    titre: "6️⃣ En XHTML, que se passe-t-il si une balise n'est pas correctement fermée ?",
+    code: "",
+    options: ["Erreur de parsing", "Le navigateur ferme automatiquement", "Ignoré", "La page s’affiche normalement"],
+    reponse: "Erreur de parsing",
+    type: "qcm",
+    explication: "XHTML est strict et bien formé : toute balise non fermée provoque une erreur de parsing."
+  },
+  {
+    id: "html-7",
+    titre: "7️⃣ Saisir le type MIME correct pour un fichier XHTML",
+    code: "",
+    reponse: "application/xhtml+xml",
+    type: "input",
+    explication: "Le type MIME officiel pour XHTML est application/xhtml+xml."
+  },
+  {
+    id: "html-8",
+    titre: "8️⃣ Quelle balise HTML5 est utilisée pour contenir du contenu indépendant pouvant être syndiqué ?",
+    code: "",
+    options: ["article", "section", "div", "aside"],
+    reponse: "article",
+    type: "qcm",
+    explication: "article est pour du contenu indépendant et potentiellement syndiquable."
+  },
+  {
+    id: "html-9",
+    titre: "9️⃣ Quel attribut est obligatoire pour la balise <html> en XHTML ?",
+    code: "",
+    options: ["xmlns", "lang", "xml", "id"],
+    reponse: "xmlns",
+    type: "qcm",
+    explication: "L'attribut xmlns définit l'espace de noms en XHTML."
+  },
+  {
+    id: "html-10",
+    titre: "🔟 Saisir l'écriture correcte d'une balise link pour CSS en XHTML",
+    code: '&lt;link rel="stylesheet" href="style.css"&gt;',
+    reponse: '&lt;link rel="stylesheet" href="style.css" /&gt;',
+    type: "input",
+    explication: "Toutes les balises vides doivent être auto-fermantes en XHTML."
+  },
+  {
+    id: "html-11",
+    titre: "1️⃣1️⃣ Quelle balise HTML5 peut contenir uniquement des phrases de navigation ?",
+    code: "",
+    options: ["nav", "footer", "header", "aside"],
+    reponse: "nav",
+    type: "qcm",
+    explication: "nav contient uniquement des liens de navigation principaux."
+  },
+  {
+    id: "html-12",
+    titre: "1️⃣2️⃣ En XHTML, comment doit-on écrire l'attribut checked sur un input checkbox ?",
+    code: '&lt;input type="checkbox" checked&gt;',
+    options: [
+      '&lt;input type="checkbox" checked&gt;',
+      '&lt;input type="checkbox" checked="checked" /&gt;',
+      '&lt;input type="checkbox" checked="true" /&gt;',
+      '&lt;input type="checkbox" checked="false" /&gt;'
+    ],
+    reponse: '&lt;input type="checkbox" checked="checked" /&gt;',
+    type: "qcm",
+    explication: "En XHTML, les attributs booléens doivent avoir la valeur explicite."
+  },
+  {
+    id: "html-13",
+    titre: "1️⃣3️⃣ Quel élément HTML5 est sémantiquement destiné aux citations courtes ?",
+    code: "",
+    options: ["q", "blockquote", "cite", "span"],
+    reponse: "q",
+    type: "qcm",
+    explication: "q est pour les citations courtes en ligne, blockquote pour citations longues."
+  },
+  {
+    id: "html-14",
+    titre: "1️⃣4️⃣ Saisir la bonne manière de déclarer un caractère spécial & en XHTML",
+    code: "&",
+    reponse: "&amp;",
+    type: "input",
+    explication: "Le caractère & doit être échappé en XHTML comme &amp;."
+  },
+  {
+    id: "html-15",
+    titre: "1️⃣5️⃣ Quel élément HTML5 n'est PAS un élément de formulaire valide ?",
+    code: "",
+    options: ["input", "textarea", "select", "label", "container"],
+    reponse: "container",
+    type: "qcm",
+    explication: "container n'existe pas en HTML5 pour les formulaires."
+  },
+  {
+    id: "html-16",
+    titre: "1️⃣6️⃣ En XHTML, comment fermer correctement un commentaire ?",
+    code: "&lt;!-- commentaire",
+    reponse: "&lt;!-- commentaire --&gt;",
+    type: "input",
+    explication: "Les commentaires doivent être fermés avec --> en XHTML."
+  },
+  {
+    id: "html-17",
+    titre: "1️⃣7️⃣ Quel attribut HTML5 est obsolète mais souvent utilisé en piège ?",
+    code: "",
+    options: ["align", "id", "class", "src"],
+    reponse: "align",
+    type: "qcm",
+    explication: "align est obsolète en HTML5, remplacé par CSS."
+  },
+  {
+    id: "html-18",
+    titre: "1️⃣8️⃣ Quelle est la différence entre <em> et <i> ?",
+    code: "",
+    options: ["em est sémantique, i stylistique", "em est stylistique, i sémantique", "em et i identiques", "em déprécié"],
+    reponse: "em est sémantique, i stylistique",
+    type: "qcm",
+    explication: "em indique l’emphase (importance) sémantique, i juste le style italique."
+  },
+  {
+    id: "html-19",
+    titre: "1️⃣9️⃣ Saisir l'écriture correcte d'une balise meta charset UTF-8 en XHTML",
+    code: '&lt;meta charset="UTF-8"&gt;',
+    reponse: '&lt;meta charset="UTF-8" /&gt;',
+    type: "input",
+    explication: "En XHTML, toutes les balises vides doivent être auto-fermantes."
+  },
+  {
+    id: "html-20",
+    titre: "2️⃣0️⃣ Quelle balise HTML5 est destinée à des contenus secondaires liés au contenu principal ?",
+    code: "",
+    options: ["aside", "section", "article", "footer"],
+    reponse: "aside",
+    type: "qcm",
+    explication: "aside contient du contenu complémentaire ou lié au contenu principal."
+  }
+];
+}

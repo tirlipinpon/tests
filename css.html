@@ -1,209 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<title>Quiz CSS3 - Base → Expert (25 questions)</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<title>Quiz Expert CSS</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
 <header>
-
   <div id="navigation"></div>
-
-  <h1>Quiz CSS3 — Base → Expert (25 questions)</h1>
+  <h1>Quiz Expert : CSS</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
 </header>
 
-<div id="quizContainer" aria-live="polite"></div>
+<div id="quizContainer"></div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.local.js"></script>
+<script src="js/quiz-supabase.js"></script>
+<script src="js/quiz-stats.js"></script>
+<script src="js/cookie-manager.js"></script>
+<script src="js/quiz-common.js"></script>
 <script>
-// =============== données ===============
-const quizData = [
-  // 1
-  { id: "css-1", titre: "1️⃣ Quel sélecteur cible tous les éléments de type p qui sont enfants directs d'un div ?", 
-    code: "div > p { /* ... */ }", 
-    options: ["div p", "div > p", "div + p", "div ~ p"], 
-    reponse: "div > p", type:"qcm",
-    explication: "Le '>' sélectionne les enfants directs uniquement." },
-
-  // 2
-  { id: "css-2", titre: "2️⃣ Quelle propriété change le modèle de box pour inclure la bordure et le padding dans la largeur déclarée ?", 
-    code: "/* exemple */ box-sizing: ???", 
-    options: ["content-box", "border-box", "padding-box", "margin-box"], 
-    reponse: "border-box", type:"qcm",
-    explication: "box-sizing: border-box fait inclure padding et border dans width/height." },
-
-  // 3
-  { id: "css-3", titre: "3️⃣ Quel flux crée display:flex sur un conteneur ? (valeur de display)",
-    code: "/* exemple */ .container { display: ??? }",
-    options: ["block", "inline-block", "flex", "grid"],
-    reponse: "flex", type:"qcm",
-    explication: "display:flex active le modèle Flexbox sur le conteneur." },
-
-  // 4 (input)
-  { id: "css-4", titre: "4️⃣ Écrire la règle pour centrer horizontalement un bloc de largeur fixe (ex: width:600px) dans son parent (raccourci CSS).",
-    code: "",
-    reponse: "margin:0 auto;", type:"input",
-    explication: "margin: 0 auto; centre horizontalement un bloc qui a une largeur définie." },
-
-  // 5
-  { id: "css-5", titre: "5️⃣ Ordre de spécificité : lequel est le plus spécifique ?",
-    code: "",
-    options: [".class", "#id", "div p", "inline style"], 
-    reponse: "inline style", type:"qcm",
-    explication: "Les styles inline (attribut style=) ont la plus haute spécificité (avant !important)." },
-
-  // 6
-  { id: "css-6", titre: "6️⃣ Quelle propriété permet d'empêcher qu'un élément flex ne dépasse (squeeze) sa taille minimale (permettre retour à la ligne) ?",
-    code: "",
-    options: ["flex-grow", "flex-shrink", "flex-basis", "flex-wrap"],
-    reponse: "flex-shrink", type:"qcm",
-    explication: "flex-shrink contrôle la réduction d'un item ; mettre flex-shrink:0 empêche le rétrécissement." },
-
-  // 7
-  { id: "css-7", titre: "7️⃣ Quelle unité dépend de la taille de la police racine (root) ?", 
-    code: "", 
-    options: ["em", "rem", "vw", "%"], 
-    reponse: "rem", type:"qcm",
-    explication: "rem = root em = relatif à la police de l'élément courant ; rem est relatif à la racine." },
-
-  // 8
-  { id: "css-8", titre: "8️⃣ Quelle propriété CSS permet de créer un espacement (gap) entre les colonnes d'un grid ?",
-    code: ".grid { display: grid; grid-template-columns: 1fr 1fr; gap: ??? }",
-    options: ["gap", "grid-gap", "column-gap", "grid-column-gap"],
-    reponse: "gap", type:"qcm",
-    explication: "gap est la propriété standard (remplace grid-gap dans les versions récentes)." },
-
-  // 9 (input)
-  { id: "css-9", titre: "9️⃣ Écrire la syntaxe raccourcie pour définir margin-top:10px ; margin-right:20px ; margin-bottom:10px ; margin-left:20px",
-    code: "",
-    reponse: "margin:10px 20px;", type:"input",
-    explication: "Raccourci: top/bottom right/left => margin: 10px 20px;" },
-
-  // 10
-  { id: "css-10", titre: "🔟 Quelle propriété permet d'empiler les éléments (z-order) ?",
-    code: "",
-    options: ["order", "z-index", "stack", "layer"], 
-    reponse: "z-index", type:"qcm",
-    explication: "z-index contrôle l'empilement lorsque position ≠ static." },
-
-  // 11
-  { id: "css-11", titre: "1️⃣1️⃣ Quelle valeur de display est recommandée pour masquer visuellement mais garder accessible au lecteur d'écran ?",
-    code: "",
-    options: ["display:none", "visibility:hidden", "clip-path: inset(50%)", "technique 'sr-only' (off-screen)"],
-    reponse: "technique 'sr-only' (off-screen)", type:"qcm",
-    explication: "display:none et visibility:hidden retirent l'élément à l'accessibilité ; une technique sr-only (position absolue hors écran) conserve l'accès." },
-
-  // 12
-  { id: "css-12", titre: "1️⃣2️⃣ Quel préfixe n'est plus nécessaire pour de nombreuses propriétés modernes (ex: transform) dans les navigateurs récents ?",
-    code: "",
-    options: ["-webkit-", "-moz-", "-ms-", "-old-"],
-    reponse: "-webkit-", type:"qcm",
-    explication: "Historiquement -webkit- était courant ; aujourd'hui transform fonctionne sans préfixe mais -webkit- peut rester pour vieux Safari/anciens iOS." },
-
-  // 13 (input)
-  { id: "css-13", titre: "1️⃣3️⃣ Écrire la règle CSS pour rendre un élément circulaire (ex: 100px x 100px).",
-    code: "",
-    reponse: "border-radius:50%;", type:"input",
-    explication: "border-radius:50% sur un carré rend l'élément circulaire." },
-
-  // 14
-  { id: "css-14", titre: "1️⃣4️⃣ Dans Grid, que fait la fonction repeat(3, 1fr) ?",
-    code: "grid-template-columns: repeat(3, 1fr);",
-    options: ["3 colonnes de fractions égales", "3 lignes de hauteur 1fr", "répète 1fr 3 fois horizontalement", "aucune des précédentes"],
-    reponse: "3 colonnes de fractions égales", type:"qcm",
-    explication: "repeat(3,1fr) crée 3 colonnes chacune valant 1fr." },
-
-  // 15
-  { id: "css-15", titre: "1️⃣5️⃣ Quelle propriété permet d'appliquer une transformation 2D (rotation) sans déclencher de nouvelle composition si possible ?",
-    code: "transform: rotate(45deg);",
-    options: ["transform", "position", "display", "filter"],
-    reponse: "transform", type:"qcm",
-    explication: "transform est géré par le GPU dans de nombreux cas et peut être performant ; will-change: transform peut optimiser." },
-
-  // 16 (input)
-  { id: "css-16", titre: "1️⃣6️⃣ Quelle est la syntaxe pour définir une variable CSS (custom property) et l'utiliser pour colorer le fond ? (raccourci)",
-    code: "",
-    reponse: "--main: #0b76f6; background: var(--main);", type:"input",
-    explication: "Déclaration: :root { --main: #... } ; utilisation: background: var(--main);" },
-
-  // 17
-  { id: "css-17", titre: "1️⃣7️⃣ Quelle propriété CSS contrôle si un élément s'étire pour remplir l'espace disponible en flex ?",
-    code: "",
-    options: ["align-items", "flex-grow", "justify-content", "flex-basis"],
-    reponse: "flex-grow", type:"qcm",
-    explication: "flex-grow détermine la part d'espace supplémentaire que prendra un item flex." },
-
-  // 18
-  { id: "css-18", titre: "1️⃣8️⃣ Quel mot-clé permet d'empêcher qu'une image dépasse son conteneur et conserve son ratio ?",
-    code: "img { max-width: ???; height: auto; }",
-    options: ["100%", "none", "auto", "contain"],
-    reponse: "100%", type:"qcm",
-    explication: "max-width:100% et height:auto maintiennent le ratio et empêchent le dépassement." },
-
-  // 19
-  { id: "css-19", titre: "1️⃣9️⃣ En CSS Grid, que fait minmax(100px, 1fr) ?",
-    code: "grid-template-columns: minmax(100px, 1fr);",
-    options: ["min 100px max 1fr", "fixe 100px", "1fr si >=100px sinon 0", "aucune des précédentes"],
-    reponse: "min 100px max 1fr", type:"qcm",
-    explication: "minmax défini une taille minimale et maximale pour la cellule." },
-
-  // 20 (input)
-  { id: "css-20", titre: "2️⃣0️⃣ Écrire la media query mobile-first pour cibler les écrans plus petits que 768px",
-    code: "",
-    reponse: "@media (max-width: 767px) { }", type:"input",
-    explication: "Mobile-first souvent: styles généraux pour mobile, puis @media (min-width:...) ou ici (max-width:767px) pour les plus petits." },
-
-  // 21
-  { id: "css-21", titre: "2️⃣1️⃣ Quel est l'effet de 'position: absolute' sur le flux normal ?",
-    code: "",
-    options: ["retire l'élément du flux", "garde l'élément dans le flux", "le rend inline", "le centre automatiquement"],
-    reponse: "retire l'élément du flux", type:"qcm",
-    explication: "position:absolute retire l'élément du flux normal et positionne par rapport à un ancêtre positionné." },
-
-  // 22
-  { id: "css-22", titre: "2️⃣2️⃣ Pour une animation CSS, quelle propriété définit la progression (par ex. 2s) ?",
-    code: "animation: slide 2s ease-in-out;",
-    options: ["animation-duration", "animation-delay", "animation-iteration-count", "animation-name"],
-    reponse: "animation-duration", type:"qcm",
-    explication: "La durée de l'animation est définie par animation-duration (ou la position dans la shorthand)." },
-
-  // 23 (input)
-  { id: "css-23", titre: "2️⃣3️⃣ Quelle propriété CSS permet d'empêcher les sous-pixels/bleed lors d'une transformation 3D (souvent utilisé pour améliorer rendu) ?",
-    code: "",
-    reponse: "backface-visibility: hidden;", type:"input",
-    explication: "backface-visibility: hidden; ou transform-style / will-change améliorent parfois le rendu des transformations 3D." },
-
-  // 24
-  { id: "css-24", titre: "2️⃣4️⃣ En Flexbox, quelle propriété sur le conteneur contrôle l'axe principal ?",
-    code: "",
-    options: ["flex-direction", "align-items", "justify-content", "flex-wrap"],
-    reponse: "flex-direction", type:"qcm",
-    explication: "flex-direction définit l'axe principal (row / column / etc.)." },
-
-  // 25 (expert)
-  { id: "css-25", titre: "2️⃣5️⃣ Quelle propriété logique (CSS Logical Properties) permet de gérer la marge de gauche/droite de façon sensible à l'écriture (ltr/rtl) ?",
-    code: "",
-    options: ["margin-inline-start", "margin-left", "margin-inline-end", "margin-right"],
-    reponse: "margin-inline-start", type:"qcm",
-    explication: "Les propriétés inline-start/inline-end s'adaptent en fonction du sens d'écriture (ltr/rtl)." }
-];
-
+// Initialiser le quiz avec les données chargées
+initializeQuiz('css');
 </script>
 
-<script src="cookie-manager.js"></script>
-<script src="quiz-common.js"></script>
+<script src="js/navigation.js"></script>
 <script>
-// Initialiser le quiz avec les fonctions communes
-const quiz = new QuizManager('quizContainer', quizData, {
-    pageId: 'css' // ID unique pour cette page
-});
-</script>
-
-<script src="navigation.js"></script>
-<script>
-  // Initialiser la navigation pour la page CSS
+  // Initialiser la navigation pour la page css
   createNavigation('css');
 </script>
 

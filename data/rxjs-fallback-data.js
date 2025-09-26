@@ -1,0 +1,146 @@
+// rxjs-fallback-data.js - Données de fallback pour rxjs.html
+function getFallbackQuizData() {
+  console.log('⚠️ Utilisation des données de fallback pour rxjs');
+  return [
+  {
+    id: "rxjs-1",
+    titre: "1️⃣ Que signifie RxJS ?",
+    code: "",
+    options: ["Reactive Extensions for JavaScript", "Random eXpressions in JS", "Runtime Execution JS", "Reactive XML for JS"],
+    reponse: "Reactive Extensions for JavaScript",
+    type: "qcm",
+    explication: "RxJS signifie Reactive Extensions for JavaScript, une librairie pour la programmation réactive basée sur les observables."
+  },
+  {
+    id: "rxjs-2",
+    titre: "2️⃣ Quel est le principe de base de RxJS ?",
+    code: "",
+    options: ["Manipuler des promesses", "Manipuler des observables", "Générer du CSS dynamiquement", "Compiler du code TypeScript"],
+    reponse: "Manipuler des observables",
+    type: "qcm",
+    explication: "RxJS repose sur les observables, qui émettent des valeurs au fil du temps."
+  },
+  {
+    id: "rxjs-3",
+    titre: "3️⃣ Complète : Un Observable est ______, un Observer est ______.",
+    code: "",
+    reponse: "une source, un consommateur",
+    type: "input",
+    explication: "L’Observable est une source de données, l’Observer est celui qui réagit aux émissions."
+  },
+  {
+    id: "rxjs-4",
+    titre: "4️⃣ Quel opérateur transforme chaque valeur émise en une nouvelle valeur avec une fonction ?",
+    code: "",
+    options: ["map", "filter", "mergeMap", "debounceTime"],
+    reponse: "map",
+    type: "qcm",
+    explication: "map applique une fonction à chaque valeur émise par l’Observable."
+  },
+  {
+    id: "rxjs-5",
+    titre: "5️⃣ Quel opérateur RxJS permet de n'émettre que les valeurs qui passent un test ?",
+    code: "",
+    options: ["map", "filter", "take", "skip"],
+    reponse: "filter",
+    type: "qcm",
+    explication: "filter émet uniquement les valeurs qui satisfont une condition donnée."
+  },
+  {
+    id: "rxjs-6",
+    titre: "6️⃣ Écrire l'opérateur qui prend seulement les 3 premières valeurs d'un Observable.",
+    code: "source$ ??? 3",
+    reponse: "take(3)",
+    type: "input",
+    explication: "L’opérateur take(n) limite l’Observable aux n premières valeurs."
+  },
+  {
+    id: "rxjs-7",
+    titre: "7️⃣ Quelle est la différence entre mergeMap et switchMap ?",
+    code: "",
+    options: [
+      "mergeMap garde toutes les souscriptions actives, switchMap annule les précédentes",
+      "mergeMap annule les précédentes, switchMap garde toutes les souscriptions",
+      "mergeMap ne retourne pas d’Observable",
+      "Il n’y a pas de différence"
+    ],
+    reponse: "mergeMap garde toutes les souscriptions actives, switchMap annule les précédentes",
+    type: "qcm",
+    explication: "switchMap annule le flux précédent si un nouveau arrive, mergeMap garde tous les flux ouverts."
+  },
+  {
+    id: "rxjs-8",
+    titre: "8️⃣ Complète : Subject est à la fois ______ et ______.",
+    code: "",
+    reponse: "un Observable, un Observer",
+    type: "input",
+    explication: "Un Subject agit comme source (Observable) et récepteur (Observer)."
+  },
+  {
+    id: "rxjs-9",
+    titre: "9️⃣ Quel type de Subject rejoue toutes les valeurs passées aux nouveaux abonnés ?",
+    code: "",
+    options: ["BehaviorSubject", "ReplaySubject", "AsyncSubject", "SimpleSubject"],
+    reponse: "ReplaySubject",
+    type: "qcm",
+    explication: "ReplaySubject rejoue un buffer d’événements aux nouveaux abonnés."
+  },
+  {
+    id: "rxjs-10",
+    titre: "🔟 Quelle différence entre BehaviorSubject et ReplaySubject ?",
+    code: "",
+    options: [
+      "BehaviorSubject stocke une seule valeur courante, ReplaySubject peut en stocker plusieurs",
+      "BehaviorSubject ne garde aucune valeur, ReplaySubject garde la dernière",
+      "BehaviorSubject ne peut pas avoir de valeur initiale",
+      "Aucune différence"
+    ],
+    reponse: "BehaviorSubject stocke une seule valeur courante, ReplaySubject peut en stocker plusieurs",
+    type: "qcm",
+    explication: "BehaviorSubject nécessite une valeur initiale et stocke la dernière, ReplaySubject peut en rejouer plusieurs."
+  },
+  {
+    id: "rxjs-11",
+    titre: "1️⃣1️⃣ Quel opérateur regroupe les valeurs en fonction d'un intervalle de temps ?",
+    code: "",
+    options: ["bufferTime", "debounceTime", "delay", "throttleTime"],
+    reponse: "bufferTime",
+    type: "qcm",
+    explication: "bufferTime collecte les valeurs pendant une période donnée puis les émet en tableau."
+  },
+  {
+    id: "rxjs-12",
+    titre: "1️⃣2️⃣ Saisir l'opérateur qui attend que l'utilisateur arrête d'émettre pendant 500ms.",
+    code: "source$.pipe( ??? (500) )",
+    reponse: "debounceTime(500)",
+    type: "input",
+    explication: "debounceTime retarde l’émission jusqu’à ce qu’il n’y ait plus d’événement dans le délai."
+  },
+  {
+    id: "rxjs-13",
+    titre: "1️⃣3️⃣ Quel opérateur combine plusieurs Observables en émettant un tableau des dernières valeurs de chacun ?",
+    code: "",
+    options: ["combineLatest", "merge", "concat", "zip"],
+    reponse: "combineLatest",
+    type: "qcm",
+    explication: "combineLatest émet à chaque fois que l’un change, en fournissant les dernières valeurs de tous."
+  },
+  {
+    id: "rxjs-14",
+    titre: "1️⃣4️⃣ Complète : L'opérateur ______ exécute les Observables l'un après l'autre, tandis que ______ les exécute en parallèle.",
+    code: "",
+    reponse: "concat, merge",
+    type: "input",
+    explication: "concat enchaîne les Observables, merge les exécute simultanément."
+  },
+  {
+    id: "rxjs-15",
+    titre: "1️⃣5️⃣ En RxJS, quelle méthode utilise-t-on pour arrêter une souscription ?",
+    code: "",
+    options: ["unsubscribe()", "stop()", "complete()", "close()"],
+    reponse: "unsubscribe()",
+    type: "qcm",
+    explication: "unsubscribe() arrête explicitement la souscription."
+  }
+];
+}

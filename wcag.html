@@ -2,59 +2,33 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Quiz Accessibilité : ARIA & WCAG (20 QCM)</title>
-<link rel="stylesheet" href="styles.css">
+<title>Quiz Expert Accessibilité</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header>
-
   <div id="navigation"></div>
-
-  <h1>Quiz Accessibilité : ARIA & WCAG (20 QCM)</h1>
+  <h1>Quiz Expert : Accessibilité</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
 </header>
 
 <div id="quizContainer"></div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.local.js"></script>
+<script src="js/quiz-supabase.js"></script>
+<script src="js/quiz-stats.js"></script>
+<script src="js/cookie-manager.js"></script>
+<script src="js/quiz-common.js"></script>
 <script>
-const quizData = [
-  { id: "wcag-1", titre: "1️⃣ Quel attribut ARIA est nécessaire pour rendre un div accessible comme bouton ?", code: `<div>Cliquer ici</div>`, options: ["role='button'", "aria-label='Submit'", "aria-live='polite'", "tabindex='-1'"], reponse: "role='button'", explication: "Pour qu'un div soit reconnu comme bouton par un lecteur d'écran, il doit avoir role='button'." },
-  { id: "wcag-2", titre: "2️⃣ Quel rôle ARIA est utilisé pour notifier immédiatement un lecteur d'écran d'un message d'erreur critique ?", code: `<div>Erreur critique</div>`, options: ["alert", "status", "tooltip", "note"], reponse: "alert", explication: "Le rôle 'alert' équivaut à aria-live='assertive', ce qui notifie immédiatement l’utilisateur." },
-  { id: "wcag-3", titre: "3️⃣ Comment associer correctement un label à un input texte pour l'accessibilité ?", code: `<input type='text' id='username'>`, options: ["<label for='username'>Nom</label>", "placeholder='Nom'", "title='Nom'", "aria-describedby='username'"], reponse: "<label for='username'>Nom</label>", explication: "Le label associé via 'for' permet aux lecteurs d’écran d’identifier l’input." },
-  { id: "wcag-4", titre: "4️⃣ Quel attribut est obligatoire pour une image informative pour que les lecteurs d'écran la comprennent ?", code: `<img src='graphique.png'>`, options: ["alt", "title", "aria-hidden", "role='img' seulement"], reponse: "alt", explication: "L’attribut 'alt' décrit le contenu de l’image pour les lecteurs d’écran." },
-  { id: "wcag-5", titre: "5️⃣ Quelle valeur de contraste minimum est exigée par WCAG AA pour le texte normal ?", code: `Texte noir sur fond blanc`, options: ["3:1", "4.5:1", "7:1", "2:1"], reponse: "4.5:1", explication: "WCAG AA exige un contraste minimal de 4.5:1 pour le texte normal afin d’être lisible." },
-  { id: "wcag-6", titre: "6️⃣ Quel attribut ARIA permet d'indiquer qu'une section est un menu de navigation ?", code: `<nav>...</nav>`, options: ["role='navigation'", "aria-menu='true'", "aria-label='Menu'", "tabindex='0'"], reponse: "role='navigation'", explication: "role='navigation' informe les lecteurs d’écran que cette section contient des liens de navigation." },
-  { id: "wcag-7", titre: "7️⃣ Quelle valeur de aria-live doit-on utiliser pour annoncer des notifications sans interrompre l'utilisateur ?", code: `<div>Notification</div>`, options: ["polite", "assertive", "off", "alert"], reponse: "polite", explication: "'polite' indique que la mise à jour doit être lue par le lecteur d'écran de manière non intrusive." },
-  { id: "wcag-8", titre: "8️⃣ Quel rôle ARIA convient pour un élément qui agit comme une boîte de dialogue modale ?", code: `<div>...</div>`, options: ["dialog", "alert", "region", "tooltip"], reponse: "dialog", explication: "role='dialog' permet aux lecteurs d’écran de reconnaître une fenêtre modale et de se concentrer dessus." },
-  { id: "wcag-9", titre: "9️⃣ Quelle bonne pratique pour les liens iconiques ?", code: `<a href='#'><img src='icon.png'></a>`, options: ["ajouter aria-label", "utiliser seulement title", "pas besoin de texte", "ajouter role='link' seulement"], reponse: "ajouter aria-label", explication: "Les icônes doivent avoir un texte descriptif via aria-label ou contenu textuel visible." },
-  { id: "wcag-10", titre: "🔟 Comment rendre un tableau accessible ?", code: `<table>...</table>`, options: ["utiliser scope sur les th", "mettre aria-hidden", "tabindex='0' sur tr", "ajouter role='presentation'"], reponse: "utiliser scope sur les th", explication: "Les attributs scope='col' ou 'row' aident les lecteurs d’écran à comprendre la structure du tableau." },
-  { id: "wcag-11", titre: "1️⃣1️⃣ Quelle valeur d'aria-checked pour une checkbox cochée ?", code: `<input type='checkbox'>`, options: ["true", "false", "mixed", "undefined"], reponse: "true", explication: "aria-checked='true' indique que la case est cochée." },
-  { id: "wcag-12", titre: "1️⃣2️⃣ Comment signaler un champ obligatoire pour un lecteur d'écran ?", code: `<input type='text'>`, options: ["aria-required='true'", "required", "aria-label obligatoire", "title obligatoire"], reponse: "aria-required='true'", explication: "aria-required informe les lecteurs d’écran que le champ doit être rempli." },
-  { id: "wcag-13", titre: "1️⃣3️⃣ Quelle pratique pour les listes déroulantes accessibles ?", code: `<select>...</select>`, options: ["ajouter label associé", "utiliser tabindex=-1", "aria-hidden='true'", "role='button'"], reponse: "ajouter label associé", explication: "Chaque select doit avoir un label clair associé pour l’accessibilité." },
-  { id: "wcag-14", titre: "1️⃣4️⃣ Comment indiquer la progression d'un chargement ?", code: `<progress value='30' max='100'></progress>`, options: ["role='progressbar'", "aria-hidden='true'", "tabindex='0'", "aria-live='assertive'"], reponse: "role='progressbar'", explication: "role='progressbar' informe les lecteurs d’écran de la progression d’une tâche." },
-  { id: "wcag-15", titre: "1️⃣5️⃣ Pour rendre un tableau uniquement visuel et ignoré par les lecteurs d'écran ?", code: `<table>...</table>`, options: ["role='presentation'", "aria-hidden='false'", "scope='row'", "tabindex='0'"], reponse: "role='presentation'", explication: "role='presentation' indique que le tableau est purement décoratif." },
-  { id: "wcag-16", titre: "1️⃣6️⃣ Comment améliorer l'accessibilité des couleurs ?", code: `Texte rouge sur fond vert`, options: ["assurer contraste suffisant", "ajouter aria-label", "role='color'", "title obligatoire"], reponse: "assurer contraste suffisant", explication: "Un contraste suffisant entre texte et fond permet la lisibilité pour tous les utilisateurs." },
-  { id: "wcag-17", titre: "1️⃣7️⃣ Quelle balise HTML est intrinsèquement un landmark pour les lecteurs d'écran ?", code: `<main>...</main>`, options: ["main", "div", "span", "section"], reponse: "main", explication: "<main> est un landmark natif signalant le contenu principal." },
-  { id: "wcag-18", titre: "1️⃣8️⃣ Comment rendre un élément dynamique compréhensible par un lecteur d'écran ?", code: `<div id='notif'>...</div>`, options: ["aria-live", "aria-hidden", "tabindex", "role='presentation'"], reponse: "aria-live", explication: "aria-live indique que le contenu de l’élément peut changer et doit être annoncé." },
-  { id: "wcag-19", titre: "1️⃣9️⃣ Quel attribut ARIA pour masquer visuellement un contenu mais le laisser accessible ?", code: `<div>Info</div>`, options: ["aria-hidden='false'", "aria-hidden='true'", "role='presentation'", "tabindex='0'"], reponse: "aria-hidden='false'", explication: "aria-hidden='false' garde l’élément accessible malgré le masquage visuel." },
-  { id: "wcag-20", titre: "2️⃣0️⃣ Comment rendre un slider accessible ?", code: `<input type='range'>`, options: ["role='slider'", "aria-hidden='true'", "tabindex='-1'", "role='button'"], reponse: "role='slider'", explication: "role='slider' informe le lecteur d’écran qu’il s’agit d’un contrôle de type curseur." }
-];
-
+// Initialiser le quiz avec les données chargées
+initializeQuiz('wcag');
 </script>
 
-<script src="cookie-manager.js"></script>
-<script src="quiz-common.js"></script>
+<script src="js/navigation.js"></script>
 <script>
-// Initialiser le quiz avec les fonctions communes
-const quiz = new QuizManager('quizContainer', quizData, {
-    pageId: 'wcag' // ID unique pour cette page
-});
-</script>
-
-<script src="navigation.js"></script>
-<script>
-  // Initialiser la navigation pour la page Accessibilité
+  // Initialiser la navigation pour la page wcag
   createNavigation('wcag');
 </script>
 

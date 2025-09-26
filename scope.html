@@ -2,223 +2,33 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Quiz JS : Scope et Hoisting</title>
-<link rel="stylesheet" href="styles.css">
+<title>Quiz Expert JavaScript Scope</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header>
-
   <div id="navigation"></div>
-
-  <h1>Quiz JS : Scope et Hoisting</h1>
+  <h1>Quiz Expert : JavaScript Scope</h1>
   <p class="lead">Mix QCM (choix unique) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
 </header>
 
 <div id="quizContainer"></div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.local.js"></script>
+<script src="js/quiz-supabase.js"></script>
+<script src="js/quiz-stats.js"></script>
+<script src="js/cookie-manager.js"></script>
+<script src="js/quiz-common.js"></script>
 <script>
-const quizData = [
-  // Scope global / function / block
-  {
-    id: "scope-1",
-    titre: "1️⃣ Scope global vs fonction",
-    code: `let a = 5;
-function test() { 
-  console.log(a); 
-}
-test();`,
-    reponse: ["5"],
-    explication: "Variable 'a' est globale, accessible dans la fonction."
-  },
-  {
-    id: "scope-2",
-    titre: "2️⃣ Scope fonction",
-    code: `function test() { 
-  let b = 10; 
-  console.log(b); 
-}
-test();
-console.log(b);`,
-    reponse: ["10", "referenceerror"],
-    explication: "b existe seulement dans la fonction, hors de la fonction elle n'existe pas."
-  },
-  {
-    id: "scope-3",
-    titre: "3️⃣ Scope bloc avec let",
-    code: `if(true) { 
-  let c = 15; 
-  console.log(c); 
-}
-console.log(c);`,
-    reponse: ["15", "referenceerror"],
-    explication: "c est dans un bloc, donc inaccessible hors du bloc."
-  },
-  {
-    id: "scope-4",
-    titre: "4️⃣ Shadowing",
-    code: `let x = 1;
-function test() { 
-  let x = 2; 
-  console.log(x); 
-}
-test();
-console.log(x);`,
-    reponse: ["2", "1"],
-    explication: "La variable locale masque la globale dans la fonction, mais hors de la fonction la globale reste."
-  },
-  {
-    id: "scope-5",
-    titre: "5️⃣ Scope imbriqué",
-    code: `let a = 1;
-function foo() { 
-  let b = 2; 
-  function bar() { 
-    let c = 3; 
-    console.log(a, b, c); 
-  } 
-  bar(); 
-}
-foo();`,
-    reponse: ["1", "2", "3"],
-    explication: "Les fonctions imbriquées ont accès aux variables externes jusqu'au scope global."
-  },
-
-  // Hoisting
-  {
-    id: "scope-6",
-    titre: "6️⃣ Hoisting var",
-    code: `console.log(a);
-var a = 5;`,
-    reponse: ["undefined"],
-    explication: "var est levée mais pas initialisée, donc undefined."
-  },
-  {
-    id: "scope-7",
-    titre: "7️⃣ Hoisting let / const",
-    code: `console.log(b);
-let b = 10;`,
-    reponse: ["referenceerror"],
-    explication: "let/const sont levées mais en zone morte (TDZ) avant initialisation → ReferenceError."
-  },
-  {
-    id: "scope-8",
-    titre: "8️⃣ Hoisting fonction déclarée",
-    code: `foo();
-function foo() { 
-  console.log('Salut'); 
-}`,
-    reponse: ["salut"],
-    explication: "Les déclarations de fonction sont levées entièrement, donc appel possible avant."
-  },
-  {
-    id: "scope-9",
-    titre: "9️⃣ Hoisting function expression",
-    code: `bar();
-const bar = function() { 
-  console.log('Hello'); 
-};`,
-    reponse: ["referenceerror"],
-    explication: "Les expressions de fonction ne sont pas levées, ReferenceError si appelée avant."
-  },
-  {
-    id: "scope-10",
-    titre: "🔟 Hoisting arrow function",
-    code: `baz();
-const baz = () => console.log('Hey');`,
-    reponse: ["referenceerror"],
-    explication: "Même comportement qu'une function expression."
-  },
-
-  // Combinaisons piégeuses
-  {
-    id: "scope-11",
-    titre: "1️⃣1️⃣ var dans bloc",
-    code: `if(true) { 
-  var v = 20; 
-} 
-console.log(v);`,
-    reponse: ["20"],
-    explication: "var n'a pas de block scope, donc accessible hors du bloc."
-  },
-  {
-    id: "scope-12",
-    titre: "1️⃣2️⃣ let dans bloc",
-    code: `if(true) { 
-  let l = 25; 
-} 
-console.log(l);`,
-    reponse: ["referenceerror"],
-    explication: "let a scope limité au bloc, donc inaccessible hors du bloc."
-  },
-  {
-    id: "scope-13",
-    titre: "1️⃣3️⃣ fonction dans bloc",
-    code: `if(true) { 
-  function f() { 
-    console.log('ok'); 
-  } 
-  f(); 
-}`,
-    reponse: ["ok"],
-    explication: "Dans certains navigateurs, function déclarée dans bloc est accessible seulement dans bloc (strict mode)."
-  },
-  {
-    id: "scope-14",
-    titre: "1️⃣4️⃣ Shadowing + Hoisting",
-    code: `var x = 5; 
-function test() { 
-  console.log(x); 
-  var x = 10; 
-  console.log(x); 
-} 
-test();`,
-    reponse: ["undefined", "10"],
-    explication: "x est levé au début de la fonction mais non initialisé → undefined, ensuite x=10."
-  },
-
-  // Closure / IIFE
-  {
-    id: "scope-15",
-    titre: "1️⃣5️⃣ Closure et scope privé",
-    code: `function create() { 
-  let n = 50; 
-  return function() { 
-    console.log(n); 
-  }; 
-}
-const fn = create(); 
-fn();`,
-    reponse: ["50"],
-    explication: "La closure garde l'accès à la variable n même après la fin de la fonction create."
-  },
-  {
-    id: "scope-16",
-    titre: "1️⃣6️⃣ IIFE pour scope privé",
-    code: `(function() { 
-  let secret = 99; 
-  console.log(secret); 
-})(); 
-console.log(typeof secret);`,
-    reponse: ["99", "undefined"],
-    explication: "La variable secret est dans le scope privé de l'IIFE, inaccessible globalement."
-  }
-];
-
+// Initialiser le quiz avec les données chargées
+initializeQuiz('scope');
 </script>
 
-<script src="cookie-manager.js"></script>
-<script src="quiz-common.js"></script>
+<script src="js/navigation.js"></script>
 <script>
-// Initialiser le quiz avec les fonctions communes
-const quiz = new QuizManager('quizContainer', quizData, {
-    pageId: 'scope' // ID unique pour cette page
-});
-</script>
-
-<script src="navigation.js"></script>
-<script>
-  // Initialiser la navigation pour la page Scope
+  // Initialiser la navigation pour la page scope
   createNavigation('scope');
 </script>
 

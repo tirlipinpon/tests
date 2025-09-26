@@ -1,0 +1,13 @@
+{
+  "name": "quiz-supabase-project",
+  "version": "1.0.0",
+  "description": "Projet de quiz avec intégration Supabase",
+  "main": "index.html",
+  "scripts": {
+    "get": "node get-quiz-data.js",
+    "manage": "node manage-questions.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  }
+}
