@@ -61,6 +61,10 @@ async function loadCategoriesFromSupabase() {
         // Initialiser les catégories filtrées
         filteredCategories = [...categories];
         
+        // Exposer les variables globalement
+        window.categories = categories;
+        window.filteredCategories = filteredCategories;
+        
     } catch (error) {
         console.error('❌ Erreur lors du chargement des catégories:', error);
         throw error;
@@ -133,6 +137,10 @@ async function createCategoryCard(category) {
         
         const categoryColors = colors[category.name] || colors.default;
         
+        // Obtenir le terme de recherche pour la surbrillance
+        const searchInput = document.getElementById('searchInput');
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        
         // Créer les fonctionnalités
         const features = [
             `${questionCount} questions`,
@@ -140,10 +148,15 @@ async function createCategoryCard(category) {
             category.description ? 'Avec descriptions' : 'Quiz standard'
         ];
         
+        // Surligner le terme de recherche dans le nom de la catégorie
+        const displayName = category.display_name || category.name;
+        const highlightedName = searchTerm && searchTerm.length >= 2 ? 
+            highlightSearchTerm(displayName, searchTerm) : displayName;
+        
         return `
             <div class="category-card" style="--category-color: ${category.color || categoryColors.primary}; --category-color-dark: ${categoryColors.dark};">
                 <div class="category-icon">${category.icon || '🎯'}</div>
-                <div class="category-title">${category.display_name || category.name}</div>
+                <div class="category-title">${highlightedName}</div>
                 <div class="category-description">${category.description || `Quiz ${category.display_name || category.name}`}</div>
                 <div class="category-level">${category.level || 'Expert'}</div>
                 <ul class="category-features">
@@ -167,6 +180,19 @@ async function createCategoryCard(category) {
             </div>
         `;
     }
+}
+
+// Fonction utilitaire pour surligner le terme de recherche
+function highlightSearchTerm(text, searchTerm) {
+    if (!searchTerm || searchTerm.length < 2) return text;
+    
+    const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+}
+
+// Échapper les caractères spéciaux pour regex
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Afficher une erreur
@@ -224,8 +250,22 @@ function applyLevelFilter() {
         
         console.log('✅ Filtre appliqué:', filteredCategories.length, 'catégories trouvées');
         
-        // Réafficher les catégories
-        displayCategories();
+        // Mettre à jour la variable globale
+        window.filteredCategories = filteredCategories;
+        
+        // Vérifier s'il y a une recherche active
+        const searchInput = document.getElementById('searchInput');
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        
+        if (searchTerm && searchTerm.length >= 2) {
+            // Appliquer aussi le filtre de recherche
+            if (window.performSearch) {
+                window.performSearch(searchTerm);
+            }
+        } else {
+            // Réafficher les catégories normalement
+            displayCategories();
+        }
         
     } catch (error) {
         console.error('❌ Erreur lors de l\'application du filtre:', error);
@@ -254,8 +294,10 @@ function updateFilterStats() {
     }
 }
 
-// Exposer les fonctions globalement
+// Exposer les fonctions et variables globalement
 window.loadCategoriesFromSupabase = loadCategoriesFromSupabase;
 window.displayCategories = displayCategories;
 window.createCategoryCard = createCategoryCard;
 window.applyLevelFilter = applyLevelFilter;
+window.categories = categories;
+window.filteredCategories = filteredCategories;
