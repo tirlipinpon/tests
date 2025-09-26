@@ -170,6 +170,208 @@
             text-decoration: none;
         }
         
+        .info-message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .question-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .question-card.deleted {
+            background: #fff5f5;
+            border-color: #ffcccb;
+            opacity: 0.7;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .question-title {
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .question-type {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+        }
+        
+        .question-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        
+        .question-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .question-status.deleted {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .question-content {
+            margin-bottom: 1rem;
+        }
+        
+        .question-options {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+        }
+        
+        .question-options ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .question-answer {
+            background: #d1ecf1;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            font-weight: bold;
+        }
+        
+        .question-explanation {
+            background: #fff3cd;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            font-style: italic;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .question-actions .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .question-textarea, .explanation-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .options-list {
+            margin-top: 0.5rem;
+        }
+        
+        .option-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-input {
+            width: 100%;
+            padding: 0.4rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .question-card .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .question-card .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .title-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .code-textarea, .example-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+        
+        .type-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            background: white;
+        }
+        
+        .question-id {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
         .btn-success {
             background: #2ed573;
         }
@@ -335,6 +537,7 @@
         <!-- Navigation -->
         <div class="admin-nav">
             <button class="active" onclick="showSection('categories')">📁 Gestion des Catégories</button>
+            <button onclick="showSection('questions')">❓ Gestion des Questions</button>
             <button onclick="showSection('import')">📥 Import de Questions</button>
             <button onclick="showSection('stats')">📊 Statistiques</button>
         </div>
@@ -393,6 +596,46 @@
             <!-- Liste des catégories -->
             <div id="categories-list">
                 <div class="loading">Chargement des catégories...</div>
+            </div>
+        </div>
+
+        <!-- Section Gestion des Questions -->
+        <div id="questions-section" class="admin-section">
+            <h2>Gestion des Questions</h2>
+            
+            <!-- Sélection de catégorie -->
+            <div class="form-group">
+                <label for="questions-category">Sélectionner une catégorie *</label>
+                <select id="questions-category" required onchange="loadQuestionsForCategory()">
+                    <option value="">-- Choisir une catégorie --</option>
+                </select>
+            </div>
+            
+            <!-- Filtres -->
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="question-status-filter">Statut</label>
+                        <select id="question-status-filter" onchange="filterQuestions()">
+                            <option value="all">Toutes les questions</option>
+                            <option value="active">Actives seulement</option>
+                            <option value="deleted">Supprimées seulement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-type-filter">Type</label>
+                        <select id="question-type-filter" onchange="filterQuestions()">
+                            <option value="all">Tous les types</option>
+                            <option value="qcm">QCM</option>
+                            <option value="input">Réponse libre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liste des questions -->
+            <div id="questions-list">
+                <div class="info-message">Sélectionnez une catégorie pour voir ses questions</div>
             </div>
         </div>
 

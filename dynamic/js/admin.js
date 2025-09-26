@@ -2,6 +2,8 @@
 let categories = [];
 let currentEditingCategory = null;
 let validatedQuestions = [];
+let currentQuestions = [];
+let currentCategory = null;
 
 // Initialiser la page au chargement
 document.addEventListener('DOMContentLoaded', async function() {
@@ -60,6 +62,7 @@ async function loadCategories() {
         categories = data || [];
         renderCategories();
         updateCategorySelect();
+        updateQuestionsCategorySelect();
         
     } catch (error) {
         console.error('Erreur lors du chargement des catégories:', error);
@@ -521,7 +524,10 @@ function showSection(sectionName) {
     event.target.classList.add('active');
     
     // Recharger les données si nécessaire
-    if (sectionName === 'stats') {
+    if (sectionName === 'questions') {
+        // La section des questions se charge automatiquement quand on sélectionne une catégorie
+        console.log('Section des questions activée');
+    } else if (sectionName === 'stats') {
         loadStats();
     }
 }
@@ -537,4 +543,404 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// ===== GESTION DES QUESTIONS =====
+
+// Charger les questions d'une catégorie
+async function loadQuestionsForCategory() {
+    const categorySelect = document.getElementById('questions-category');
+    const categoryName = categorySelect.value;
+    
+    if (!categoryName) {
+        document.getElementById('questions-list').innerHTML = '<div class="info-message">Sélectionnez une catégorie pour voir ses questions</div>';
+        return;
+    }
+    
+    try {
+        console.log('🔧 Chargement des questions pour la catégorie:', categoryName);
+        
+        // Charger toutes les questions (actives et supprimées)
+        const { data, error } = await supabase
+            .from('quiz_questions')
+            .select('*')
+            .eq('category', categoryName)
+            .order('created_at', { ascending: false });
+        
+        // Debug: Afficher la structure des données
+        if (data && data.length > 0) {
+            console.log('🔍 Première question brute de la DB:', data[0]);
+            console.log('🔍 Tous les champs disponibles:', Object.keys(data[0]));
+        }
+        
+        if (error) {
+            throw error;
+        }
+        
+        currentQuestions = data || [];
+        currentCategory = categoryName;
+        
+        // Initialiser et mapper les champs pour chaque question selon la vraie structure DB
+        currentQuestions.forEach(question => {
+            // Mapper les champs selon la vraie structure de la table
+            question.titre = question.title || ''; // title en DB
+            question.question = question.code || ''; // code en DB (pas question)
+            question.question_type = question.question_type || 'input'; // question_type en DB
+            question.correct_answer = question.correct_answer || '';
+            question.explanation = question.explanation || '';
+            question.exemple = question.exemple || '';
+            
+            console.log('🔧 Question mappée selon la vraie structure DB:', {
+                id: question.id,
+                question_id: question.question_id,
+                title: question.title,
+                code: question.code,
+                question_type: question.question_type,
+                correct_answer: question.correct_answer,
+                options: question.options
+            });
+        });
+        
+        console.log('✅ Questions chargées:', currentQuestions.length);
+        
+        // Afficher les questions
+        displayQuestions();
+        
+    } catch (error) {
+        console.error('❌ Erreur lors du chargement des questions:', error);
+        showAlert('Erreur lors du chargement des questions: ' + error.message, 'error');
+    }
+}
+
+// Afficher les questions
+function displayQuestions() {
+    const container = document.getElementById('questions-list');
+    
+    if (currentQuestions.length === 0) {
+        container.innerHTML = '<div class="info-message">Aucune question trouvée pour cette catégorie</div>';
+        return;
+    }
+    
+    // Appliquer les filtres
+    const filteredQuestions = filterQuestionsData(currentQuestions);
+    
+    const html = filteredQuestions.map(question => createQuestionCard(question)).join('');
+    container.innerHTML = html;
+}
+
+// Créer une carte de question
+function createQuestionCard(question) {
+    const isDeleted = question.deleted;
+    const statusClass = isDeleted ? 'deleted' : 'active';
+    const statusText = isDeleted ? 'Supprimée' : 'Active';
+    
+    // Debug: Afficher les champs disponibles (optionnel)
+    // console.log('🔍 Question:', question.id, { title: question.title, code: question.code, question_type: question.question_type });
+    
+    // Utiliser les vrais champs de la DB
+    const questionText = question.code || 'Code vide'; // code en DB
+    const titleText = question.title || ''; // title en DB
+    
+    // Déterminer le type de question
+    const questionType = question.question_type || 'input';
+    
+    // Gérer les options pour QCM
+    let optionsHtml = '';
+    if (questionType === 'qcm') {
+        let options = [];
+        if (question.options) {
+            try {
+                options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
+            } catch (e) {
+                console.warn('Erreur parsing options:', e);
+                options = [];
+            }
+        }
+        
+        // S'assurer qu'il y a au moins 2 options
+        if (options.length < 2) {
+            options = options.concat(['', '']);
+        }
+        
+        optionsHtml = `
+            <div class="question-options">
+                <strong>Options QCM :</strong>
+                <div class="options-list">
+                    ${options.map((option, index) => `
+                        <div class="option-item">
+                            <input type="text" value="${option}" onchange="updateQuestionOption(${question.id}, ${index}, this.value)" 
+                                   class="option-input" placeholder="Option ${index + 1}">
+                        </div>
+                    `).join('')}
+                    <button type="button" class="btn btn-secondary" onclick="addQuestionOption(${question.id})" style="margin-top: 0.5rem;">
+                        + Ajouter une option
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="question-card ${statusClass}" data-question-id="${question.id}">
+            <div class="question-header">
+                <div class="question-meta">
+                    <span class="question-id">ID: ${question.question_id || question.id}</span>
+                    <span class="question-type">${questionType}</span>
+                    <span class="question-status ${statusClass}">${statusText}</span>
+                </div>
+            </div>
+            
+            <div class="question-content">
+                <div class="form-group">
+                    <label>Titre :</label>
+                    <input type="text" value="${titleText}" 
+                           onchange="updateQuestionField(${question.id}, 'title', this.value)"
+                           class="title-input" placeholder="Titre de la question">
+                    ${!titleText ? '<small style="color: #666; font-style: italic;">Champ vide - ajoutez un titre</small>' : ''}
+                </div>
+                
+                <div class="form-group">
+                    <label>Code :</label>
+                    <textarea class="code-textarea" onchange="updateQuestionField(${question.id}, 'code', this.value)" 
+                              placeholder="Code de la question">${questionText}</textarea>
+                    ${!questionText || questionText === 'Code vide' ? '<small style="color: #666; font-style: italic;">Champ vide - ajoutez le code de la question</small>' : ''}
+                </div>
+                
+                <div class="form-group">
+                    <label>Type de question :</label>
+                    <select class="type-select" onchange="updateQuestionField(${question.id}, 'question_type', this.value)">
+                        <option value="qcm" ${questionType === 'qcm' ? 'selected' : ''}>QCM</option>
+                        <option value="input" ${questionType === 'input' ? 'selected' : ''}>Réponse libre</option>
+                    </select>
+                </div>
+                
+                ${optionsHtml}
+                
+                <div class="form-group">
+                    <label>Réponse correcte :</label>
+                    <input type="text" value="${question.correct_answer || question.reponse || ''}" 
+                           onchange="updateQuestionField(${question.id}, 'correct_answer', this.value)"
+                           class="answer-input" placeholder="Réponse correcte">
+                </div>
+                
+                <div class="form-group">
+                    <label>Explication :</label>
+                    <textarea class="explanation-textarea" onchange="updateQuestionField(${question.id}, 'explanation', this.value)" 
+                              placeholder="Explication de la réponse">${question.explanation || ''}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Exemple :</label>
+                    <textarea class="example-textarea" onchange="updateQuestionField(${question.id}, 'exemple', this.value)" 
+                              placeholder="Exemple d'utilisation">${question.exemple || ''}</textarea>
+                </div>
+            </div>
+            
+            <div class="question-actions">
+                <button class="btn btn-success" onclick="saveQuestion(${question.id})">💾 Sauvegarder</button>
+                ${isDeleted ? 
+                    `<button class="btn btn-success" onclick="restoreQuestion(${question.id})">↩️ Restaurer</button>` :
+                    `<button class="btn btn-danger" onclick="deleteQuestion(${question.id})">🗑️ Supprimer</button>`
+                }
+            </div>
+        </div>
+    `;
+}
+
+// Filtrer les questions
+function filterQuestions() {
+    displayQuestions();
+}
+
+// Appliquer les filtres aux données
+function filterQuestionsData(questions) {
+    const statusFilter = document.getElementById('question-status-filter')?.value || 'all';
+    const typeFilter = document.getElementById('question-type-filter')?.value || 'all';
+    
+    console.log('🔍 Filtrage des questions:', { statusFilter, typeFilter, totalQuestions: questions.length });
+    
+    return questions.filter(question => {
+        // Filtre par statut
+        if (statusFilter === 'active' && question.deleted) {
+            console.log('❌ Question filtrée (active):', question.id, question.deleted);
+            return false;
+        }
+        if (statusFilter === 'deleted' && !question.deleted) {
+            console.log('❌ Question filtrée (deleted):', question.id, question.deleted);
+            return false;
+        }
+        
+        // Filtre par type
+        if (typeFilter !== 'all' && question.type !== typeFilter) {
+            console.log('❌ Question filtrée (type):', question.id, question.type, 'vs', typeFilter);
+            return false;
+        }
+        
+        console.log('✅ Question conservée:', question.id, question.type, question.deleted);
+        return true;
+    });
+}
+
+// Modifier une question
+function editQuestion(questionId) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (!question) return;
+    
+    // TODO: Implémenter l'édition de question
+    showAlert('Fonction d\'édition de question à implémenter', 'info');
+}
+
+// Supprimer une question
+async function deleteQuestion(questionId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) return;
+    
+    try {
+        const { error } = await supabase
+            .from('quiz_questions')
+            .update({ deleted: true })
+            .eq('id', questionId);
+        
+        if (error) throw error;
+        
+        showAlert('Question supprimée avec succès', 'success');
+        await loadQuestionsForCategory();
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la suppression:', error);
+        showAlert('Erreur lors de la suppression: ' + error.message, 'error');
+    }
+}
+
+// Restaurer une question
+async function restoreQuestion(questionId) {
+    try {
+        const { error } = await supabase
+            .from('quiz_questions')
+            .update({ deleted: false })
+            .eq('id', questionId);
+        
+        if (error) throw error;
+        
+        showAlert('Question restaurée avec succès', 'success');
+        await loadQuestionsForCategory();
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la restauration:', error);
+        showAlert('Erreur lors de la restauration: ' + error.message, 'error');
+    }
+}
+
+// Mettre à jour la liste des catégories pour le sélecteur de questions
+function updateQuestionsCategorySelect() {
+    const select = document.getElementById('questions-category');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- Choisir une catégorie --</option>' +
+        categories.map(category => 
+            `<option value="${category.name}">${category.display_name || category.name}</option>`
+        ).join('');
+}
+
+// Mettre à jour un champ de question
+function updateQuestionField(questionId, field, value) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (question) {
+        question[field] = value;
+        console.log(`Champ ${field} mis à jour pour la question ${questionId}:`, value);
+        
+        // Si le type change, mettre à jour l'affichage
+        if (field === 'question_type') {
+            updateQuestionDisplay(questionId);
+        }
+        
+        // Mettre à jour les champs mappés
+        if (field === 'title') {
+            question.titre = value;
+        } else if (field === 'code') {
+            question.question = value;
+        }
+    }
+}
+
+// Mettre à jour l'affichage d'une question (pour le changement de type)
+function updateQuestionDisplay(questionId) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (!question) return;
+    
+    // Recharger l'affichage des questions pour mettre à jour les options
+    displayQuestions();
+}
+
+// Mettre à jour une option de QCM
+function updateQuestionOption(questionId, optionIndex, value) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (question && question.question_type === 'qcm') {
+        let options = [];
+        try {
+            options = Array.isArray(question.options) ? question.options : JSON.parse(question.options || '[]');
+        } catch (e) {
+            options = [];
+        }
+        
+        options[optionIndex] = value;
+        question.options = options;
+        console.log(`Option ${optionIndex} mise à jour pour la question ${questionId}:`, value);
+    }
+}
+
+// Ajouter une option QCM
+function addQuestionOption(questionId) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (question && question.question_type === 'qcm') {
+        let options = [];
+        try {
+            options = Array.isArray(question.options) ? question.options : JSON.parse(question.options || '[]');
+        } catch (e) {
+            options = [];
+        }
+        
+        options.push('');
+        question.options = options;
+        
+        // Recharger l'affichage pour montrer la nouvelle option
+        displayQuestions();
+    }
+}
+
+// Sauvegarder une question
+async function saveQuestion(questionId) {
+    const question = currentQuestions.find(q => q.id === questionId);
+    if (!question) return;
+    
+    try {
+        console.log('💾 Sauvegarde de la question:', questionId);
+        
+        // Préparer les données à sauvegarder selon la vraie structure DB
+        const updateData = {
+            title: question.title, // title en DB
+            code: question.code, // code en DB
+            correct_answer: question.correct_answer,
+            explanation: question.explanation,
+            exemple: question.exemple,
+            question_type: question.question_type
+        };
+        
+        // Ajouter les options si c'est un QCM
+        if (question.question_type === 'qcm' && question.options) {
+            updateData.options = JSON.stringify(question.options);
+        }
+        
+        const { error } = await supabase
+            .from('quiz_questions')
+            .update(updateData)
+            .eq('id', questionId);
+        
+        if (error) throw error;
+        
+        showAlert('Question sauvegardée avec succès', 'success');
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la sauvegarde:', error);
+        showAlert('Erreur lors de la sauvegarde: ' + error.message, 'error');
+    }
 }
