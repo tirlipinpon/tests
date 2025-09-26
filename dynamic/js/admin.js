@@ -668,11 +668,11 @@ function createQuestionCard(question) {
                 <div class="options-list">
                     ${options.map((option, index) => `
                         <div class="option-item">
-                            <input type="text" value="${option}" onchange="updateQuestionOption(${question.id}, ${index}, this.value)" 
+                            <input type="text" value="${option}" onchange="updateQuestionOption('${question.id}', ${index}, this.value)" 
                                    class="option-input" placeholder="Option ${index + 1}">
                         </div>
                     `).join('')}
-                    <button type="button" class="btn btn-secondary" onclick="addQuestionOption(${question.id})" style="margin-top: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="addQuestionOption('${question.id}')" style="margin-top: 0.5rem;">
                         + Ajouter une option
                     </button>
                 </div>
@@ -680,11 +680,15 @@ function createQuestionCard(question) {
         `;
     }
     
+    // Échapper l'ID pour éviter les problèmes avec les UUID
+    const questionId = question.id;
+    const questionIdStr = `'${questionId}'`;
+    
     return `
-        <div class="question-card ${statusClass}" data-question-id="${question.id}">
+        <div class="question-card ${statusClass}" data-question-id="${questionId}">
             <div class="question-header">
                 <div class="question-meta">
-                    <span class="question-id">ID: ${question.question_id || question.id}</span>
+                    <span class="question-id">ID: ${question.question_id || questionId}</span>
                     <span class="question-type">${questionType}</span>
                     <span class="question-status ${statusClass}">${statusText}</span>
                 </div>
@@ -694,21 +698,21 @@ function createQuestionCard(question) {
                 <div class="form-group">
                     <label>Titre :</label>
                     <input type="text" value="${titleText}" 
-                           onchange="updateQuestionField(${question.id}, 'title', this.value)"
+                           onchange="updateQuestionField(${questionIdStr}, 'title', this.value)"
                            class="title-input" placeholder="Titre de la question">
                     ${!titleText ? '<small style="color: #666; font-style: italic;">Champ vide - ajoutez un titre</small>' : ''}
                 </div>
                 
                 <div class="form-group">
                     <label>Code :</label>
-                    <textarea class="code-textarea" onchange="updateQuestionField(${question.id}, 'code', this.value)" 
+                    <textarea class="code-textarea" onchange="updateQuestionField(${questionIdStr}, 'code', this.value)" 
                               placeholder="Code de la question">${questionText}</textarea>
                     ${!questionText || questionText === 'Code vide' ? '<small style="color: #666; font-style: italic;">Champ vide - ajoutez le code de la question</small>' : ''}
                 </div>
                 
                 <div class="form-group">
                     <label>Type de question :</label>
-                    <select class="type-select" onchange="updateQuestionField(${question.id}, 'question_type', this.value)">
+                    <select class="type-select" onchange="updateQuestionField(${questionIdStr}, 'question_type', this.value)">
                         <option value="qcm" ${questionType === 'qcm' ? 'selected' : ''}>QCM</option>
                         <option value="input" ${questionType === 'input' ? 'selected' : ''}>Réponse libre</option>
                     </select>
@@ -719,28 +723,28 @@ function createQuestionCard(question) {
                 <div class="form-group">
                     <label>Réponse correcte :</label>
                     <input type="text" value="${question.correct_answer || question.reponse || ''}" 
-                           onchange="updateQuestionField(${question.id}, 'correct_answer', this.value)"
+                           onchange="updateQuestionField(${questionIdStr}, 'correct_answer', this.value)"
                            class="answer-input" placeholder="Réponse correcte">
                 </div>
                 
                 <div class="form-group">
                     <label>Explication :</label>
-                    <textarea class="explanation-textarea" onchange="updateQuestionField(${question.id}, 'explanation', this.value)" 
+                    <textarea class="explanation-textarea" onchange="updateQuestionField(${questionIdStr}, 'explanation', this.value)" 
                               placeholder="Explication de la réponse">${question.explanation || ''}</textarea>
                 </div>
                 
                 <div class="form-group">
                     <label>Exemple :</label>
-                    <textarea class="example-textarea" onchange="updateQuestionField(${question.id}, 'exemple', this.value)" 
+                    <textarea class="example-textarea" onchange="updateQuestionField(${questionIdStr}, 'exemple', this.value)" 
                               placeholder="Exemple d'utilisation">${question.exemple || ''}</textarea>
                 </div>
             </div>
             
             <div class="question-actions">
-                <button class="btn btn-success" onclick="saveQuestion(${question.id})">💾 Sauvegarder</button>
+                <button class="btn btn-success" onclick="saveQuestion(${questionIdStr})">💾 Sauvegarder</button>
                 ${isDeleted ? 
-                    `<button class="btn btn-success" onclick="restoreQuestion(${question.id})">↩️ Restaurer</button>` :
-                    `<button class="btn btn-danger" onclick="deleteQuestion(${question.id})">🗑️ Supprimer</button>`
+                    `<button class="btn btn-success" onclick="restoreQuestion(${questionIdStr})">↩️ Restaurer</button>` :
+                    `<button class="btn btn-danger" onclick="deleteQuestion(${questionIdStr})">🗑️ Supprimer</button>`
                 }
             </div>
         </div>
@@ -771,12 +775,12 @@ function filterQuestionsData(questions) {
         }
         
         // Filtre par type
-        if (typeFilter !== 'all' && question.type !== typeFilter) {
-            console.log('❌ Question filtrée (type):', question.id, question.type, 'vs', typeFilter);
+        if (typeFilter !== 'all' && question.question_type !== typeFilter) {
+            console.log('❌ Question filtrée (type):', question.id, question.question_type, 'vs', typeFilter);
             return false;
         }
         
-        console.log('✅ Question conservée:', question.id, question.type, question.deleted);
+        console.log('✅ Question conservée:', question.id, question.question_type, question.deleted);
         return true;
     });
 }
@@ -794,11 +798,14 @@ function editQuestion(questionId) {
 async function deleteQuestion(questionId) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) return;
     
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    
     try {
         const { error } = await supabase
             .from('quiz_questions')
             .update({ deleted: true })
-            .eq('id', questionId);
+            .eq('id', cleanId);
         
         if (error) throw error;
         
@@ -813,11 +820,14 @@ async function deleteQuestion(questionId) {
 
 // Restaurer une question
 async function restoreQuestion(questionId) {
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    
     try {
         const { error } = await supabase
             .from('quiz_questions')
             .update({ deleted: false })
-            .eq('id', questionId);
+            .eq('id', cleanId);
         
         if (error) throw error;
         
@@ -843,14 +853,16 @@ function updateQuestionsCategorySelect() {
 
 // Mettre à jour un champ de question
 function updateQuestionField(questionId, field, value) {
-    const question = currentQuestions.find(q => q.id === questionId);
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    const question = currentQuestions.find(q => q.id === cleanId);
     if (question) {
         question[field] = value;
-        console.log(`Champ ${field} mis à jour pour la question ${questionId}:`, value);
+        console.log(`Champ ${field} mis à jour pour la question ${cleanId}:`, value);
         
         // Si le type change, mettre à jour l'affichage
         if (field === 'question_type') {
-            updateQuestionDisplay(questionId);
+            updateQuestionDisplay(cleanId);
         }
         
         // Mettre à jour les champs mappés
@@ -873,7 +885,9 @@ function updateQuestionDisplay(questionId) {
 
 // Mettre à jour une option de QCM
 function updateQuestionOption(questionId, optionIndex, value) {
-    const question = currentQuestions.find(q => q.id === questionId);
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    const question = currentQuestions.find(q => q.id === cleanId);
     if (question && question.question_type === 'qcm') {
         let options = [];
         try {
@@ -884,13 +898,15 @@ function updateQuestionOption(questionId, optionIndex, value) {
         
         options[optionIndex] = value;
         question.options = options;
-        console.log(`Option ${optionIndex} mise à jour pour la question ${questionId}:`, value);
+        console.log(`Option ${optionIndex} mise à jour pour la question ${cleanId}:`, value);
     }
 }
 
 // Ajouter une option QCM
 function addQuestionOption(questionId) {
-    const question = currentQuestions.find(q => q.id === questionId);
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    const question = currentQuestions.find(q => q.id === cleanId);
     if (question && question.question_type === 'qcm') {
         let options = [];
         try {
@@ -909,11 +925,13 @@ function addQuestionOption(questionId) {
 
 // Sauvegarder une question
 async function saveQuestion(questionId) {
-    const question = currentQuestions.find(q => q.id === questionId);
+    // Nettoyer l'ID si nécessaire (enlever les guillemets)
+    const cleanId = questionId.replace(/'/g, '');
+    const question = currentQuestions.find(q => q.id === cleanId);
     if (!question) return;
     
     try {
-        console.log('💾 Sauvegarde de la question:', questionId);
+        console.log('💾 Sauvegarde de la question:', cleanId);
         
         // Préparer les données à sauvegarder selon la vraie structure DB
         const updateData = {
@@ -933,7 +951,7 @@ async function saveQuestion(questionId) {
         const { error } = await supabase
             .from('quiz_questions')
             .update(updateData)
-            .eq('id', questionId);
+            .eq('id', cleanId);
         
         if (error) throw error;
         
