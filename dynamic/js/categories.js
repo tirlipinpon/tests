@@ -1,5 +1,7 @@
 // categories.js - Gestion de la page de sélection des catégories
 let categories = [];
+let filteredCategories = [];
+let currentFilter = '';
 
 // Initialiser la page au chargement
 document.addEventListener('DOMContentLoaded', async function() {
@@ -11,6 +13,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Charger les catégories
         await loadCategoriesFromSupabase();
+        
+        // Initialiser les filtres
+        initializeFilters();
         
         // Afficher les catégories
         displayCategories();
@@ -53,6 +58,9 @@ async function loadCategoriesFromSupabase() {
             throw new Error('Aucune catégorie trouvée');
         }
         
+        // Initialiser les catégories filtrées
+        filteredCategories = [...categories];
+        
     } catch (error) {
         console.error('❌ Erreur lors du chargement des catégories:', error);
         throw error;
@@ -80,13 +88,16 @@ async function displayCategories() {
             
             // Générer les cartes de catégories
             const categoriesHTML = await Promise.all(
-                categories.map(async (category) => {
+                filteredCategories.map(async (category) => {
                     return await createCategoryCard(category);
                 })
             );
             
             categoriesGrid.innerHTML = categoriesHTML.join('');
         }
+        
+        // Mettre à jour les statistiques de filtrage
+        updateFilterStats();
         
         console.log('✅ Catégories affichées');
         
@@ -174,7 +185,77 @@ function showError(message) {
     console.error('❌ Erreur affichée:', message);
 }
 
+// Initialiser les filtres
+function initializeFilters() {
+    const levelFilter = document.getElementById('levelFilter');
+    const applyFilter = document.getElementById('applyFilter');
+    
+    if (levelFilter) {
+        levelFilter.addEventListener('change', function() {
+            currentFilter = this.value;
+            console.log('🔧 Filtre de niveau changé:', currentFilter);
+        });
+    }
+    
+    if (applyFilter) {
+        applyFilter.addEventListener('click', function() {
+            applyLevelFilter();
+        });
+    }
+    
+    console.log('✅ Filtres initialisés');
+}
+
+// Appliquer le filtre par niveau
+function applyLevelFilter() {
+    try {
+        console.log('🔧 Application du filtre par niveau:', currentFilter);
+        
+        if (!currentFilter || currentFilter === '') {
+            // Afficher toutes les catégories
+            filteredCategories = [...categories];
+        } else {
+            // Filtrer par niveau
+            filteredCategories = categories.filter(category => {
+                const categoryLevel = category.level || 'Expert';
+                return categoryLevel === currentFilter;
+            });
+        }
+        
+        console.log('✅ Filtre appliqué:', filteredCategories.length, 'catégories trouvées');
+        
+        // Réafficher les catégories
+        displayCategories();
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de l\'application du filtre:', error);
+        showError('Erreur lors de l\'application du filtre: ' + error.message);
+    }
+}
+
+
+// Mettre à jour les statistiques de filtrage
+function updateFilterStats() {
+    try {
+        const filterStats = document.getElementById('filterStats');
+        if (!filterStats) return;
+        
+        const totalCategories = categories.length;
+        const filteredCount = filteredCategories.length;
+        
+        if (currentFilter && currentFilter !== '') {
+            filterStats.textContent = `Affichage de ${filteredCount} catégorie(s) sur ${totalCategories} (filtre: ${currentFilter})`;
+        } else {
+            filterStats.textContent = `Affichage de ${totalCategories} catégorie(s)`;
+        }
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la mise à jour des statistiques:', error);
+    }
+}
+
 // Exposer les fonctions globalement
 window.loadCategoriesFromSupabase = loadCategoriesFromSupabase;
 window.displayCategories = displayCategories;
 window.createCategoryCard = createCategoryCard;
+window.applyLevelFilter = applyLevelFilter;

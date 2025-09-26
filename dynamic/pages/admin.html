@@ -13,46 +13,34 @@
             padding: 20px;
         }
         
-        .admin-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            text-align: center;
-            position: relative;
-        }
-        
-        .admin-links {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        
         .admin-link {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
+            background: #f8f9fa;
+            color: #333;
+            padding: 0.75rem 1.5rem;
             text-decoration: none;
-            border-radius: 20px;
+            border-radius: 5px;
             font-size: 0.9rem;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            border: 2px solid #dee2e6;
+            font-weight: 500;
         }
         
         .admin-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #e9ecef;
             transform: translateY(-2px);
+            color: #333;
+            text-decoration: none;
         }
         
         .admin-link.home {
-            background: rgba(40, 167, 69, 0.8);
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
         }
         
         .admin-link.home:hover {
-            background: rgba(40, 167, 69, 1);
+            background: #218838;
+            color: white;
         }
         
         .admin-nav {
@@ -538,15 +526,6 @@
 </head>
 <body>
     <div class="admin-container">
-        <!-- Header -->
-        <div class="admin-header">
-            <div class="admin-links">
-                <a href="categories.html" class="admin-link">🎯 Catégories</a>
-                <a href="../../index.html" class="admin-link home">🏠 Accueil</a>
-            </div>
-            <h1>🔧 Administration du Système de Quiz</h1>
-            <p>Gérez vos catégories et importez des questions</p>
-        </div>
 
         <!-- Navigation -->
         <div class="admin-nav">
@@ -554,6 +533,8 @@
             <button onclick="showSection('questions')">❓ Gestion des Questions</button>
             <button onclick="showSection('import')">📥 Import de Questions</button>
             <button onclick="showSection('stats')">📊 Statistiques</button>
+            <a href="categories.html" class="admin-link">🎯 Catégories</a>
+            <a href="../../index.html" class="admin-link home">🏠 Accueil</a>
         </div>
 
         <!-- Section Gestion des Catégories -->

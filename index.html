@@ -3,201 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collection de Quiz JavaScript - Menu Principal</title>
+    <title>Quiz JavaScript - Redirection</title>
     <style>
-        /* Reset et base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .main-header {
-            text-align: center;
-            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
             color: white;
         }
-
-        .main-header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .main-header p {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-
-        .system-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 40px;
-        }
-
-        .system-card {
-            background: white;
-            border-radius: 15px;
+        .loading-container {
+            text-align: center;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            text-align: center;
         }
-
-        .system-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
         }
-
-        .system-icon {
-            font-size: 4rem;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        p {
+            opacity: 0.9;
             margin-bottom: 1rem;
         }
-
-        .system-title {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        .system-description {
-            color: #666;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-
-        .system-features {
-            list-style: none;
-            margin-bottom: 2rem;
-        }
-
-        .system-features li {
-            padding: 0.5rem 0;
-            color: #555;
-            border-bottom: 1px solid #eee;
-        }
-
-        .system-features li:last-child {
-            border-bottom: none;
-        }
-
-        .system-link {
+        .manual-link {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             text-decoration: none;
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 25px;
-            font-weight: 600;
+            margin-top: 1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
-
-        .system-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        .manual-link:hover {
+            background: rgba(255, 255, 255, 0.3);
             color: white;
             text-decoration: none;
-        }
-
-        .admin-link {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-
-        .admin-link:hover {
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
-        }
-
-        .footer {
-            text-align: center;
-            color: white;
-            opacity: 0.8;
-            margin-top: 2rem;
-        }
-
-        .version-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .version-info h3 {
-            margin-bottom: 0.5rem;
-        }
-
-        .version-info p {
-            font-size: 0.9rem;
-            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="main-header">
-            <h1>🎯 Collection de Quiz JavaScript</h1>
-            <p>Système de quiz dynamique avec Supabase</p>
-        </header>
-
-        <div class="system-grid">
-            <!-- Système Dynamique -->
-            <div class="system-card">
-                <div class="system-icon">⚡</div>
-                <h2 class="system-title">Système de Quiz Dynamique</h2>
-                <p class="system-description">
-                    Quiz modernes alimentés par Supabase avec gestion dynamique des catégories. 
-                    Idéal pour un système évolutif et une administration centralisée.
-                </p>
-                <ul class="system-features">
-                    <li>✅ Base de données Supabase</li>
-                    <li>✅ Gestion dynamique des catégories</li>
-                    <li>✅ Interface d'administration</li>
-                    <li>✅ Import de questions en JSON</li>
-                    <li>✅ Système évolutif et moderne</li>
-                </ul>
-                <a href="dynamic/pages/categories.html" class="system-link">Accéder aux Quiz</a>
-            </div>
-        </div>
-
-        <!-- Lien Administration -->
-        <div style="text-align: center; margin: 2rem 0;">
-            <a href="dynamic/pages/admin.html" class="system-link admin-link">🔧 Administration du Système</a>
-        </div>
-
-        <!-- Informations de version -->
-        <div class="version-info">
-            <h3>📋 Informations du Système</h3>
-            <p>
-                <strong>Version :</strong> 2.0 | 
-                <strong>Système :</strong> Quiz dynamiques avec Supabase
-            </p>
-            <p>
-                Système moderne et évolutif avec gestion centralisée des questions et catégories.
-            </p>
-        </div>
-
-        <footer class="footer">
-            <p>💡 Système moderne et évolutif pour une expérience d'apprentissage optimale</p>
-        </footer>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h1>🎯 Quiz JavaScript</h1>
+        <p>Redirection vers les catégories de quiz...</p>
+        <p>Si la redirection ne fonctionne pas, cliquez sur le lien ci-dessous :</p>
+        <a href="dynamic/pages/categories.html" class="manual-link">Accéder aux Catégories de Quiz</a>
     </div>
+
+    <script>
+        // Redirection automatique après 1 seconde
+        setTimeout(() => {
+            window.location.href = 'dynamic/pages/categories.html';
+        }, 1000);
+    </script>
 </body>
 </html>
