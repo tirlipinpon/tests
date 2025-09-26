@@ -54,12 +54,18 @@ function handleSearchInput(e) {
         clearTimeout(searchTimeout);
     }
     
-    // Si moins de 2 caractères, ne pas chercher
+    // Si moins de 2 caractères, réinitialiser l'affichage
     if (searchTerm.length < 2) {
         hideSuggestions();
-        if (window.applyLevelFilter) {
-            window.applyLevelFilter();
-        }
+        // Réafficher toutes les catégories visibles (sans filtre de recherche)
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.classList.remove('hidden');
+        });
+        // Mettre à jour les statistiques
+        const visibleCards = document.querySelectorAll('.category-card:not(.hidden)');
+        updateSearchStats(visibleCards.length, visibleCards.length, '');
+        console.log('🔄 Recherche réinitialisée, affichage de toutes les catégories');
         return;
     }
     
@@ -78,33 +84,24 @@ function performSearch(searchTerm) {
         const levelFilter = document.getElementById('levelFilter');
         const selectedLevel = levelFilter ? levelFilter.value : '';
         
-        // Utiliser les catégories filtrées par niveau si disponibles, sinon toutes les catégories
+        // Utiliser les catégories filtrées par niveau depuis les variables globales
         let categoriesToSearch = [];
-        if (window.filteredCategories && window.filteredCategories.length > 0) {
-            categoriesToSearch = window.filteredCategories;
-        } else if (window.categories && window.categories.length > 0) {
-            categoriesToSearch = window.categories;
+        
+        if (selectedLevel && selectedLevel !== '') {
+            // Si un niveau est sélectionné, utiliser les catégories filtrées (même si vides)
+            categoriesToSearch = window.filteredCategories || [];
+            console.log('🔍 Utilisation des catégories filtrées par niveau:', categoriesToSearch.length, 'pour le niveau:', selectedLevel);
         } else {
-            // Fallback: essayer de récupérer depuis le DOM
-            console.warn('Aucune catégorie trouvée pour la recherche, tentative de récupération depuis le DOM...');
-            const categoryCards = document.querySelectorAll('.category-card:not(.hidden)');
-            if (categoryCards.length === 0) {
-                console.warn('Aucune catégorie visible trouvée');
-                return;
-            }
-            // Récupérer les catégories depuis les cartes visibles
-            categoriesToSearch = Array.from(categoryCards).map(card => {
-                const title = card.querySelector('.category-title')?.textContent?.trim();
-                const level = card.querySelector('.category-level')?.textContent?.trim();
-                return { 
-                    name: title?.toLowerCase() || '', 
-                    display_name: title || '', 
-                    level: level || 'Expert' 
-                };
-            });
+            // Si aucun niveau sélectionné, utiliser toutes les catégories
+            categoriesToSearch = window.categories || [];
+            console.log('🔍 Utilisation de toutes les catégories (pas de filtre):', categoriesToSearch.length);
         }
         
-        console.log('📊 Catégories à rechercher:', categoriesToSearch.length);
+        if (categoriesToSearch.length === 0) {
+            console.warn('Aucune catégorie trouvée pour la recherche');
+            updateSuggestions([], searchTerm);
+            return;
+        }
         
         // Rechercher dans les noms des catégories (insensible à la casse)
         const searchResults = categoriesToSearch.filter(category => {
@@ -263,14 +260,31 @@ function applySearchFilter(results) {
     // Marquer les catégories comme cachées/visibles
     const categoryCards = document.querySelectorAll('.category-card');
     
-    categoryCards.forEach(card => {
-        const categoryName = card.querySelector('.category-title')?.textContent?.trim();
-        const isVisible = results.some(cat => 
-            (cat.display_name || cat.name) === categoryName
-        );
-        
-        card.classList.toggle('hidden', !isVisible);
-    });
+    if (results.length === 0) {
+        // Si aucun résultat, masquer toutes les catégories
+        categoryCards.forEach(card => {
+            card.classList.add('hidden');
+        });
+        console.log('🎯 Aucun résultat, toutes les catégories masquées');
+    } else {
+        // Si il y a des résultats, afficher seulement ceux qui correspondent
+        categoryCards.forEach(card => {
+            const categoryName = card.querySelector('.category-title')?.textContent?.trim();
+            const cleanCardName = categoryName?.replace(/<[^>]*>/g, '') || '';
+            
+            const isVisible = results.some(cat => {
+                const cleanCategoryName = (cat.display_name || cat.name || '').replace(/<[^>]*>/g, '');
+                return cleanCategoryName.toLowerCase() === cleanCardName.toLowerCase();
+            });
+            
+            if (isVisible) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+        console.log('🎯 Filtre de recherche appliqué:', results.length, 'catégories visibles');
+    }
 }
 
 // Mettre à jour les statistiques de recherche
@@ -337,6 +351,62 @@ function resetSearch() {
     clearSearch();
 }
 
+// Fonction pour reset complet de l'autocomplete (appelée lors du changement de niveau)
+function resetSearchAutocomplete() {
+    console.log('🔄 Reset complet de l\'autocomplete');
+    
+    // Vider le champ de recherche
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        currentSearchTerm = '';
+    }
+    
+    // Masquer le bouton effacer
+    const clearButton = document.getElementById('clearSearch');
+    if (clearButton) {
+        clearButton.style.display = 'none';
+    }
+    
+    // Masquer les suggestions
+    hideSuggestions();
+    
+    // Réinitialiser les variables
+    searchSuggestions = [];
+    selectedSuggestionIndex = -1;
+    isSearchActive = false;
+    
+    // Réafficher les catégories selon le niveau sélectionné
+    const levelFilter = document.getElementById('levelFilter');
+    const selectedLevel = levelFilter ? levelFilter.value : '';
+    
+    if (selectedLevel) {
+        // Si un niveau est sélectionné, afficher seulement les catégories de ce niveau
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            const cardLevel = card.querySelector('.category-level')?.textContent?.trim();
+            if (cardLevel === selectedLevel) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    } else {
+        // Si aucun niveau sélectionné, afficher toutes les catégories
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.classList.remove('hidden');
+        });
+    }
+    
+    // Mettre à jour les statistiques
+    const visibleCards = document.querySelectorAll('.category-card:not(.hidden)');
+    updateSearchStats(visibleCards.length, visibleCards.length, '');
+    
+    console.log('✅ Autocomplete reseté');
+}
+
 // Exposer les fonctions globalement
 window.resetSearch = resetSearch;
+window.resetSearchAutocomplete = resetSearchAutocomplete;
 window.performSearch = performSearch;

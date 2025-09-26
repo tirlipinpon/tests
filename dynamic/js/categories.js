@@ -220,6 +220,9 @@ function initializeFilters() {
         levelFilter.addEventListener('change', function() {
             currentFilter = this.value;
             console.log('🔧 Filtre de niveau changé:', currentFilter);
+            
+            // Appliquer le filtre automatiquement
+            applyLevelFilter();
         });
     }
     
@@ -253,18 +256,12 @@ function applyLevelFilter() {
         // Mettre à jour la variable globale
         window.filteredCategories = filteredCategories;
         
-        // Vérifier s'il y a une recherche active
-        const searchInput = document.getElementById('searchInput');
-        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        // Réafficher les catégories
+        displayCategories();
         
-        if (searchTerm && searchTerm.length >= 2) {
-            // Appliquer aussi le filtre de recherche
-            if (window.performSearch) {
-                window.performSearch(searchTerm);
-            }
-        } else {
-            // Réafficher les catégories normalement
-            displayCategories();
+        // Reset de l'autocomplete après changement de niveau
+        if (window.resetSearchAutocomplete) {
+            window.resetSearchAutocomplete();
         }
         
     } catch (error) {
