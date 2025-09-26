@@ -93,6 +93,7 @@ function renderCategories() {
                         <span>Questions: <span id="question-count-${category.name}">Chargement...</span></span>
                     </div>
                     <div class="category-actions">
+                        <a href="quiz.html?category=${category.name}" class="btn btn-primary" target="_blank">🎯 Voir Quiz</a>
                         <button class="btn" onclick="editCategory('${category.name}')">Modifier</button>
                         <button class="btn btn-danger" onclick="deleteCategory('${category.name}')">Supprimer</button>
                     </div>

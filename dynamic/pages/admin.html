@@ -20,6 +20,39 @@
             border-radius: 10px;
             margin-bottom: 2rem;
             text-align: center;
+            position: relative;
+        }
+        
+        .admin-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .admin-link {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .admin-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .admin-link.home {
+            background: rgba(40, 167, 69, 0.8);
+        }
+        
+        .admin-link.home:hover {
+            background: rgba(40, 167, 69, 1);
         }
         
         .admin-nav {
@@ -118,6 +151,23 @@
         
         .btn-danger:hover {
             background: #ff3742;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            color: white;
+            text-decoration: none;
         }
         
         .btn-success {
@@ -274,6 +324,10 @@
     <div class="admin-container">
         <!-- Header -->
         <div class="admin-header">
+            <div class="admin-links">
+                <a href="categories.html" class="admin-link">🎯 Catégories</a>
+                <a href="../../index.html" class="admin-link home">🏠 Accueil</a>
+            </div>
             <h1>🔧 Administration du Système de Quiz</h1>
             <p>Gérez vos catégories et importez des questions</p>
         </div>
