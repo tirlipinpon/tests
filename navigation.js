@@ -10,7 +10,12 @@ const NAVIGATION_ITEMS = [
     { href: 'this.html', text: '🎯 This & Closures', id: 'this' },
     { href: 'side.html', text: '🔄 Side Effects', id: 'side' },
     { href: 'wcag.html', text: '♿ Accessibilité', id: 'wcag' },
-    { href: 'rxjs.html', text: '🔄 RxJS', id: 'rxjs' }
+    { href: 'rxjs.html', text: '🔄 RxJS', id: 'rxjs' },
+    { href: 'angular.html', text: '🅰️ Angular', id: 'angular' },
+    { href: 'angular2.html', text: '🏗️ Angular Architecture', id: 'angular2' },
+    { href: 'angular3.html', text: '☁️ Angular Cloud Native', id: 'angular3' },
+    { href: 'typescript.html', text: '📘 TypeScript', id: 'typescript' },
+    { href: 'db.html', text: '🗄️ Bases de Données', id: 'db' }
 ];
 
 /**
@@ -59,7 +64,12 @@ function initNavigation(containerId = 'navigation') {
         'this.html': 'this',
         'side.html': 'side',
         'wcag.html': 'wcag',
-        'rxjs.html': 'rxjs'
+        'rxjs.html': 'rxjs',
+        'angular.html': 'angular',
+        'angular2.html': 'angular2',
+        'angular3.html': 'angular3',
+        'typescript.html': 'typescript',
+        'db.html': 'db'
     };
 
     const currentPageId = pageMapping[currentPage] || 'home';

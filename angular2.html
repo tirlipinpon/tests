@@ -1,0 +1,512 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Expert Angular - Architecture & Patterns</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div id="navigation"></div>
+  <h1>Quiz Expert : Angular - Architecture & Patterns</h1>
+  <p class="lead">Mix QCM (choix unique ou multiple) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
+</header>
+
+<div id="quizContainer"></div>
+
+<script>
+// --- Données du quiz ---
+const quizData = [
+  {
+    id: "angular-1",
+    titre: "1️⃣ Types d'Architecture",
+    code: "Quelle approche d'architecture se concentre principalement sur la division du système basée sur les responsabilités techniques (ex: composants, services, directives) ?",
+    options: [
+      "Architecture Verticale (Domain-Driven)",
+      "Architecture Hexagonale ou Onion",
+      "Architecture en Couches (Layered/Pizza-box)"
+    ],
+    reponse: "Architecture en Couches (Layered/Pizza-box)",
+    type: "qcm",
+    explication: "L'architecture en couches (ou 'Pizza-box' en Italie) est l'approche la plus répandue et simple pour séparer les aspects d'une application en fonction des responsabilités techniques [1]. Contrairement à cela, les approches architecturales verticales se concentrent sur l'organisation par segments fonctionnels ou domaines métier [2]."
+  },
+  {
+    id: "angular-3",
+    titre: "3️⃣ Types de Librairies (Nx)",
+    code: "Dans une architecture modulaire basée sur des domaines (Nx), quel type de librairie est responsable de la communication avec l'API backend et de la gestion de l'état (state management) ?",
+    options: [
+      "Feature libraries (`feat-*`)",
+      "Data-access libraries",
+      "UI libraries (`ui-*`)"
+    ],
+    reponse: "Data-access libraries",
+    type: "qcm",
+    explication: "Les librairies d'accès aux données (Data-access libraries) gèrent la communication avec l'API et la gestion de l'état (state management). Les librairies de fonctionnalités (Feature libraries) implémentent des fonctionnalités métier spécifiques ou des pages, tandis que les librairies d'interface utilisateur (UI libraries) contiennent des composants de présentation réutilisables [4]."
+  },
+  {
+    id: "angular-4",
+    titre: "4️⃣ Rôle du Shell d'Application",
+    code: "Dans une architecture Angular bien modularisée, quel est le rôle principal du shell de l'application ?",
+    options: [],
+    reponse: "composition",
+    type: "input",
+    explication: "Le shell de l'application doit être étonnamment mince, agissant principalement comme une **couche de composition**. Il importe et coordonne les différentes librairies de domaine, mais contient un minimum de logique métier. C'est le conteneur de déploiement [5]."
+  },
+  {
+    id: "angular-5",
+    titre: "5️⃣ Tags d'Architecture Nx",
+    code: "Quels sont les deux types de tags utilisés par Nx pour appliquer des règles de frontière de module (Module Boundary Rules) et garantir l'intégrité architecturale ?",
+    options: [
+      "Tags de Domain (`domain:<name>`) et Tags de Layer (`layer:<name>`)",
+      "Tags de Scope (`scope:<name>`) et Tags de Type (`type:<name>`)",
+      "Tags de Feature (`feature:<name>`) et Tags de Shared (`shared:<name>`)"
+    ],
+    reponse: "Tags de Scope (`scope:<name>`) et Tags de Type (`type:<name>`)",
+    type: "qcm",
+    explication: "Nx utilise une approche de double taggage : les Tags de Scope (`scope:<name>`) reflètent les limites du domaine (découpage vertical), et les Tags de Type (`type:<name>`) représentent les couches architecturales horizontales (comme `feature`, `ui`, `data-access`, `util`) [6]."
+  },
+  {
+    id: "angular-6",
+    titre: "6️⃣ Flux de Dépendance Type (Nx)",
+    code: "Selon les règles de dépendance types de Nx, quelles couches peuvent dépendre des librairies UI (`type:ui`)? (Choisissez la réponse la plus restrictive et correcte fournie par la source).",
+    options: [
+      "Seulement `type:util` et `type:shared`",
+      "Seulement `type:ui`, `type:util` et `type:data-access`",
+      "Seulement `type:feature` et `type:data-access`"
+    ],
+    reponse: "Seulement `type:ui`, `type:util` et `type:data-access`",
+    type: "qcm",
+    explication: "Les règles de type garantissent l'architecture en couches. Par exemple, une librairie avec le tag `type:ui` est configurée pour dépendre uniquement des librairies taguées `type:ui`, `type:util` et `type:data-access`. Cela permet d'éviter les dépendances circulaires et de maintenir une architecture propre [6, 7]."
+  },
+  {
+    id: "angular-7",
+    titre: "7️⃣ Outil d'Automatisation (Nx)",
+    code: "Quel mécanisme extensible fourni par Nx est utilisé pour coder les standards et les meilleures pratiques d'une organisation ?",
+    options: [],
+    reponse: "generators",
+    type: "input",
+    explication: "Nx permet de créer des **générateurs** de code personnalisés (Custom Generators) que l'on peut utiliser pour encoder les standards de l'organisation et les meilleures pratiques. Ces générateurs sont des fonctions qui manipulent des fichiers via la CLI Nx (nx generate ...) [8]."
+  },
+  {
+    id: "angular-8",
+    titre: "8️⃣ Stratégie de Détection de Changements",
+    code: "Quelle stratégie de détection de changements doit être utilisée pour les composants réutilisables afin d'améliorer massivement les performances en forçant la mise à jour uniquement lorsque les propriétés Input changent ?",
+    options: [
+      "ChangeDetectionStrategy.Default",
+      "ChangeDetectionStrategy.OnPush",
+      "ChangeDetectionStrategy.Observable"
+    ],
+    reponse: "ChangeDetectionStrategy.OnPush",
+    type: "qcm",
+    explication: "Basculer vers la détection de changement `OnPush` pour les composants réutilisables est essentiel. Cela oblige le composant à ne se mettre à jour que lorsque ses entrées (`@Input()`) changent (par référence) ou lorsque des événements spécifiques se produisent, ce qui peut entraîner des gains de performance massifs dans les applications complexes [9]."
+  },
+  {
+    id: "angular-9",
+    titre: "9️⃣ Avantages des Standalone Components",
+    code: "Quel est un avantage clé des Standalone Components (introduits à partir d'Angular 16+) par rapport aux composants traditionnels basés sur NgModules ?",
+    options: [
+      "Ils sont la seule façon d'utiliser l'injection de dépendances (DI).",
+      "Ils nécessitent moins de code passe-partout ('boilerplate') et simplifient la structure.",
+      "Ils prennent en charge le routage sans aucun service supplémentaire."
+    ],
+    reponse: "Ils nécessitent moins de code passe-partout ('boilerplate') et simplifient la structure.",
+    type: "qcm",
+    explication: "Les composants autonomes (Standalone Components) sont au cœur de la nouvelle approche d'Angular 16+. Ils peuvent être utilisés sans avoir besoin de NgModules, ce qui simplifie le code et réduit le besoin de code passe-partout, améliorant la modularité et la flexibilité [10, 11]."
+  },
+  {
+    id: "angular-10",
+    titre: "1️⃣0️⃣ Remplacement de ngOnChanges",
+    code: "Quelle fonction basée sur les 'signals' est l'alternative recommandée pour gérer les changements d'Input, remplaçant `ngOnChanges` ?",
+    options: [],
+    reponse: "computed",
+    type: "input",
+    explication: "L'utilisation de la fonction **`computed()`** permet de suivre les `input()` signals et de se mettre à jour automatiquement lorsque ces entrées changent. C'est l'alternative moderne et plus performante à la gestion des changements d'entrées via le hook de cycle de vie `ngOnChanges` [12]."
+  },
+  {
+    id: "angular-11",
+    titre: "1️⃣1️⃣ Types d'Input évolutifs",
+    code: "Pour concevoir des composants réutilisables qui évoluent bien face aux changements d'exigences, quel type de donnée est préférable d'utiliser pour les propriétés `@Input` ?",
+    options: [
+      "Types primitifs (string, boolean, number)",
+      "Types Interface",
+      "Any ou Object"
+    ],
+    reponse: "Types Interface",
+    type: "qcm",
+    explication: "Il est recommandé d'utiliser des types d'interface pour les propriétés `@Input` au lieu de types primitifs. Cela offre une plus grande flexibilité à mesure que les exigences évoluent, garantissant que les APIs des composants sont plus scalables [13]."
+  },
+  {
+    id: "angular-12",
+    titre: "1️⃣2️⃣ Projection de Contenu",
+    code: "Quel directive/mécanisme Angular permet de créer des composants flexibles en leur permettant d'accepter et d'afficher différents contenus (comme des étiquettes ou des éléments personnalisés) passés par le composant parent, notamment via l'utilisation des décorateurs `@ContentChild` ou `contentChild()` ?",
+    options: [
+      "ngIf",
+      "ng-template",
+      "ng-content"
+    ],
+    reponse: "ng-content",
+    type: "qcm",
+    explication: "La directive `ng-content` est utilisée pour la projection de contenu (content projection). Elle permet de construire des composants hautement réutilisables qui peuvent accepter du contenu dynamique, comme un bouton acceptant divers labels ou icônes [14, 15]."
+  },
+  {
+    id: "angular-13",
+    titre: "1️⃣3️⃣ Gestion des Souscriptions RxJS",
+    code: "Quelle méthode doit être appelée dans `ngOnDestroy` pour éviter les fuites de mémoire avec les souscriptions RxJS ?",
+    options: [],
+    reponse: "unsubscribe",
+    type: "input",
+    explication: "Il faut toujours appeler **`unsubscribe`** dans `ngOnDestroy` pour éviter que les composants 'zombies' ne restent en mémoire après avoir été détruits, ce qui causerait des fuites de mémoire [16]."
+  },
+  {
+    id: "angular-14",
+    titre: "1️⃣4️⃣ Rôle des Setters sur Input",
+    code: "Quel avantage clé les méthodes 'setter' sur les propriétés `@Input()` traditionnelles offrent-elles ?",
+    options: [
+      "Elles permettent d'exécuter la logique métier en différé après le hook `ngOnInit`.",
+      "Elles permettent d'intercepter, de valider ou de transformer la valeur de l'Input avant qu'elle ne soit définie.",
+      "Elles forcent l'utilisation de la stratégie de détection de changements `OnPush`."
+    ],
+    reponse: "Elles permettent d'intercepter, de valider ou de transformer la valeur de l'Input avant qu'elle ne soit définie.",
+    type: "qcm",
+    explication: "Les méthodes 'setter' permettent d'intercepter et de gérer les valeurs d'Input avant qu'elles ne soient définies. Elles sont utiles pour la validation des entrées à la volée ou la transformation des données [17]."
+  },
+  {
+    id: "angular-15",
+    titre: "1️⃣5️⃣ Liaison de Propriété (Property Binding)",
+    code: "Quel type de data binding permet d'interpoler des valeurs calculées dans le DOM ?",
+    options: [],
+    reponse: "Property",
+    type: "input",
+    explication: "Le **Property Binding** permet d'interpoler des valeurs calculées à partir des données de l'application dans le HTML (DOM). L'autre type, l'Event Binding, permet à l'application de répondre aux événements utilisateur en mettant à jour les données [18]."
+  },
+  {
+    id: "angular-16",
+    titre: "1️⃣6️⃣ Communication Composant-Composant Distante",
+    code: "Pour une communication efficace entre deux composants éloignés dans l'arbre de composants (ni parent-enfant direct, ni siblings), quelle est la technique recommandée en utilisant des mécanismes Angular standards ?",
+    options: [
+      "Utilisation d'un Event Bus global (EventEmitter global)",
+      "Injection d'une instance du composant cible (`@Inject(TargetComponent)`)",
+      "Utilisation d'un service injectable (`@Injectable({ providedIn: 'root' })`)"
+    ],
+    reponse: "Utilisation d'un service injectable (`@Injectable({ providedIn: 'root' })`)",
+    type: "qcm",
+    explication: "Les services injectables sont le moyen fondamental de partager des données et de la logique entre des composants qui n'ont pas de relation directe. Lorsqu'ils sont fournis au niveau 'root', ils agissent comme un hub centralisé pour stocker et accéder aux données partagées dans toute l'application, découplant ainsi les composants [19, 20]."
+  },
+  {
+    id: "angular-17",
+    titre: "1️⃣7️⃣ Fournisseurs de Services Globaux",
+    code: "Quelle valeur doit avoir la propriété `providedIn` pour qu'un service soit un singleton 'tree-shakable' ?",
+    options: [],
+    reponse: "root",
+    type: "input",
+    explication: "L'utilisation de `providedIn: 'root'` pour un service garantit qu'une instance singleton est disponible dans toute l'application. Cette méthode est préférée car elle garantit également que le service est 'tree-shakable', ce qui signifie qu'il ne sera inclus dans le bundle final que s'il est réellement utilisé [21-23]."
+  },
+  {
+    id: "angular-18",
+    titre: "1️⃣8️⃣ Type de Binding pour la Réactivité",
+    code: "Dans l'architecture Angular, quel type de binding permet à l'application de réagir aux actions de l'utilisateur (comme un clic sur un bouton) en mettant à jour les données de l'application ?",
+    options: [
+      "Event Binding",
+      "Property Binding",
+      "Two-Way Data Binding"
+    ],
+    reponse: "Event Binding",
+    type: "qcm",
+    explication: "L'Event Binding permet à l'application de répondre aux entrées utilisateur dans l'environnement cible en mettant à jour les données de l'application. Le Two-Way Data Binding combine le Property Binding et l'Event Binding [18, 24]."
+  },
+  {
+    id: "angular-19",
+    titre: "1️⃣9️⃣ Accès aux Enfants de la Vue",
+    code: "Quel décorateur est utilisé par un composant parent pour accéder directement au premier composant enfant ou élément correspondant dans son propre template (Vue) ?",
+    options: [
+      "@ContentChild",
+      "@ContentChildren",
+      "@ViewChild"
+    ],
+    reponse: "@ViewChild",
+    type: "qcm",
+    explication: "`@ViewChild` est un outil polyvalent permettant aux composants parents d'interagir directement avec leurs composants enfants ou éléments dans leur vue (template), généralement pour une communication un-à-un. Il sélectionne le premier élément correspondant [25]. En revanche, `@ContentChild` gère le contenu projeté (`<ng-content>`) [15]."
+  },
+  {
+    id: "angular-20",
+    titre: "2️⃣0️⃣ Paramètres de Routage Optionnels",
+    code: "Quel mécanisme de routage est idéal pour gérer des données optionnelles comme le tri ou la pagination ?",
+    options: [],
+    reponse: "query",
+    type: "input",
+    explication: "Les **paramètres de requête** (Query Parameters) sont parfaits pour gérer les paramètres optionnels. Ils apparaissent après le point d'interrogation (?) dans l'URL (ex: `/details?id=123&sort=name`) et sont couramment utilisés pour la pagination, le filtrage et le tri [26, 27]."
+  },
+  {
+    id: "angular-21",
+    titre: "2️⃣1️⃣ Limite des Paramètres de Routage",
+    code: "Quel est l'un des inconvénients majeurs de l'utilisation des paramètres de routage (route parameters) ou des paramètres de requête (query parameters) pour passer des données ?",
+    options: [
+      "Ils sont intrinsèquement limités aux types numériques.",
+      "Les données sensibles sont exposées dans l'URL et doivent être parsées (toujours des chaînes).",
+      "Ils ne fonctionnent pas correctement avec l'API `ActivatedRoute`."
+    ],
+    reponse: "Les données sensibles sont exposées dans l'URL et doivent être parsées (toujours des chaînes).",
+    type: "qcm",
+    explication: "Les paramètres de routage et de requête sont toujours des chaînes de caractères, nécessitant souvent d'être parsés ou convertis pour des types complexes. De plus, les données sensibles sont exposées dans l'URL, ce qui les rend visibles et vulnérables à la falsification [28, 29]."
+  },
+  {
+    id: "angular-22",
+    titre: "2️⃣2️⃣ Liaison d'Input de Composant Routé",
+    code: "Quelle fonction connecte automatiquement les paramètres d'URL aux `@Input` des composants routés ?",
+    options: [],
+    reponse: "withComponentInputBinding",
+    type: "input",
+    explication: "La fonction **`withComponentInputBinding()`** crée un lien direct entre les paramètres d'URL et les `@Input` des composants routés. Cela permet de recevoir les données de routage sans injecter et souscrire manuellement au service `ActivatedRoute` [30]."
+  },
+  {
+    id: "angular-23",
+    titre: "2️⃣3️⃣ Rôle des Multi-Providers",
+    code: "Dans le système d'injection de dépendances d'Angular, à quoi servent les 'Multi-Providers' ?",
+    options: [
+      "À s'assurer qu'un service est fourni à plusieurs modules en même temps.",
+      "À permettre à plusieurs dépendances d'être associées à un seul jeton (`InjectionToken`), et injectées sous forme de tableau.",
+      "À définir des dépendances qui ne peuvent être utilisées que dans des composants 'standalone'."
+    ],
+    reponse: "À permettre à plusieurs dépendances d'être associées à un seul jeton (`InjectionToken`), et injectées sous forme de tableau.",
+    type: "qcm",
+    explication: "Les multi-providers permettent à plusieurs implémentations de partager le même jeton d'injection (par exemple, `HTTP_INTERCEPTORS`). Lorsque ce jeton est injecté, Angular fournit un tableau contenant toutes les classes associées, comme c'est le cas pour les intercepteurs HTTP [31]."
+  },
+  {
+    id: "angular-24",
+    titre: "2️⃣4️⃣ Création de Workspace de Librairies",
+    code: "Quelle option doit être passée à la commande `ng new` de l'Angular CLI pour créer un workspace qui ne contient pas d'application initiale, ce qui est souvent fait lors de la construction d'une librairie de composants ?",
+    options: [
+      "--skip-application",
+      "--create-application=false",
+      "--empty"
+    ],
+    reponse: "--create-application=false",
+    type: "qcm",
+    explication: "La commande `ng new my-company --create-application=false` crée un nouveau workspace Angular sans générer d'application initiale, ce qui est l'étape de configuration typique pour démarrer la construction d'une librairie partagée [32]."
+  },
+  {
+    id: "angular-25",
+    titre: "2️⃣5️⃣ Fichier d'Export de Librairie",
+    code: "Quel fichier définit l'API publique d'une librairie Angular ?",
+    options: [],
+    reponse: "public-api",
+    type: "input",
+    explication: "Le fichier **`public-api.ts`** est essentiel. Tout ce qui est exporté à partir de ce fichier devient public et disponible lorsque la librairie est importée par une application [33]."
+  },
+  {
+    id: "angular-26",
+    titre: "2️⃣6️⃣ Convention de Nommage des Librairies",
+    code: "Quel préfixe est généralement recommandé pour nommer une librairie Angular destinée à être publiée sur un registre public (comme npm) afin d'indiquer sa compatibilité avec le framework ?",
+    options: [
+      "ng-",
+      "angular-",
+      "ngx-"
+    ],
+    reponse: "ngx-",
+    type: "qcm",
+    explication: "Il est recommandé d'utiliser le préfixe `ngx-` pour désigner que la librairie est compatible avec Angular. Le préfixe `ng-` est réservé par le framework Angular lui-même et ses librairies [34]."
+  },
+  {
+    id: "angular-27",
+    titre: "2️⃣7️⃣ Ajouter Nx à un Projet Existante",
+    code: "Quelle commande Nx permet d'ajouter le support Nx à un projet Angular existant ?",
+    options: [],
+    reponse: "init",
+    type: "input",
+    explication: "Pour ajouter le support Nx à un projet Angular CLI existant, on exécute la commande **`npx nx@latest init`**. Si l'on souhaite passer directement à une structure monorepo intégrée, le flag `--integrated` peut être ajouté [35]."
+  },
+  {
+    id: "angular-28",
+    titre: "2️⃣8️⃣ Objectif des Librairies Internes",
+    code: "Quel est l'objectif principal des projets/librairies créés dans un monorepo ou un workspace modulaire Angular, s'ils ne sont pas destinés à être publiés comme packages npm ?",
+    options: [
+      "Réduire le nombre total de fichiers dans l'application.",
+      "Créer des limites claires et renforcer la séparation des préoccupations dans la base de code.",
+      "Activer l'internationalisation automatique."
+    ],
+    reponse: "Créer des limites claires et renforcer la séparation des préoccupations dans la base de code.",
+    type: "qcm",
+    explication: "Le but principal des projets (aussi appelés librairies) est de créer des limites claires au sein de la base de code pour maintenir une séparation nette des préoccupations. Bien que l'application construise tout ensemble, cette structure améliore la maintenabilité et la réutilisation du code [36]."
+  },
+  {
+    id: "angular-29",
+    titre: "2️⃣9️⃣ Principes de Redux/NgRx",
+    code: "Lequel de ces principes est fondamental pour la gestion de l'état dans les architectures inspirées de Redux ou NgRx ?",
+    options: [
+      "L'état doit être modifiable directement par n'importe quel composant de l'application.",
+      "L'état de l'application est stocké dans un seul objet immuable ('Single source of truth').",
+      "Les actions sont implémentées par des fonctions qui peuvent avoir des effets secondaires (side effects)."
+    ],
+    reponse: "L'état de l'application est stocké dans un seul objet immuable ('Single source of truth').",
+    type: "qcm",
+    explication: "Les principes de Redux/NgRx incluent le 'Single source of truth' (l'état entier de l'application est stocké dans un seul objet immuable) [37, 38]. De plus, l'état est en lecture seule (les changements se font uniquement via des actions) et les actions sont implémentées par des 'reducers' qui doivent être des fonctions pures (sans effets secondaires) [39]."
+  },
+  {
+    id: "angular-30",
+    titre: "3️⃣0️⃣ Fonctions Pures de Modification d'État",
+    code: "Quel nom est donné aux fonctions pures qui modifient l'état dans Redux/NgRx ?",
+    options: [],
+    reponse: "reducers",
+    type: "input",
+    explication: "Les fonctions utilisées pour changer l'état sont appelées **'reducers'**. Ce sont des fonctions pures qui doivent toujours retourner la même sortie pour une entrée donnée, garantissant qu'elles n'ont aucun effet secondaire [40-42]."
+  },
+  {
+    id: "angular-31",
+    titre: "3️⃣1️⃣ Solution la plus Compatible",
+    code: "Selon les conclusions d'études comparatives, quelle solution de gestion d'état est considérée comme la plus compatible avec l'écosystème Angular, nécessitant le moins d'effort d'intégration ?",
+    options: [
+      "Redux (avec angular-redux)",
+      "Mobx (avec mobx-angular)",
+      "NgRx"
+    ],
+    reponse: "NgRx",
+    type: "qcm",
+    explication: "NgRx est la meilleure solution en termes de courbe d'apprentissage et de compatibilité avec Angular, car il a été créé spécifiquement pour cet écosystème. L'application de NgRx dans une application Angular existante nécessite le moins d'effort [43, 44]."
+  },
+  {
+    id: "angular-32",
+    titre: "3️⃣2️⃣ Mobx Computed Values",
+    code: "Quel décorateur Mobx met à jour automatiquement une propriété quand ses dépendances changent ?",
+    options: [],
+    reponse: "computed",
+    type: "input",
+    explication: "Le décorateur **`@computed`** est utilisé dans Mobx pour dériver des valeurs de l'état de l'application. Mobx suit ces valeurs et les met à jour automatiquement uniquement lorsque les données observables sous-jacentes changent [45, 46]."
+  },
+  {
+    id: "angular-33",
+    titre: "3️⃣3️⃣ Signals vs RxJS pour l'État",
+    code: "Pour les applications de taille moyenne, quel mécanisme de réactivité, introduit dans les versions récentes d'Angular (16+), est souvent privilégié pour la gestion de l'état local des composants, offrant une approche plus simple et plus légère que les Observables RxJS traditionnels ?",
+    options: [
+      "Services avec BehaviorSubjects RxJS",
+      "Angular Signals",
+      "Redux/NgRx"
+    ],
+    reponse: "Angular Signals",
+    type: "qcm",
+    explication: "Angular a introduit la réactivité basée sur les 'signals' (signaux), qui est une nouvelle approche de la gestion d'état. Les signaux sont légers, efficaces et constituent une excellente option pour les projets de taille moyenne, permettant une meilleure communication des composants avec un minimum de surcharge, souvent préférés aux solutions plus volumineuses comme NgRx/Redux [47-49]."
+  },
+  {
+    id: "angular-34",
+    titre: "3️⃣4️⃣ Rôle des Selectors (NgRx)",
+    code: "Quel concept NgRx permet d'obtenir des 'slices' de l'état du store ?",
+    options: [],
+    reponse: "selectors",
+    type: "input",
+    explication: "Les **Selectors** sont des fonctions pures utilisées pour obtenir des parties spécifiques de l'état global du store. Grâce à l'utilisation de fonctions pures, ils peuvent être optimisés par mémorisation (mise en cache des résultats de calculs précédents), améliorant ainsi les performances [42, 50]."
+  },
+  {
+    id: "angular-35",
+    titre: "3️⃣5️⃣ Flexibilité de Mobx",
+    code: "Par rapport à Redux ou NgRx, quel aspect du Mobx le rend plus flexible, mais potentiellement plus difficile à gérer dans de grands projets avec de multiples développeurs ?",
+    options: [
+      "L'obligation de créer des Actions et des Reducers pour chaque changement.",
+      "L'utilisation d'une architecture et de fonctions d'action beaucoup plus souples, sans exiger de fonctions pures.",
+      "Le besoin d'une intégration complexe via la librairie `@angular/router`."
+    ],
+    reponse: "L'utilisation d'une architecture et de fonctions d'action beaucoup plus souples, sans exiger de fonctions pures.",
+    type: "qcm",
+    explication: "Mobx a des exigences beaucoup plus souples que NgRx ou Redux. Il ne requiert pas de type d'architecture strict ou l'utilisation de fonctions pures pour les actions, ce qui le rend moins clair et plus difficile à gérer dans de grands projets d'entreprise nécessitant un contrôle strict de l'état [51, 52]."
+  },
+  {
+    id: "angular-36",
+    titre: "3️⃣6️⃣ Solution Micro Frontend (Post-Webpack)",
+    code: "Suite au remplacement progressif de Webpack par `esbuild` dans l'Angular CLI (à partir de la version 17), quelle solution a été créée pour offrir le même modèle mental que Module Federation mais de manière agnostique à l'outil de construction ?",
+    options: [
+      "Angular Elements",
+      "Native Federation",
+      "Rspack Module Bundler"
+    ],
+    reponse: "Native Federation",
+    type: "qcm",
+    explication: "Le passage d'Angular à `esbuild` (qui remplace Webpack) signifie que Module Federation n'est plus disponible. Le projet Native Federation a été créé pour offrir le même modèle mental que Module Federation, mais fonctionne avec tous les outils de construction (`esbuild` inclus), en utilisant des technologies natives du navigateur [53, 54]."
+  },
+  {
+    id: "angular-37",
+    titre: "3️⃣7️⃣ Standard pour le Chargement des Dépendances",
+    code: "Quel standard du navigateur Native Federation utilise-t-elle pour partager les dépendances ?",
+    options: [],
+    reponse: "ImportMaps",
+    type: "input",
+    explication: "Native Federation utilise des technologies natives du navigateur telles que les modules EcmaScript et les **Import Maps**. L'Import Map est générée à partir des métadonnées des remotes et indique au navigateur à partir d'où charger les packages partagés et les modules exposés [54-56]."
+  },
+  {
+    id: "angular-38",
+    titre: "3️⃣8️⃣ Performance du Builder Angular",
+    code: "Quel est l'avantage principal offert par l'intégration d'`esbuild` dans l'Angular CLI par rapport au processus de construction traditionnel basé sur Webpack ?",
+    options: [
+      "Réduction de la taille du bundle de sortie.",
+      "Amélioration significative de la performance de construction (build performance).",
+      "Activation automatique du Server-Side Rendering (SSR)."
+    ],
+    reponse: "Amélioration significative de la performance de construction (build performance).",
+    type: "qcm",
+    explication: "L'intégration d'`esbuild` (prévue par défaut à partir d'Angular 17) offre une amélioration significative de la performance de construction (build performance), notamment grâce à l'utilisation de langages natifs et au support de la parallélisation. Des tests ont montré une accélération de 3 à 4 fois [54, 57]."
+  },
+  {
+    id: "angular-39",
+    titre: "3️⃣9️⃣ Chargement d'un Module Distant",
+    code: "Quelle fonction Native Federation charge dynamiquement un composant d'un Micro Frontend distant ?",
+    options: [],
+    reponse: "loadRemoteModule",
+    type: "input",
+    explication: "La fonction **`loadRemoteModule`** est utilisée dans la configuration des routes (par exemple, avec `loadComponent` ou `loadChildren`) pour charger des programmes publiés par un remote. Elle prend le nom du remote et le nom sous lequel le fichier désiré est exposé [56]."
+  },
+  {
+    id: "angular-40",
+    titre: "4️⃣0️⃣ Évolution du Monolithe",
+    code: "Si une application Angular monolithique atteint une grande échelle et que les différentes parties doivent évoluer à des vitesses différentes ou avoir des exigences de mise à l'échelle distinctes (ex: Store client vs Interface Admin), quelle est la première étape recommandée pour passer à une structure multi-applications ?",
+    options: [
+      "Convertir l'application en une architecture Micro Frontend immédiatement.",
+      "Convertir l'application 'standalone' en une structure 'monorepo'.",
+      "Réécrire le Store client avec Next.js pour l'isoler."
+    ],
+    reponse: "Convertir l'application 'standalone' en une structure 'monorepo'.",
+    type: "qcm",
+    explication: "Lorsque l'application nécessite des cycles de déploiement et des exigences de mise à l'échelle différents, la première étape est de convertir l'application 'standalone' en une structure 'monorepo'. Nx fournit la commande `convert-to-monorepo` pour faciliter cette transition, permettant ensuite de créer des applications additionnelles (comme une interface admin) [58, 59]."
+  },
+  {
+    id: "angular-41",
+    titre: "4️⃣1️⃣ Architecture de Déploiement Indépendante",
+    code: "Quel pattern architectural étend les microservices au frontend ?",
+    options: [],
+    reponse: "Microfrontend",
+    type: "input",
+    explication: "L'architecture **Micro Frontend** étend les concepts de microservices au frontend. Elle permet aux équipes de travailler en parallèle sur différentes fonctionnalités de l'application sans se marcher dessus, supportant ainsi l'évolutivité organisationnelle [60, 61]."
+  },
+  {
+    id: "angular-42",
+    titre: "4️⃣2️⃣ Lazy Loading de Composant",
+    code: "Dans la configuration de routage moderne d'Angular (utilisant des composants standalone), quelle propriété est utilisée pour spécifier le chargement différé (lazy loading) d'un composant de fonctionnalité qui se trouve dans une librairie (via le Path Mapping/TypeScript) ?",
+    options: [
+      "loadChildren",
+      "loadComponent",
+      "importModule"
+    ],
+    reponse: "loadComponent",
+    type: "qcm",
+    explication: "Pour les composants standalone, le lazy loading est configuré via la propriété `loadComponent` dans la définition de la route. Cette propriété utilise une fonction qui importe dynamiquement le composant (souvent via un path mapping comme `@myshop/products-feat-product-list`) [62, 63]."
+  }
+];
+
+console.log(quizData);
+</script>
+
+<script src="cookie-manager.js"></script>
+<script src="quiz-common.js"></script>
+<script>
+// Initialiser le quiz avec les fonctions communes
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'angular2' // ID unique pour cette page
+});
+</script>
+
+
+<script src="navigation.js"></script>
+<script>
+  // Initialiser la navigation pour la page Angular2
+  createNavigation('angular2');
+</script>
+
+</body>
+</html>

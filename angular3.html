@@ -1,0 +1,406 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Expert Angular - Micro Frontends & Cloud Native</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div id="navigation"></div>
+  <h1>Quiz Expert : Angular - Micro Frontends & Cloud Native</h1>
+  <p class="lead">Mix QCM (choix unique ou multiple) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
+</header>
+
+<div id="quizContainer"></div>
+
+<script>
+// --- Données du quiz ---
+const quizData = [
+  {
+    id: "angular-1",
+    titre: "1️⃣ Rôle du Micro Frontend Angular",
+    code: "Quel est le but principal de l'architecture Micro Frontends (MFE) dans le développement d'applications web avec Angular ?",
+    options: [
+      "Permettre aux équipes d'utiliser uniquement Angular pour l'ensemble de l'application.",
+      "Décomposer une grande application monolithique en composants plus petits et gérables.",
+      "Améliorer la vitesse de compilation de l'application complète en utilisant des modules internes."
+    ],
+    reponse: "Décomposer une grande application monolithique en composants plus petits et gérables.",
+    type: "qcm",
+    explication: "Les Micro Frontends Angular sont un modèle architectural moderne utilisé pour décomposer une application monolithique volumineuse en parties plus petites et plus gérables. Chaque micro frontend est développé, testé et déployé indépendamment, ce qui améliore l'évolutivité et facilite la maintenance."
+  },
+  {
+    id: "angular-2",
+    titre: "2️⃣ Technique d'Intégration MFE",
+    code: "Quelle technique est couramment utilisée dans Angular pour charger des modules MFE uniquement lorsqu'ils sont nécessaires, et pour intégrer des MFE comme des éléments réutilisables dans l'application principale ?",
+    options: [
+      "Lazy Loading et Web Components (Angular Elements).",
+      "Injection de dépendances au niveau du composant racine.",
+      "Utilisation exclusive du `forRoot()` dans tous les modules."
+    ],
+    reponse: "Lazy Loading et Web Components (Angular Elements).",
+    type: "qcm",
+    explication: "Pour implémenter les micro frontends Angular, les développeurs utilisent généralement des techniques comme le **lazy loading** (chargement paresseux), qui charge les modules uniquement lorsque cela est nécessaire, et les **Web Components** (via Angular Elements), qui sont des éléments d'interface utilisateur réutilisables pouvant être partagés entre les MFE et chargés dynamiquement dans l'application principale (shell)."
+  },
+  {
+    id: "angular-3",
+    titre: "3️⃣ Repositories MFE vs Monolithe",
+    code: "Concernant la gestion du code source, quelle est la principale différence entre l'architecture monolithique traditionnelle et l'architecture Micro Frontend Angular ?",
+    options: [
+      "La MFE utilise toujours un seul monorepo, tandis que le monolithe utilise plusieurs dépôts.",
+      "L'architecture monolithique stocke tout le code dans un seul dépôt, tandis qu'avec l'architecture MFE, il n'est pas nécessaire de tout conserver dans le même dépôt.",
+      "Les deux architectures exigent l'utilisation d'un système de gestion de version décentralisé."
+    ],
+    reponse: "L'architecture monolithique stocke tout le code dans un seul dépôt, tandis qu'avec l'architecture MFE, il n'est pas nécessaire de tout conserver dans le même dépôt.",
+    type: "qcm",
+    explication: "Dans l'architecture traditionnelle (monolithique), tout le code, les modules, les pages et les fonctionnalités sont stockés dans un seul dépôt. En revanche, dans l'architecture Micro Frontend Angular, il n'est pas obligatoire de conserver tous les éléments dans le même dépôt."
+  },
+  {
+    id: "angular-4",
+    titre: "4️⃣ Méthodes de Communication MFE",
+    code: "Citez une des trois méthodes principales par lesquelles les Micro Frontends Angular peuvent communiquer entre eux.",
+    options: [],
+    reponse: "API",
+    type: "input",
+    explication: "Les Micro Frontends Angular peuvent communiquer entre eux en utilisant des **APIs**, des **événements** ou des **services partagés**. Les APIs permettent l'échange de données et de fonctionnalités. Les événements déclenchent des actions ou répondent aux changements d'état. Les services partagés permettent de partager des données et des fonctionnalités sans couplage fort."
+  },
+  {
+    id: "angular-5",
+    titre: "5️⃣ Plugin Webpack pour MFE",
+    code: "Quel plugin introduit avec WebPack 5 est une approche notable pour implémenter les Micro Frontends en permettant aux applications de charger dynamiquement du code à partir d'autres builds ?",
+    options: [],
+    reponse: "ModuleFederation",
+    type: "input",
+    explication: "L'une des approches notables pour l'implémentation des Micro Frontends, apparue depuis 2020, est via WebPack 5 et le plugin **Module Federation**. Module Federation offre des avantages clés tels que le partage de code et le déploiement indépendant."
+  },
+  {
+    id: "angular-6",
+    titre: "6️⃣ Avantage de Module Federation",
+    code: "Module Federation améliore l'application en chargeant uniquement les modules nécessaires. Quel concept clé est amélioré par cette optimisation ?",
+    options: [],
+    reponse: "Performance",
+    type: "input",
+    explication: "Module Federation peut améliorer significativement la performance de l'application et les temps de chargement en chargeant uniquement les modules nécessaires, ce qui est crucial pour une expérience utilisateur fluide. Cela contribue également à l'évolutivité en divisant l'application en parties plus petites et gérables."
+  },
+  {
+    id: "angular-7",
+    titre: "7️⃣ Architecture axée sur le métier",
+    code: "Quel type d'approche architecturale (souvent utilisé dans les microservices) organise l'application en segments fonctionnels ou domaines d'activité, plutôt qu'en couches techniques ?",
+    options: [
+      "Architecture en couches (Layered/Pizza-box architecture).",
+      "Architecture horizontale (Horizontal approach).",
+      "Architecture verticale/orientée domaine (Vertical/Domain-oriented architecture)."
+    ],
+    reponse: "Architecture verticale/orientée domaine (Vertical/Domain-oriented architecture).",
+    type: "qcm",
+    explication: "Les approches d'architecture **verticale** organisent l'application en segments fonctionnels ou domaines, se concentrant sur les capacités métier (ex: Produits, Commandes, Paiements), ce qui est courant dans les architectures de microservices. L'approche en couches ou horizontale, elle, divise le système selon les responsabilités techniques (ex: Composants, Services, Directives)."
+  },
+  {
+    id: "angular-8",
+    titre: "8️⃣ Types de Librairies Nx",
+    code: "Dans une structure de code modulaire utilisant Nx, quel tag représente une librairie qui implémente des fonctionnalités métier spécifiques ou des pages (par opposition aux composants présentatifs ou à l'accès aux données) ?",
+    options: [
+      "ui-* (UI libraries)",
+      "data-access-* (Data-access libraries)",
+      "feat-* (Feature libraries)"
+    ],
+    reponse: "feat-* (Feature libraries)",
+    type: "qcm",
+    explication: "La structure modulaire de Nx utilise souvent des conventions de nommage pour les librairies : **Feature libraries** (`feat-*`) implémentent des fonctionnalités métier ou des pages ; **UI libraries** (`ui-*`) contiennent des composants de présentation réutilisables ; et **Data-access libraries** gèrent la communication API et la gestion d'état."
+  },
+  {
+    id: "angular-9",
+    titre: "9️⃣ Rôle du Shell Angular (Nx)",
+    code: "Comment appelle-t-on la partie principale de l'application Angular qui importe et coordonne les différentes librairies de domaine, mais qui contient elle-même un minimum de logique métier ?",
+    options: [],
+    reponse: "Shell",
+    type: "input",
+    explication: "Dans une architecture bien modularisée, l'application principale doit être un **shell** (coque) étonnamment 'mince' (thin application shell). Son rôle principal est d'être une couche de composition : elle gère la configuration de routage, la logique de bootstrap et la composition de la mise en page, laissant la logique métier aux librairies de domaine."
+  },
+  {
+    id: "angular-10",
+    titre: "1️⃣0️⃣ Règles de Dépendance Nx",
+    code: "En utilisant les règles de limites de modules (boundary rules) d'Nx, sur quel type de librairies une librairie de type `type:ui` est-elle autorisée à dépendre (selon l'exemple donné) ?",
+    options: [
+      "Uniquement `type:feature` et `scope:orders`",
+      "`type:ui`, `type:util`, et `type:data-access`",
+      "N'importe quelle librairie du même `scope`"
+    ],
+    reponse: "`type:ui`, `type:util`, et `type:data-access`",
+    type: "qcm",
+    explication: "Les règles de type (horizontal) dans Nx assurent la stratification architecturale. L'exemple montre qu'une librairie `type:ui` ne peut dépendre que d'autres composants UI, d'utilitaires (`type:util`), et de librairies d'accès aux données (`type:data-access`). Cela empêche par exemple les composants UI d'importer directement des logiques de feature de haut niveau."
+  },
+  {
+    id: "angular-11",
+    titre: "1️⃣1️⃣ Définition Cloud-Native",
+    code: "Selon les normes industrielles, comment sont définies les applications Cloud-Native, au-delà du simple hébergement sur le cloud ?",
+    options: [
+      "Elles sont conçues avec des bases de données relationnelles et déployées sur des VMs classiques.",
+      "Elles sont empaquetées dans des conteneurs, orchestrées dynamiquement, et conçues avec des modèles d'architecture de microservices pour maximiser les avantages du cloud.",
+      "Elles sont obligatoirement écrites en Java et utilisent exclusivement des architectures monolithiques modernes."
+    ],
+    reponse: "Elles sont empaquetées dans des conteneurs, orchestrées dynamiquement, et conçues avec des modèles d'architecture de microservices pour maximiser les avantages du cloud.",
+    type: "qcm",
+    explication: "Les applications **Cloud-Native** sont définies comme étant empaquetées dans des conteneurs, orchestrées dynamiquement et conçues avec des modèles architecturaux de microservices afin de maximiser les avantages des environnements de cloud computing, en tirant parti de l'évolutivité élastique et du déploiement automatisé."
+  },
+  {
+    id: "angular-12",
+    titre: "1️⃣2️⃣ Amélioration du Déploiement",
+    code: "Selon les rapports, par quel facteur (nombre) la fréquence de déploiement augmente-t-elle en moyenne pour les organisations qui implémentent des microservices ?",
+    options: [],
+    reponse: "13",
+    type: "input",
+    explication: "Les organisations qui implémentent des microservices rapportent une augmentation moyenne de la fréquence de déploiement de **13x**."
+  },
+  {
+    id: "angular-13",
+    titre: "1️⃣3️⃣ Orchestration de Conteneurs",
+    code: "Quel outil est la norme d'orchestration de conteneurs pour les architectures cloud-native, gérant 78.9% de tous les conteneurs en production selon les enquêtes ?",
+    options: [
+      "Docker Swarm",
+      "Ansible",
+      "Kubernetes"
+    ],
+    reponse: "Kubernetes",
+    type: "qcm",
+    explication: "**Kubernetes** a émergé comme la norme d'orchestration de conteneurs pour les architectures cloud-native, gérant 78.9% de tous les conteneurs de production. Les implémentations cloud-native de Kubernetes exploitent des capacités d'auto-scaling dynamique pour réduire les coûts d'infrastructure de 37%."
+  },
+  {
+    id: "angular-14",
+    titre: "1️⃣4️⃣ Avantage d'IaC",
+    code: "Quel bénéfice principal l'Infrastructure as Code (IaC) apporte-t-elle en standardisant le processus de modification et de déploiement des changements d'infrastructure, par rapport aux configurations manuelles ?",
+    options: [
+      "Augmentation des dérives de configuration (Configuration Drift).",
+      "Cohérence améliorée avec dérive de configuration minimale (Improved Consistency With Minimal Configuration Drift).",
+      "Dépendance accrue à l'équipe SysAdmin."
+    ],
+    reponse: "Cohérence améliorée avec dérive de configuration minimale (Improved Consistency With Minimal Configuration Drift).",
+    type: "qcm",
+    explication: "L'IaC standardise le processus de modification de l'infrastructure, ce qui permet d'éviter les changements manuels sources d'erreurs. Le déploiement est ainsi plus rapide, répétable et, surtout, plus **cohérent** (consistent) avec un minimum de dérive de configuration (configuration drift)."
+  },
+  {
+    id: "angular-15",
+    titre: "1️⃣5️⃣ Outil IaC Agnostique",
+    code: "Quel outil open source de HashiCorp est largement utilisé pour le provisionnement d'infrastructure (Provisioning Tool) et est agnostique au cloud, utilisant HCL pour décrire l'infrastructure ?",
+    options: [],
+    reponse: "Terraform",
+    type: "input",
+    explication: "**Terraform** est un outil agnostique au cloud, open source, créé par HashiCorp, utilisant le HashiCorp Configuration Language (HCL) pour décrire l'infrastructure et gérer les ressources dans différents fournisseurs de cloud (AWS, Azure, Google Cloud)."
+  },
+  {
+    id: "angular-16",
+    titre: "1️⃣6️⃣ Approche Déclarative IaC",
+    code: "Quel type d'approche IaC (utilisé par Terraform) se concentre sur la description de l'état final souhaité (desired state) dans un modèle de configuration, laissant l'outil gérer les étapes pour y parvenir ?",
+    options: [
+      "Approche Procédurale (Procedural Approach).",
+      "Approche Impérative (Imperative Approach).",
+      "Approche Déclarative (Declarative Approach)."
+    ],
+    reponse: "Approche Déclarative (Declarative Approach).",
+    type: "qcm",
+    explication: "Avec l'approche **Déclarative**, vous maintenez l'état souhaité dans un modèle de configuration, et l'outil IaC (comme Terraform) génère et applique le script de différence pour atteindre cet état. Ceci contraste avec l'approche procédurale, où vous écrivez des scripts séparés et dont l'ordre d'exécution est important."
+  },
+  {
+    id: "angular-17",
+    titre: "1️⃣7️⃣ Pattern de Résilience MS",
+    code: "Quel pattern de résilience est couramment implémenté dans les architectures microservices pour réduire les échecs en cascade lorsque des services sont fortement couplés ?",
+    options: [
+      "Saga Pattern",
+      "Circuit Breaker Pattern",
+      "API Composition Pattern"
+    ],
+    reponse: "Circuit Breaker Pattern",
+    type: "qcm",
+    explication: "Les patterns de **Circuit Breaker** (coupe-circuit) réduisent les échecs en cascade. Ils ont réduit les pannes en cascade de 89.7% dans 153 applications en production, limitant l'impact des pannes de service. Chez American Streaming Platform, Hystrix (un implémentateur de ce pattern) a empêché les échecs en cascade dans 99.7% des scénarios."
+  },
+  {
+    id: "angular-18",
+    titre: "1️⃣8️⃣ Atomicité et Événements",
+    code: "Quel pattern résout le problème de l'atomicité de la mise à jour de la base de données ET de l'envoi de messages/événements, en persistant l'état d'une entité comme une séquence d'événements de changement d'état ?",
+    options: [],
+    reponse: "EventSourcing",
+    type: "input",
+    explication: "Le pattern **Event Sourcing** persiste l'état d'une entité comme une séquence d'événements de changement d'état. L'enregistrement d'un événement est une seule opération, la rendant atomique, ce qui permet de publier des événements de manière fiable lorsque l'état change. Il est nécessaire pour implémenter de manière fiable le pattern Saga."
+  },
+  {
+    id: "angular-19",
+    titre: "1️⃣9️⃣ Rôle de l'API Gateway",
+    code: "Dans une architecture microservices, quelle composante centralise les requêtes des clients (comme un frontend Angular) et les distribue aux microservices appropriés, gérant souvent l'authentification et l'optimisation des réponses ?",
+    options: [
+      "Service Mesh",
+      "Load Balancer local",
+      "API Gateway"
+    ],
+    reponse: "API Gateway",
+    type: "qcm",
+    explication: "L'**API Gateway** centralise les requêtes des clients (Angular interagit principalement avec elle) et les répartit. Elle simplifie la gestion des requêtes, offre un point de contrôle unique pour l'authentification et la sécurité, et peut combiner les réponses de plusieurs microservices en une seule réponse API pour optimiser le réseau."
+  },
+  {
+    id: "angular-20",
+    titre: "2️⃣0️⃣ Architecture Backend Spécifique au Frontend",
+    code: "Quelle architecture de microservices implique la création de services backend spécifiques optimisés pour les besoins d'une interface utilisateur particulière (comme une application Angular Web ou une application mobile) ?",
+    options: [
+      "Micro-Frontends (MFE)",
+      "Backends for Frontends (BFF)",
+      "Architecture Hexagonale"
+    ],
+    reponse: "Backends for Frontends (BFF)",
+    type: "qcm",
+    explication: "L'architecture **Backends for Frontends (BFF)** crée des services backend spécifiques pour différentes interfaces utilisateur. Chaque BFF est optimisé pour un type d'interface (par exemple, un BFF pour l'interface Angular Web), améliorant les performances et la personnalisation des APIs."
+  },
+  {
+    id: "angular-21",
+    titre: "2️⃣1️⃣ Optimisation des Coûts Cloud",
+    code: "Pour les composants apatrides d'une architecture microservices sur AWS, quelle option d'instance est plus économique que les instances à la demande, car elle offre une capacité EC2 inutilisée dans le cloud ?",
+    options: [
+      "Amazon EC2 Reserved Instances",
+      "Amazon EC2 Spot Instances",
+      "AWS Graviton Instances"
+    ],
+    reponse: "Amazon EC2 Spot Instances",
+    type: "qcm",
+    explication: "Les composants apatrides (stateless) de votre architecture peuvent utiliser les **instances Amazon EC2 Spot**, qui sont plus économiques que les instances à la demande car elles offrent la capacité EC2 inutilisée du cloud AWS. Elles sont parfaites pour les charges de travail qui peuvent gérer des interruptions."
+  },
+  {
+    id: "angular-22",
+    titre: "2️⃣2️⃣ Décomposition par Domaine",
+    code: "Quel concept de design logiciel, utilisé pour guider la décomposition des microservices, garantit que les services sont alignés sur des contextes métier spécifiques et réduisent les dépendances inter-services ?",
+    options: [],
+    reponse: "DDD",
+    type: "input",
+    explication: "Le **Domain-driven design (DDD)**, ou Conception pilotée par le domaine, est la méthodologie qui guide la décomposition en 'bounded contexts' (contextes délimités), garantissant que les services sont alignés sur les capacités métier. Les architectures guidées par le DDD ont réduit les dépendances inter-services de 62%."
+  },
+  {
+    id: "angular-23",
+    titre: "2️⃣3️⃣ Pattern de Façade Angular",
+    code: "Quel pattern architectural est considéré comme 'indispensable' dans les applications Angular d'entreprise pour cacher les services de données ou l'abstraction de la gestion d'état (comme NgRx) derrière une couche de code plus simple ?",
+    options: [],
+    reponse: "Façade",
+    type: "input",
+    explication: "Le pattern **Façade** est essentiel en Angular d'entreprise. Il agit comme un code d'abstraction qui masque la complexité des services de données (lorsque le BE change) ou des solutions de gestion d'état (évitant la fuite de sélecteurs ou d'actions), promouvant ainsi la flexibilité."
+  },
+  {
+    id: "angular-24",
+    titre: "2️⃣4️⃣ Chargement Dynamique Angular",
+    code: "Pour l'intégration de Micro Frontends dans l'application racine (wrapper), comment le routeur Angular est-il typiquement configuré pour charger les micro frontends lorsque l'utilisateur y navigue ?",
+    options: [
+      "En utilisant des guards de routage (Route guards) globaux.",
+      "En utilisant l'injection de dépendances au niveau du module racine (Root Module).",
+      "En utilisant des imports dynamiques et le lazy loading (chargement paresseux)."
+    ],
+    reponse: "En utilisant des imports dynamiques et le lazy loading (chargement paresseux).",
+    type: "qcm",
+    explication: "Lors de l'intégration, on modifie la configuration de routage dans l'application racine pour charger les micro frontends de manière dynamique. Ceci est réalisé en utilisant le routeur Angular pour définir les routes et charger paresseusement (`lazy load`) les MFE via des `import()`."
+  },
+  {
+    id: "angular-25",
+    titre: "2️⃣5️⃣ Automatisation d'Infrastructure",
+    code: "Quel modèle opérationnel étend les pratiques de version control et de CI/CD (intégration/déploiement continu) à la gestion de l'infrastructure, en assurant que l'état réel de l'infrastructure est synchronisé avec l'état désiré stocké dans Git ?",
+    options: [],
+    reponse: "GitOps",
+    type: "input",
+    explication: "Le modèle **GitOps** applique les meilleures pratiques DevOps (version control, revue de code, déploiements automatisés) à l'infrastructure. Il est basé sur le modèle déclaratif, où les fichiers de configuration sont stockés dans Git, et un opérateur garantit que l'état réel correspond à l'état désiré dans le dépôt."
+  },
+  {
+    id: "angular-26",
+    titre: "2️⃣6️⃣ Part de Marché Docker",
+    code: "Quel pourcentage du marché des plateformes de conteneurisation est dominé par Docker, selon les données d'entreprise ?",
+    options: [],
+    reponse: "83.70",
+    type: "input",
+    explication: "**Docker** domine l'espace de la conteneurisation avec **83.7%** de part de marché parmi les plateformes de conteneurisation, offrant des environnements isolés et cohérents optimisés pour le cloud-native."
+  },
+  {
+    id: "angular-27",
+    titre: "2️⃣7️⃣ Architecture en Couches",
+    code: "Quel nom est donné à l'approche architecturale la plus simple et la plus répandue qui divise le système principalement en fonction des responsabilités techniques (ex: Composants, Services), souvent appelée 'Pizza-box architecture' ?",
+    options: [
+      "Architecture Hexagonale",
+      "Architecture en couches (Layered Architecture)",
+      "Architecture Microservices"
+    ],
+    reponse: "Architecture en couches (Layered Architecture)",
+    type: "qcm",
+    explication: "L'**Architecture en couches** (Layered architecture), ou 'Pizza-box architecture', est l'approche la plus simple qui divise le système selon les responsabilités techniques. Elle est souvent désignée comme une approche horizontale."
+  },
+  {
+    id: "angular-28",
+    titre: "2️⃣8️⃣ Principe Hexagonal",
+    code: "Quel est le principe fondamental de l'Architecture Hexagonale (Ports & Adapters) ?",
+    options: [
+      "Dépendre fortement des technologies sous-jacentes (ex: base de données).",
+      "Dissocier le noyau métier des infrastructures externes (bases de données, UI, API).",
+      "Mettre en œuvre des transactions distribuées (2PC) pour la cohérence des données."
+    ],
+    reponse: "Dissocier le noyau métier des infrastructures externes (bases de données, UI, API).",
+    type: "qcm",
+    explication: "L'Architecture Hexagonale (Ports & Adapters) a été introduite pour dissocier le **noyau métier** des infrastructures externes (bases de données, API tierces, interfaces utilisateur) afin de permettre aux entreprises de changer de technologie sans perturber l'activité."
+  },
+  {
+    id: "angular-29",
+    titre: "2️⃣9️⃣ Défi des MFE",
+    code: "Quel est un défi courant dans la gestion des architectures Micro Front-ends Angular ?",
+    options: [
+      "Le risque accru d'obsolescence technologique.",
+      "La gestion des dépendances de modules et la cohérence entre les modules.",
+      "Le déploiement exclusif sur une seule plateforme cloud."
+    ],
+    reponse: "La gestion des dépendances de modules et la cohérence entre les modules.",
+    type: "qcm",
+    explication: "Les défis courants des Micro Front-ends Angular incluent la **gestion des dépendances de modules**, le maintien de la **cohérence** entre les modules, et la résolution des problèmes de versioning et de compatibilité. Ces défis nécessitent une planification minutieuse et le respect de meilleures pratiques."
+  },
+  {
+    id: "angular-30",
+    titre: "3️⃣0️⃣ Amélioration MTTR (Microservices)",
+    code: "De combien de pourcentage (nombre entier seulement) le temps moyen de récupération (Mean Time To Recovery - MTTR) s'améliore-t-il en moyenne pour les organisations qui adoptent les microservices ?",
+    options: [],
+    reponse: "38",
+    type: "input",
+    explication: "L'implémentation de microservices améliore le temps moyen de récupération (MTTR) de **38%**. En adhérant aux principes cloud-native, cette amélioration peut aller jusqu'à 58%."
+  },
+  {
+    id: "angular-31",
+    titre: "3️⃣1️⃣ Outil de Durabilité AWS",
+    code: "Quel outil AWS permet aux utilisateurs de suivre leurs progrès en matière de réduction des émissions de carbone et fournit des informations sur l'impact environnemental de leur utilisation AWS ?",
+    options: [
+      "AWS Well-Architected Framework",
+      "AWS Graviton Footprint Tracker",
+      "AWS Customer Carbon Footprint"
+    ],
+    reponse: "AWS Customer Carbon Footprint",
+    type: "qcm",
+    explication: "L'optimisation des coûts et de l'utilisation des ressources contribue au développement durable. L'outil **AWS Customer Carbon Footprint** permet de suivre la réduction des émissions de carbone et fournit des informations sur l'impact environnemental de l'utilisation AWS."
+  },
+  {
+    id: "angular-32",
+    titre: "3️⃣2️⃣ Tag de Domaine Nx",
+    code: "Dans la double approche de marquage (tagging) d'Nx, quel préfixe de tag est utilisé pour refléter les limites de domaine, représentant différentes capacités commerciales (ex: 'products', 'orders') ?",
+    options: [],
+    reponse: "scope",
+    type: "input",
+    explication: "Nx utilise des tags pour faire respecter les limites architecturales. Les **tags de scope** (`scope:<name>`) reflètent les limites de domaine (vertical slicing), représentant les différentes capacités commerciales. Les tags de type (`type:<name>`) représentent les couches architecturales horizontales (feature, ui, data-access)."
+  }
+];
+
+console.log(quizData);
+</script>
+
+<script src="cookie-manager.js"></script>
+<script src="quiz-common.js"></script>
+<script>
+// Initialiser le quiz avec les fonctions communes
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'angular3' // ID unique pour cette page
+});
+</script>
+
+<script src="navigation.js"></script>
+<script>
+  // Initialiser la navigation pour la page Angular3
+  createNavigation('angular3');
+</script>
+
+</body>
+</html>

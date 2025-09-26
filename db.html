@@ -1,0 +1,592 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Expert Bases de Données - SGBD & SQL</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div id="navigation"></div>
+  <h1>Quiz Expert : Bases de Données - SGBD & SQL</h1>
+  <p class="lead">Mix QCM (choix unique ou multiple) + réponses libres. Options mélangées aléatoirement. Clique sur "Valider" pour obtenir le feedback.</p>
+</header>
+
+<div id="quizContainer"></div>
+
+<script>
+// --- Données du quiz ---
+const quizData = [
+  {
+    id: "db-1",
+    titre: "1️⃣ Définition d'un SGBD",
+    code: "Quel est le rôle principal d'un Système de Gestion de Base de Données (SGBD) ?",
+    options: [
+      "Système permettant l'exécution de programmes d'application.",
+      "Logiciel spécialisé pour stocker, récupérer et manipuler des données.",
+      "Langage de requête pour interroger des bases de données relationnelles."
+    ],
+    reponse: "Logiciel spécialisé pour stocker, récupérer et manipuler des données.",
+    type: "qcm",
+    explication: "Un **SGBD (Système de Gestion de Base de Données)** est un logiciel conçu pour stocker, récupérer et manipuler des données dans une base de données [1, 2]. Il permet de gérer une base de données partagée par plusieurs utilisateurs simultanément [3]."
+  },
+  {
+    id: "db-2",
+    titre: "2️⃣ Langage pour définir les données",
+    code: "Quel sigle est utilisé pour désigner le langage permettant de 'Décrire les données' dans un SGBD, indépendamment des applications ?",
+    options: [],
+    reponse: "DDL",
+    type: "input",
+    explication: "Le **DDL (Data Definition Language)** est le langage de définition des données, utilisé pour décrire les données et les contraintes, indépendamment des applications [4, 5]."
+  },
+  {
+    id: "db-3",
+    titre: "3️⃣ Niveau Conceptuel de l'Architecture ANSI/SPARC",
+    code: "Dans l'architecture ANSI/SPARC, quel niveau contient la description des données et des contraintes d'intégrité (Dictionnaire de Données) ?",
+    options: [
+      "Niveau Externe",
+      "Niveau Interne",
+      "Niveau Conceptuel"
+    ],
+    reponse: "Niveau Conceptuel",
+    type: "qcm",
+    explication: "L'architecture ANSI/SPARC propose 3 niveaux de représentation des données. Le **niveau conceptuel** contient la description des données et des contraintes d'intégrité (Dictionnaire de Données) [6, 7]."
+  },
+  {
+    id: "db-4",
+    titre: "4️⃣ Objectifs de l'Indépendance Logique",
+    code: "Quel est l'objectif principal de l'Indépendance Logique dans un SGBD, tel que supporté par le concept de vues ?",
+    options: [
+      "Permettre de modifier les structures de stockage sans impacter les applications.",
+      "Permettre au DBA de modifier le schéma logique sans que cela ait de répercussion au niveau des applications.",
+      "Améliorer les performances d'accès grâce aux index."
+    ],
+    reponse: "Permettre au DBA de modifier le schéma logique sans que cela ait de répercussion au niveau des applications.",
+    type: "qcm",
+    explication: "L'**Indépendance logique** permet aux différentes applications d'avoir des vues différentes des mêmes données et permet au DBA (Database Administrator) de modifier le schéma logique sans que cela ait de répercussion au niveau des applications [6, 8, 9]."
+  },
+  {
+    id: "db-5",
+    titre: "5️⃣ Type de modèle pour la modélisation conceptuelle",
+    code: "Quel modèle sémantique est formellement retenu par l'ISO pour décrire l'aspect conceptuel des données à l'aide d'entités et d'associations ?",
+    options: [],
+    reponse: "Entité-Association",
+    type: "input",
+    explication: "Le **modèle Entité-Association (EA)**, ou Entity Relationship (ER) en anglais, est le formalisme retenu par l'ISO pour décrire l'aspect conceptuel des données [10, 11]."
+  },
+  {
+    id: "db-6",
+    titre: "6️⃣ Règle 1 de Codd (Unicité)",
+    code: "Selon la première des 12 règles de Codd, comment toute l'information dans la base de données doit-elle être représentée ?",
+    options: [],
+    reponse: "Valeurs",
+    type: "input",
+    explication: "La Règle 1, dite d'Unicité, stipule que toute l'information est représentée d'une et une seule manière, à savoir par des **valeurs** dans des colonnes de tables [12]."
+  },
+  {
+    id: "db-7",
+    titre: "7️⃣ Règle 2 de Codd (Garantie d'accès)",
+    code: "Selon la Règle 2 de Codd, comment chaque valeur scalaire individuelle dans la base de données doit-elle être logiquement accessible ?",
+    options: [
+      "En indiquant le nom de la table, le nom de la colonne et la valeur principale primaire de la rangée contenante.",
+      "Uniquement par des requêtes utilisant un langage de haut niveau comme SQL.",
+      "En utilisant une interface de bas niveau pour contourner les contraintes."
+    ],
+    reponse: "En indiquant le nom de la table, le nom de la colonne et la valeur principale primaire de la rangée contenante.",
+    type: "qcm",
+    explication: "La Règle 2 (Garantie d'accès) stipule que chaque valeur scalaire doit être logiquement accessible en indiquant le nom de la table, le nom de la colonne et la valeur principale primaire de la rangée (ou clé primaire) [12]."
+  },
+  {
+    id: "db-8",
+    titre: "8️⃣ Règle 3 de Codd (Valeurs Nulles)",
+    code: "La Règle 3 de Codd exige que le SGBD supporte une représentation 'd'information manquante et d'information inapplicable'. Quel type de valeur cela implique-t-il ?",
+    options: [],
+    reponse: "Nulles",
+    type: "input",
+    explication: "La Règle 3 concerne le Traitement des valeurs **nulles** : le système doit supporter une représentation 'd'information manquante et d'information inapplicable' qui est systématique et distincte de toutes les valeurs régulières [12]."
+  },
+  {
+    id: "db-9",
+    titre: "9️⃣ Règle 4 de Codd (Catalogue Relationnel)",
+    code: "Que doivent pouvoir faire les utilisateurs autorisés, selon la Règle 4, en employant leur langage d'interrogation régulier (comme SQL) ?",
+    options: [
+      "Accéder uniquement aux données stockées dans les tables.",
+      "Accéder à la structure de la base de données (catalogue).",
+      "Modifier les structures de stockage physique."
+    ],
+    reponse: "Accéder à la structure de la base de données (catalogue).",
+    type: "qcm",
+    explication: "La Règle 4 (Catalogue lui-même relationnel) exige que les utilisateurs puissent accéder à la structure de la base de données (catalogue) en utilisant le même langage d'interrogation que pour accéder aux données [12, 13]."
+  },
+  {
+    id: "db-10",
+    titre: "1️⃣0️⃣ Règle de Non-subversion",
+    code: "Quelle règle stipule qu'une interface de bas niveau (si fournie) ne doit pas permettre de contourner le système (par exemple, une contrainte de sécurité ou d'intégrité) ?",
+    options: [],
+    reponse: "Règle 12",
+    type: "input",
+    explication: "Il s'agit de la **Règle 12**, la Règle de non-subversion. Elle garantit que même si une interface de bas niveau existe, elle ne compromet pas les contraintes relationnelles du système [14]."
+  },
+  {
+    id: "db-11",
+    titre: "1️⃣1️⃣ Composants d'un n-uplet",
+    code: "Chaque composante d'une relation est appelée par quel terme ?",
+    options: [],
+    reponse: "Attribut",
+    type: "input",
+    explication: "Un élément d'une relation est un n-uplet (ou tuple) [15]. Chaque composante d'une relation est un **attribut**, qui est également appelé propriété ou caractéristique de l'entité [15, 16]."
+  },
+  {
+    id: "db-12",
+    titre: "1️⃣2️⃣ Unicité des lignes",
+    code: "Dans le modèle relationnel, pourquoi ne peut-on pas avoir deux lignes identiques dans une relation (table) ?",
+    options: [
+      "Car une relation est un multi-ensemble d'éléments.",
+      "Car une relation est un ensemble d'éléments.",
+      "Car cela contredirait la notion d'attribut atomique."
+    ],
+    reponse: "Car une relation est un ensemble d'éléments.",
+    type: "qcm",
+    explication: "Une relation est définie comme un **ensemble** de n-uplets [17, 18]. Par conséquent, on ne peut pas avoir deux lignes identiques, garantissant l'unicité des n-uplets [17, 19]."
+  },
+  {
+    id: "db-13",
+    titre: "1️⃣3️⃣ Définition d'une Clé Primaire",
+    code: "Quelle est la double exigence concernant les valeurs des clés primaires (Intégrité de Clé) ?",
+    options: [
+      "Elles doivent être uniques et peuvent être NULL.",
+      "Elles doivent être uniques et non NULL.",
+      "Elles doivent être des clés étrangères et uniques."
+    ],
+    reponse: "Elles doivent être uniques et non NULL.",
+    type: "qcm",
+    explication: "Les valeurs de clés primaires doivent être à la fois **uniques** et **non NULL** [19]. L'unicité garantit qu'une clé détermine un n-uplet de façon unique [20]."
+  },
+  {
+    id: "db-14",
+    titre: "1️⃣4️⃣ Règle d'Intégrité Référentielle",
+    code: "L'intégrité référentielle s'applique aux valeurs d'un attribut particulier qui fait référence à la clé primaire d'une autre relation. Quel est le nom de cet attribut ?",
+    options: [],
+    reponse: "Clé étrangère",
+    type: "input",
+    explication: "L'Intégrité Référentielle garantit que les valeurs d'une **clé étrangère** (ou clé secondaire) sont 'NULL' ou sont des valeurs de la clé primaire auxquelles elles font référence [21, 22]."
+  },
+  {
+    id: "db-15",
+    titre: "1️⃣5️⃣ Définition d'une Clé Candidate",
+    code: "Comment appelle-t-on toutes les clés possibles (attributs ou groupes minimaux d'attributs) qui déterminent tous les autres attributs dans une relation ?",
+    options: [],
+    reponse: "Clés candidates",
+    type: "input",
+    explication: "Une relation peut posséder plusieurs clés. Elles sont appelées **clés candidates** [20]. La clé primaire est le choix d'une clé parmi les clés candidates [20]."
+  },
+  {
+    id: "db-16",
+    titre: "1️⃣6️⃣ Représentation des entités dans un schéma relationnel",
+    code: "Lors du passage d'un schéma conceptuel Entité-Association à un schéma relationnel, comment est généralement représentée une entité simple ?",
+    options: [
+      "Par une association N:M.",
+      "Par une relation (table).",
+      "Par un n-uplet."
+    ],
+    reponse: "Par une relation (table).",
+    type: "qcm",
+    explication: "Dans le modèle relationnel, une entité est représentée par une **relation** (table), nommée d'après l'entité et listant ses attributs [23, 24]."
+  },
+  {
+    id: "db-17",
+    titre: "1️⃣7️⃣ Définition de la Première Forme Normale (1FN)",
+    code: "Une relation est en 1FN si tout attribut respecte quelle condition ?",
+    options: [
+      "Il dépend de la totalité de la clé.",
+      "Il est atomique (non décomposable).",
+      "Il ne dépend pas d'un attribut non-clé."
+    ],
+    reponse: "Il est atomique (non décomposable).",
+    type: "qcm",
+    explication: "La **1ère Forme Normale (1FN)** exige que tout attribut soit **atomique** (non décomposable), interdisant qu'un attribut soit un ensemble de valeurs, comme une 'liste_notes' [25]."
+  },
+  {
+    id: "db-18",
+    titre: "1️⃣8️⃣ Définition de la Deuxième Forme Normale (2FN)",
+    code: "Quelle condition supplémentaire (par rapport à 1FN) doit être remplie pour qu'une relation soit en 2FN ?",
+    options: [],
+    reponse: "Dépendre fonctionnellement de la totalité de la clé",
+    type: "input",
+    explication: "Une relation est en **2FN** si elle est en 1FN ET si tout attribut n'appartenant pas à la clé ne dépend pas d'une partie de la clé (c'est-à-dire qu'il doit **dépendre fonctionnellement de la totalité de la clé**) [25, 26]."
+  },
+  {
+    id: "db-19",
+    titre: "1️⃣9️⃣ Définition de la Troisième Forme Normale (3FN)",
+    code: "La 3FN vise à éviter un type de dépendance. Quel est ce type, qui correspond à la non-transitivité des dépendances fonctionnelles ?",
+    options: [
+      "Dépendance partielle.",
+      "Dépendance transitif.",
+      "Dépendance de domaine."
+    ],
+    reponse: "Dépendance transitif.",
+    type: "qcm",
+    explication: "Une relation est en **3FN** si elle est en 2FN ET si tout attribut n'appartenant pas à la clé ne dépend pas d'un attribut non-clé. Ceci correspond à la non-transitivité des Dépendances Fonctionnelles (D.F.) [26]. Une dépendance fonctionnelle $A \\rightarrow C$ causée par $A \\rightarrow B$ et $B \\rightarrow C$ est un exemple de dépendance transitive."
+  },
+  {
+    id: "db-20",
+    titre: "2️⃣0️⃣ Forme Normale la plus restrictive",
+    code: "Quelle est la Forme Normale la plus restrictive parmi la 1FN, 2FN, 3FN et BCNF (Boyce-Codd Normal Form) ?",
+    options: [],
+    reponse: "BCNF",
+    type: "input",
+    explication: "La **BCNF (3ème Forme Normale de BOYCE-CODD)** est plus restrictive que la 3FN ($BCNF \\Rightarrow FN3$) [27]."
+  },
+  {
+    id: "db-21",
+    titre: "2️⃣1️⃣ Inconvénient des redondances",
+    code: "La présence de redondances dans une base de données relationnelle est un 'propriété indésirable'. Quel problème principal cela engendre-t-il ?",
+    options: [
+      "Difficulté d'accès aux données.",
+      "Anomalies de mise à jour.",
+      "Violation de l'intégrité de domaine."
+    ],
+    reponse: "Anomalies de mise à jour.",
+    type: "qcm",
+    explication: "Les redondances sont des propriétés indésirables des relations [28]. Elles rendent difficiles les mises à jour et peuvent entraîner des **anomalies de mise à jour** [3, 29]."
+  },
+  {
+    id: "db-22",
+    titre: "2️⃣2️⃣ Opération algébrique pour le découpage horizontal",
+    code: "Quelle opération de l'Algèbre Relationnelle correspond à un 'découpage horizontal' des données, permettant d'extraire les n-uplets satisfaisant une condition ?",
+    options: [],
+    reponse: "Restriction",
+    type: "input",
+    explication: "La **Restriction** (notée $\\sigma$) permet d'extraire les n-uplets qui satisfont une condition et correspond à un découpage horizontal des données [30, 31]."
+  },
+  {
+    id: "db-23",
+    titre: "2️⃣3️⃣ Opération algébrique pour le découpage vertical",
+    code: "Quelle opération de l'Algèbre Relationnelle correspond à un 'découpage vertical' des données, permettant d'éliminer des attributs d'une relation ?",
+    options: [
+      "Jointure",
+      "Projection",
+      "Division"
+    ],
+    reponse: "Projection",
+    type: "qcm",
+    explication: "La **Projection** (notée $\\pi$) est l'opération qui permet d'éliminer des attributs d'une relation et correspond à un découpage vertical. Elle élimine également les doublons dans le résultat [30, 32]."
+  },
+  {
+    id: "db-24",
+    titre: "2️⃣4️⃣ Composition de la Jointure",
+    code: "La Jointure est une opération relationnelle qui peut être vue comme la combinaison de quelles deux opérations de base ?",
+    options: [
+      "Produit cartésien et Projection.",
+      "Produit cartésien et Restriction.",
+      "Union et Différence."
+    ],
+    reponse: "Produit cartésien et Restriction.",
+    type: "qcm",
+    explication: "La **Jointure** de deux relations R1 et R2 est définie comme le **produit cartésien** des deux relations, suivi d'une **restriction** basée sur une condition de liaison [33]."
+  },
+  {
+    id: "db-25",
+    titre: "2️⃣5️⃣ Division Relationnelle et quantificateur",
+    code: "La Division Relationnelle (÷) est l'opération qui permet de répondre à des questions formulées avec quel quantificateur universel ?",
+    options: [],
+    reponse: "pour tout",
+    type: "input",
+    explication: "La Division (R3 = R1 ÷ R2) permet de rechercher les sous n-uplets qui sont complétés par **tous** ceux d'une autre relation. Elle permet de répondre aux questions formulées avec le quantificateur universel : 'pour tout...' [34]."
+  },
+  {
+    id: "db-26",
+    titre: "2️⃣6️⃣ Principe d'accès des langages relationnels",
+    code: "Les langages relationnels comme SQL et l'Algèbre Relationnelle permettent de spécifier les données à sélectionner/mettre à jour 'sans dire comment retrouver les données'. Comment ce principe est-il formulé ?",
+    options: [],
+    reponse: "dire QUOI sans dire COMMENT",
+    type: "input",
+    explication: "Les langages assertionnels (ou langages de requêtes déclaratifs) permettent de spécifier les données à manipuler à partir de propriétés des valeurs (qualification), sans préciser d'algorithme d'accès: c'est le principe de **'dire QUOI sans dire COMMENT'** [4, 35]."
+  },
+  {
+    id: "db-27",
+    titre: "2️⃣7️⃣ Équivalence théorique",
+    code: "Quel théorème fondamental établit l'équivalence entre l'Algèbre Relationnelle et le Calcul Relationnel (logique du premier ordre) ?",
+    options: [
+      "Théorème de Fagin",
+      "Théorème de Codd",
+      "Théorème de PACELC"
+    ],
+    reponse: "Théorème de Codd",
+    type: "qcm",
+    explication: "Le **Théorème de Codd** (1972) stipule que l'Algèbre Relationnelle et le Calcul Relationnel sont équivalents, ce qui est fondamental pour la conception des SGBD relationnels et l'optimisation des requêtes [36-38]."
+  },
+  {
+    id: "db-28",
+    titre: "2️⃣8️⃣ Type de langage pour SELECT",
+    code: "SELECT fait partie du LMD (Langage de Manipulation de Données), mais dans le contexte du contrôle des transactions, à quel moment ces commandes sont-elles prises en compte ?",
+    options: [
+      "Immédiatement après leur exécution.",
+      "À l'issue d'une transaction validée (COMMIT).",
+      "Uniquement si elles ne violent pas une contrainte d'intégrité."
+    ],
+    reponse: "À l'issue d'une transaction validée (COMMIT).",
+    type: "qcm",
+    explication: "Les commandes de manipulation de données (SELECT, INSERT, DELETE, UPDATE) doivent être **validées à l'issue d'une transaction (COMMIT)** pour être prises en compte [39]."
+  },
+  {
+    id: "db-29",
+    titre: "2️⃣9️⃣ Commande SQL de mise à jour",
+    code: "Quelle commande SQL permet de changer des valeurs d'attributs de lignes existantes dans une table ?",
+    options: [],
+    reponse: "UPDATE",
+    type: "input",
+    explication: "La commande **UPDATE** permet de changer des valeurs d'attributs de lignes existantes [40-42]."
+  },
+  {
+    id: "db-30",
+    titre: "3️⃣0️⃣ Alias dans SQL",
+    code: "Dans la clause FROM d'une requête SELECT, comment est utilisé un synonyme (alias) de nom de table par SQL ?",
+    options: [
+      "Comme une constante de type chaîne de caractères.",
+      "Comme un identifiant unique de colonne.",
+      "Comme une variable de parcours de table (variable de corrélation)."
+    ],
+    reponse: "Comme une variable de parcours de table (variable de corrélation).",
+    type: "qcm",
+    explication: "Un alias est utilisé par SQL comme une **variable de parcours de table (dite variable de corrélation)** désignant à tout instant une ligne de la table [43]."
+  },
+  {
+    id: "db-31",
+    titre: "3️⃣1️⃣ Suppression des doublons dans SELECT",
+    code: "Quel mot-clé doit être spécifié dans une commande SELECT pour éliminer les doublons dans le résultat, contrairement au comportement par défaut de l'algèbre relationnelle ?",
+    options: [],
+    reponse: "DISTINCT",
+    type: "input",
+    explication: "Par défaut, SQL n'élimine pas les doublons. Pour les éliminer dans la table résultat, il faut spécifier le mot-clé **DISTINCT** dans la clause SELECT [44]."
+  },
+  {
+    id: "db-32",
+    titre: "3️⃣2️⃣ Prédicat LIKE dans SQL",
+    code: "Quel caractère de remplacement (wildcard) est utilisé dans le prédicat LIKE de SQL pour remplacer n'importe quelle suite de caractères (y compris une chaîne vide) ?",
+    options: [
+      "_",
+      "?",
+      "%"
+    ],
+    reponse: "%",
+    type: "qcm",
+    explication: "Dans le prédicat LIKE, le caractère **'%'** remplace n'importe quelle suite de caractères, tandis que le caractère '_' remplace n'importe quel caractère unique [45]."
+  },
+  {
+    id: "db-33",
+    titre: "3️⃣3️⃣ Résultat d'une comparaison avec NULL",
+    code: "Si une comparaison arithmétique (ex: V.qte < 10) inclut une valeur NULL dans SQL, quel est le résultat logique de cette comparaison ?",
+    options: [],
+    reponse: "inconnu",
+    type: "input",
+    explication: "Un prédicat de comparaison (=, <>, <, <=, >, >=) prend la valeur logique '**inconnu**' si l'un des termes de la comparaison est NULL [46]."
+  },
+  {
+    id: "db-34",
+    titre: "3️⃣4️⃣ Jointure externe complète",
+    code: "Quel mot-clé, utilisé dans la clause FROM de SQL2, permet de retenir lors d'une jointure les lignes des deux tables qui n'ont pas de correspondant dans l'autre table (avec des valeurs nulles associées) ?",
+    options: [
+      "LEFT JOIN",
+      "RIGHT JOIN",
+      "FULL JOIN"
+    ],
+    reponse: "FULL JOIN",
+    type: "qcm",
+    explication: "La jointure externe complète retient les lignes sans correspondant des deux tables. Bien que les sources mentionnent `LEFT` et `RIGHT` [47], le terme désignant le cas 'complet' est généralement **FULL JOIN** (appelé 'complète' dans le texte) [48]."
+  },
+  {
+    id: "db-35",
+    titre: "3️⃣5️⃣ Clause pour les restrictions de groupe",
+    code: "Quelle clause SQL permet de spécifier une condition de restriction s'appliquant aux groupes définis par GROUP BY, de la même manière que WHERE filtre les lignes ?",
+    options: [],
+    reponse: "HAVING",
+    type: "input",
+    explication: "La clause **HAVING** permet de spécifier une condition de restriction des groupes générés par la clause GROUP BY. Elle sert à éliminer certains groupes, tandis que WHERE élimine des lignes [49]."
+  },
+  {
+    id: "db-36",
+    titre: "3️⃣6️⃣ Impact de ON DELETE CASCADE",
+    code: "Lors de la suppression d'une ligne dans une table A, qu'implique l'action 'ON DELETE CASCADE' pour les lignes associées dans une table B via une clé étrangère ?",
+    options: [
+      "La suppression sera rejetée (RESTRICT).",
+      "Les attributs référençant dans B seront rendus NULL.",
+      "Toutes les lignes correspondantes dans B seront supprimées."
+    ],
+    reponse: "Toutes les lignes correspondantes dans B seront supprimées.",
+    type: "qcm",
+    explication: "**CASCADE** signifie cascader les suppressions. Par exemple, si l'on supprime un produit dans la table PRODUIT, toutes les ventes correspondantes seront supprimées dans la table VENTE [50]."
+  },
+  {
+    id: "db-37",
+    titre: "3️⃣7️⃣ Avantage des Vues SQL",
+    code: "Les vues sont des tables virtuelles. Outre la simplification d'accès, quel concept clé assurent-elles ?",
+    options: [],
+    reponse: "Indépendance logique",
+    type: "input",
+    explication: "Le concept de vues permet d'assurer l'**Indépendance logique**, garantissant une autonomie des applications vis-à-vis des modifications du schéma [9, 51, 52]."
+  },
+  {
+    id: "db-38",
+    titre: "3️⃣8️⃣ Opérateur de tri dans QBE",
+    code: "Quel opérateur est utilisé dans QBE (Query By Example) pour trier les résultats par ordre croissant (par exemple sur le champ 'ville') ?",
+    options: [],
+    reponse: "AO.",
+    type: "input",
+    explication: "Dans QBE, il faut spécifier **AO.** (Ascending Order) ou DO. (Descending Order) pour trier les résultats. Le nombre entre parenthèses indique l'ordre de tri (champ majeur) [53, 54]."
+  },
+  {
+    id: "db-39",
+    titre: "3️⃣9️⃣ Propriété ACID pour la panne",
+    code: "Dans les propriétés ACID des transactions, quelle propriété garantit que dès qu'une transaction valide ses modifications, celles-ci seront conservées en cas de panne ?",
+    options: [
+      "Atomicité",
+      "Isolation",
+      "Durabilité"
+    ],
+    reponse: "Durabilité",
+    type: "qcm",
+    explication: "La **Durabilité** (Durability) garantit que les modifications validées par une transaction seront conservées de manière permanente, même en cas de panne du système [55]."
+  },
+  {
+    id: "db-40",
+    titre: "4️⃣0️⃣ Opération de fin de transaction avec succès",
+    code: "Quelle commande SQL termine une transaction avec succès, validant toutes les mises à jour de manière définitive ?",
+    options: [],
+    reponse: "COMMIT",
+    type: "input",
+    explication: "La commande **COMMIT** termine une transaction avec succès et valide toutes les mises à jour [56, 57]."
+  },
+  {
+    id: "db-41",
+    titre: "4️⃣1️⃣ Problème de concurrence : Lecture non reproductible",
+    code: "Quel problème de concurrence se produit lorsqu'une transaction lit la 'même' ligne deux fois mais observe des valeurs différentes car une autre transaction l'a modifiée entre-temps ?",
+    options: [
+      "Lecture salissante (Dirty Read)",
+      "Perte de mise à jour (Lost Update)",
+      "Lecture non renouvelable (Non-repeatable Read)"
+    ],
+    reponse: "Lecture non renouvelable (Non-repeatable Read)",
+    type: "qcm",
+    explication: "La **Lecture non renouvelable** survient lorsqu'une transaction lit deux fois la même donnée et obtient des résultats différents parce qu'une autre transaction a modifié cette donnée entre les lectures [58]."
+  },
+  {
+    id: "db-42",
+    titre: "4️⃣2️⃣ Protocole de verrouillage garantissant la sérialisabilité",
+    code: "Quel protocole de verrouillage, très utilisé, garantit que tous les ordonnancements entrelacés des transactions sont sérialisables, à condition que tous les verrouillages précèdent toutes les libérations de verrous ?",
+    options: [],
+    reponse: "verrouillage à deux phases",
+    type: "input",
+    explication: "Le **protocole de verrouillage à deux phases (2-PL)** est un protocole de gestion des accès concurrents qui garantit que si toutes les transactions le satisfont, tous les ordonnancements sont alors sérialisables [59-61]."
+  },
+  {
+    id: "db-43",
+    titre: "4️⃣3️⃣ Niveau d'Isolation par défaut en SQL",
+    code: "Quel est le niveau d'isolation par défaut des transactions dans SQL, qui garantit la sérialisabilité complète (N, N, N) par rapport aux lectures salissantes, non renouvelables et fantômes ?",
+    options: [
+      "READ COMMITTED",
+      "REPEATABLE READ",
+      "SERIALIZABLE"
+    ],
+    reponse: "SERIALIZABLE",
+    type: "qcm",
+    explication: "L'option par défaut du niveau d'isolation de transaction en SQL est **SERIALIZABLE**, garantissant qu'aucun des trois problèmes (lecture salissante, lecture non renouvelable, fantôme) ne se produit [62]."
+  },
+  {
+    id: "db-44",
+    titre: "4️⃣4️⃣ Théorème de CAP : Que signifie P ?",
+    code: "Dans le Théorème de CAP (Consistency, Availability, Partition Tolerance), que représente la lettre P ?",
+    options: [],
+    reponse: "Partition Tolerance",
+    type: "input",
+    explication: "P signifie **Partition Tolerance** (Tolérance de Partition), décrivant comment un système distribué tolère la rupture de connexion (partition) entre deux nœuds [63, 64]."
+  },
+  {
+    id: "db-45",
+    titre: "4️⃣5️⃣ SGBDR orienté objet-relationnel",
+    code: "Quel SGBDR populaire est un système de gestion de bases de données 'objet-relationnel', combinant des objets définis par l'utilisateur et une approche tabulaire pour des structures de données plus complexes ?",
+    options: [
+      "MySQL",
+      "PostgreSQL",
+      "SQLite"
+    ],
+    reponse: "PostgreSQL",
+    type: "qcm",
+    explication: "**PostgreSQL** est un SGBD objet-relationnel (object-relational DBMS), combinant l'approche tabulaire avec le support d'objets définis par l'utilisateur et de types de données personnalisés (comme JSON, XML) [65, 66]."
+  },
+  {
+    id: "db-46",
+    titre: "4️⃣6️⃣ SGBDR pour applications Web légères",
+    code: "Parmi les SGBDR suivants, lequel est souvent recommandé pour les applications Web légères et les débutants, en raison de sa simplicité et de ses performances en lecture ?",
+    options: [],
+    reponse: "MySQL",
+    type: "input",
+    explication: "**MySQL** est apprécié pour sa facilité d'installation et d'utilisation et est particulièrement performant pour les opérations de lecture, le rendant idéal pour les applications web légères [67-69]."
+  },
+  {
+    id: "db-47",
+    titre: "4️⃣7️⃣ SGBD NoSQL orienté Document",
+    code: "Quel type de base de données NoSQL est conçu pour stocker, récupérer et gérer des données sous forme de documents (par exemple, au format JSON) ?",
+    options: [
+      "Key-Value",
+      "Document-Oriented",
+      "Graph"
+    ],
+    reponse: "Document-Oriented",
+    type: "qcm",
+    explication: "Le modèle de données **document-oriented** (orienté document) est utilisé pour stocker et gérer des données telles que des documents JSON. MongoDB est un exemple de ce type de SGBD [70, 71]."
+  },
+  {
+    id: "db-48",
+    titre: "4️⃣8️⃣ SGBD Embedded et Serverless",
+    code: "Quel SGBDR est décrit comme étant 'self-sufficient, serverless, and no-configuration-required' (autonome, sans serveur et sans configuration), souvent utilisé comme base de données embarquée pour les applications mobiles ?",
+    options: [],
+    reponse: "SQLite",
+    type: "input",
+    explication: "**SQLite** est un moteur de base de données léger, sans serveur (serverless) et intégré (embedded), idéal pour les applications mobiles et IoT avec des ressources contraintes [72-74]."
+  },
+  {
+    id: "db-49",
+    titre: "4️⃣9️⃣ Langage de base pour la structure Front-end",
+    code: "Quel langage est principalement utilisé par le développeur Front-end pour traduire les maquettes de design en la 'structure' d'une page web fonctionnelle ?",
+    options: [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    reponse: "HTML",
+    type: "qcm",
+    explication: "Le développeur Front-end utilise principalement **HTML** pour définir la structure, CSS pour l'esthétique et JavaScript pour l'interactivité. HTML est le langage de base pour créer les pages web [75]."
+  },
+  {
+    id: "db-50",
+    titre: "5️⃣0️⃣ Outil de gestion de versions décentralisée",
+    code: "Quel système de gestion de versions est le plus populaire pour suivre les changements, créer des branches et faciliter la collaboration entre les développeurs de manière décentralisée ?",
+    options: [],
+    reponse: "Git",
+    type: "input",
+    explication: "**Git** est le système de gestion de versions le plus populaire, utilisé pour suivre les changements et gérer les différentes versions d'un projet de manière décentralisée [76]."
+  }
+];
+
+console.log(quizData);
+</script>
+
+<script src="cookie-manager.js"></script>
+<script src="quiz-common.js"></script>
+<script>
+// Initialiser le quiz avec les fonctions communes
+const quiz = new QuizManager('quizContainer', quizData, {
+    pageId: 'db' // ID unique pour cette page
+});
+</script>
+
+<script src="navigation.js"></script>
+<script>
+  // Initialiser la navigation pour la page DB
+  createNavigation('db');
+</script>
+
+</body>
+</html>

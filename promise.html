@@ -114,7 +114,7 @@ f();`,
   console.log(a, b); 
 }
 f();`,
-    reponse: ["1 2"],
+    reponse: ["1","2"],
     explication: "Les await successifs s'exécutent séquentiellement, affichant 1 puis 2."
   },
   
@@ -125,7 +125,7 @@ f();`,
   Promise.resolve(1), 
   Promise.resolve(2)
 ]).then(console.log);`,
-    reponse: ["1,2"],
+    reponse: ["1","2"],
     explication: "Promise.all résout toutes les promises en parallèle et retourne un tableau des résultats."
   },
 
@@ -180,7 +180,6 @@ f();`,
     reponse: ["ok","erreur"],
     explication: "allSettled retourne le résultat de toutes les promises, même rejetées."
   },
-  
   {
     id: "promise-14",
     titre: "1️⃣4️⃣ Async / await + erreur non catchée",
