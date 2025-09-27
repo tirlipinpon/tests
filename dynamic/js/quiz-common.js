@@ -139,19 +139,8 @@ class QuizManager {
             `;
         }).join('');
         
-        // Ajouter l'affichage du question_id si disponible
-        // Utiliser question.id comme question_id si question_id n'existe pas
-        const displayId = question.question_id || question.id;
-        console.log('🔍 Affichage question_id:', { displayId, hasDisplayId: !!displayId });
-        
-        const questionIdDisplay = displayId && displayId.trim() !== '' ? 
-            `<div class="question-id-display" style="font-size: 1.1em; color: #007bff; margin-bottom: 15px; padding: 10px 15px; background-color: #e3f2fd; border: 2px solid #007bff; border-radius: 8px; font-weight: bold;">
-                🆔 <strong>Question ID:</strong> ${this.escapeHtml(displayId)}
-            </div>` : '';
-        
         return `
             <h2>${question.titre}</h2>
-            ${questionIdDisplay}
             <pre>${question.code || ''}</pre>
             ${optionsHTML}
             <button id="btn${index}" disabled>Valider</button>
@@ -164,19 +153,8 @@ class QuizManager {
         const correctAnswerLength = question.correct_answer ? question.correct_answer.length : 0;
         const maxLength = Math.max(correctAnswerLength * 2, 100); // 2x la longueur de la réponse ou 100 minimum
         
-        // Ajouter l'affichage du question_id si disponible
-        // Utiliser question.id comme question_id si question_id n'existe pas
-        const displayId = question.question_id || question.id;
-        console.log('🔍 Affichage question_id:', { displayId, hasDisplayId: !!displayId });
-        
-        const questionIdDisplay = displayId && displayId.trim() !== '' ? 
-            `<div class="question-id-display" style="font-size: 1.1em; color: #007bff; margin-bottom: 15px; padding: 10px 15px; background-color: #e3f2fd; border: 2px solid #007bff; border-radius: 8px; font-weight: bold;">
-                🆔 <strong>Question ID:</strong> ${this.escapeHtml(displayId)}
-            </div>` : '';
-        
         return `
             <h2>${question.titre}</h2>
-            ${questionIdDisplay}
             <pre>${question.code || ''}</pre>
             <div class="input-container">
                 <input type="text" id="input${index}" aria-label="Réponse" maxlength="${maxLength}">

@@ -86,12 +86,18 @@ async function getCategoryStats(categoryName) {
   }
 }
 
+// Charger toutes les données pour les statistiques (incluant les supprimées)
+async function loadAllQuizDataForStats(category) {
+  return await loadQuizDataFromSupabase(category, true);
+}
+
 // Exposer les fonctions globalement
 window.loadCategories = loadCategories;
 window.getCategoryStats = getCategoryStats;
+window.loadAllQuizDataForStats = loadAllQuizDataForStats;
 
 // Charger les données depuis Supabase
-async function loadQuizDataFromSupabase(category) {
+async function loadQuizDataFromSupabase(category, includeDeleted = false) {
   try {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -100,11 +106,17 @@ async function loadQuizDataFromSupabase(category) {
       return [];
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('quiz_questions')
       .select('*')
-      .eq('category', category)
-      .eq('deleted', false);
+      .eq('category', category);
+    
+    // Si on n'inclut pas les supprimées, filtrer
+    if (!includeDeleted) {
+      query = query.eq('deleted', false);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('❌ Erreur lors du chargement:', error);
@@ -165,8 +177,17 @@ async function deleteQuestion(questionId) {
       alert('Erreur lors de la suppression de la question');
     } else {
       console.log('✅ Question supprimée avec succès');
-      alert('Question supprimée avec succès');
-      location.reload();
+      
+      // Supprimer la question du DOM au lieu de rafraîchir la page
+      removeQuestionFromDOM(questionId);
+      
+      // Mettre à jour les statistiques
+      if (window.updateQuizStats) {
+        await window.updateQuizStats();
+      }
+      
+      // Afficher un message de succès temporaire
+      showTemporaryMessage('Question supprimée avec succès', 'success');
     }
   } catch (error) {
     console.error('❌ Erreur lors de la suppression:', error);
@@ -208,17 +229,104 @@ function addDeleteButtonToQuestion(section, questionId) {
   const h2 = section.querySelector('h2');
   if (h2 && questionId) {
     const deleteBtn = document.createElement('button');
-    deleteBtn.innerHTML = '🗑️ Supprimer';
+    deleteBtn.innerHTML = `🆔 ${questionId} 🗑️ Supprimer`;
     deleteBtn.className = 'delete-btn';
-    deleteBtn.style.cssText = 'background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 12px;';
+    deleteBtn.style.cssText = 'background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px;';
+    deleteBtn.title = `Supprimer la question ${questionId}`;
     deleteBtn.onclick = () => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+      if (confirm(`Êtes-vous sûr de vouloir supprimer la question ${questionId} ?`)) {
         deleteQuestion(questionId);
       }
     };
     h2.appendChild(deleteBtn);
-    console.log(`✅ Bouton ajouté pour ${questionId}`);
+    console.log(`✅ Bouton avec ID ajouté pour ${questionId}`);
   }
+}
+
+// Supprimer une question du DOM
+function removeQuestionFromDOM(questionId) {
+  console.log('🗑️ Suppression de la question du DOM:', questionId);
+  
+  // Trouver toutes les sections qui contiennent cette question
+  const sections = document.querySelectorAll('section');
+  
+  sections.forEach(section => {
+    const h2 = section.querySelector('h2');
+    if (h2 && h2.textContent.includes(questionId)) {
+      console.log('✅ Section trouvée et supprimée:', questionId);
+      
+      // Ajouter une animation de disparition
+      section.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+      section.style.opacity = '0';
+      section.style.transform = 'translateX(-100px)';
+      
+      // Supprimer après l'animation
+      setTimeout(() => {
+        section.remove();
+        
+        // Mettre à jour le compteur de questions si disponible
+        updateQuestionCount();
+      }, 500);
+    }
+  });
+}
+
+// Afficher un message temporaire
+function showTemporaryMessage(message, type = 'success') {
+  // Créer le message
+  const messageDiv = document.createElement('div');
+  messageDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.3s ease-out;
+  `;
+  messageDiv.textContent = message;
+  
+  // Ajouter au DOM
+  document.body.appendChild(messageDiv);
+  
+  // Animer l'apparition
+  setTimeout(() => {
+    messageDiv.style.opacity = '1';
+    messageDiv.style.transform = 'translateX(0)';
+  }, 100);
+  
+  // Supprimer après 3 secondes
+  setTimeout(() => {
+    messageDiv.style.opacity = '0';
+    messageDiv.style.transform = 'translateX(100px)';
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.parentNode.removeChild(messageDiv);
+      }
+    }, 300);
+  }, 3000);
+}
+
+// Mettre à jour le compteur de questions
+function updateQuestionCount() {
+  const sections = document.querySelectorAll('section');
+  const questionCount = sections.length;
+  
+  // Mettre à jour le titre s'il contient un compteur
+  const titleElement = document.querySelector('h1');
+  if (titleElement && titleElement.textContent.includes('questions')) {
+    const categoryName = titleElement.textContent.split(' - ')[0];
+    titleElement.textContent = `${categoryName} - ${questionCount} question${questionCount > 1 ? 's' : ''}`;
+  }
+  
+  console.log(`📊 Nombre de questions restantes: ${questionCount}`);
 }
 
 // Exposer la fonction globalement pour QuizManager

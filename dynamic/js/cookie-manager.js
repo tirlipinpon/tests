@@ -121,6 +121,9 @@ class CookieManager {
     }
 }
 
+// Exposer globalement
+window.CookieManager = CookieManager;
+
 // Export pour utilisation en module (si supporté)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CookieManager;
