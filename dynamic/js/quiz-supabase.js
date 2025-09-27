@@ -112,9 +112,13 @@ async function loadQuizDataFromSupabase(category) {
     }
 
     if (data && data.length > 0) {
-      console.log(`✅ ${data.length} questions chargées depuis Supabase`);
-      return data.map(q => ({
-        id: q.question_id,
+      console.log(`✅ ${data.length} questions chargées depuis Supabase pour la catégorie: ${category}`);
+      console.log('🔍 Première question brute de la DB:', data[0]);
+      console.log('🔍 Champs disponibles:', Object.keys(data[0]));
+      
+      const mappedData = data.map(q => ({
+        id: q.question_id, // Utilisé pour les boutons de suppression
+        question_id: q.question_id, // Question ID explicite pour l'affichage
         titre: q.title,
         code: q.code,
         options: q.options || [],
@@ -126,6 +130,11 @@ async function loadQuizDataFromSupabase(category) {
         question_type: q.question_type, // Ajouter le mapping correct
         deleted: q.deleted || false
       }));
+      
+      console.log('🔍 Première question mappée:', mappedData[0]);
+      console.log('🔍 Question ID de la première question:', mappedData[0].question_id);
+      
+      return mappedData;
     } else {
       console.log('⚠️ Aucune donnée trouvée pour la catégorie:', category);
       return [];
