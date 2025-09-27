@@ -13,35 +13,6 @@
             padding: 20px;
         }
         
-        .admin-link {
-            background: #f8f9fa;
-            color: #333;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border: 2px solid #dee2e6;
-            font-weight: 500;
-        }
-        
-        .admin-link:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-            color: #333;
-            text-decoration: none;
-        }
-        
-        .admin-link.home {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-        
-        .admin-link.home:hover {
-            background: #218838;
-            color: white;
-        }
         
         .admin-nav {
             display: flex;
@@ -62,9 +33,10 @@
         }
         
         .admin-nav button.active {
-            background: #667eea;
-            color: white;
+            background: white;
+            color: #333;
             border-color: #667eea;
+            border-width: 2px;
         }
         
         .admin-nav button:hover {
@@ -74,8 +46,10 @@
         }
         
         .admin-nav button.active:hover {
-            background: #5a6fd8;
+            background: #f8f9fa;
+            color: #333;
         }
+        
         
         /* Améliorer la lisibilité des icônes et du texte */
         .admin-nav button i {
@@ -533,8 +507,7 @@
             <button onclick="showSection('questions')">❓ Gestion des Questions</button>
             <button onclick="showSection('import')">📥 Import de Questions</button>
             <button onclick="showSection('stats')">📊 Statistiques</button>
-            <a href="categories.html" class="admin-link">🎯 Catégories</a>
-            <a href="../../index.html" class="admin-link home">🏠 Accueil</a>
+            <button onclick="window.location.href='categories.html'">🎯 Catégories</button>
         </div>
 
         <!-- Section Gestion des Catégories -->
@@ -553,9 +526,7 @@
                         <div class="form-group">
                             <label for="category-level">Niveau</label>
                             <select id="category-level">
-                                <option value="Débutant">Débutant</option>
-                                <option value="Intermédiaire">Intermédiaire</option>
-                                <option value="Expert" selected>Expert</option>
+                                <!-- Les options seront générées par JavaScript -->
                             </select>
                         </div>
                     </div>
@@ -602,11 +573,7 @@
             <div class="form-group">
                 <label for="questions-level">Sélectionner un niveau *</label>
                 <select id="questions-level" required onchange="loadCategoriesForLevel('questions-category')">
-                    <option value="">-- Choisir un niveau --</option>
-                    <option value="Débutant">Débutant</option>
-                    <option value="Intermédiaire">Intermédiaire</option>
-                    <option value="Avancé">Avancé</option>
-                    <option value="Expert">Expert</option>
+                    <!-- Les options seront générées par JavaScript -->
                 </select>
             </div>
             
@@ -654,11 +621,7 @@
             <div class="form-group">
                 <label for="import-level">Sélectionner un niveau *</label>
                 <select id="import-level" required onchange="loadCategoriesForLevel('import-category')">
-                    <option value="">-- Choisir un niveau --</option>
-                    <option value="Débutant">Débutant</option>
-                    <option value="Intermédiaire">Intermédiaire</option>
-                    <option value="Avancé">Avancé</option>
-                    <option value="Expert">Expert</option>
+                    <!-- Les options seront générées par JavaScript -->
                 </select>
             </div>
             
@@ -723,6 +686,7 @@
     <script src="../js/config.local.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/quiz-supabase.js"></script>
+    <script src="../js/quiz-levels.js"></script>
     <script src="../js/admin.js"></script>
 </body>
 </html>

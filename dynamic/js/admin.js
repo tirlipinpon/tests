@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
         
+        // Initialiser les selects de niveau
+        initializeLevelSelects();
+        
         // Charger les catégories
         await loadCategories();
         
@@ -28,6 +31,29 @@ document.addEventListener('DOMContentLoaded', async function() {
         showAlert('Erreur lors de l\'initialisation: ' + error.message, 'error');
     }
 });
+
+// Initialiser les selects de niveau
+function initializeLevelSelects() {
+    // Select pour la création de catégorie
+    const categoryLevelSelect = document.getElementById('category-level');
+    if (categoryLevelSelect && window.getLevelOptionsWithPlaceholder) {
+        categoryLevelSelect.innerHTML = window.getLevelOptionsWithPlaceholder('-- Choisir un niveau --', 'Expert');
+    }
+    
+    // Select pour la gestion des questions
+    const questionsLevelSelect = document.getElementById('questions-level');
+    if (questionsLevelSelect && window.getLevelOptionsWithPlaceholder) {
+        questionsLevelSelect.innerHTML = window.getLevelOptionsWithPlaceholder('-- Choisir un niveau --');
+    }
+    
+    // Select pour l'import de questions
+    const importLevelSelect = document.getElementById('import-level');
+    if (importLevelSelect && window.getLevelOptionsWithPlaceholder) {
+        importLevelSelect.innerHTML = window.getLevelOptionsWithPlaceholder('-- Choisir un niveau --');
+    }
+    
+    console.log('✅ Selects de niveau initialisés');
+}
 
 // Initialiser les événements
 function initializeEvents() {
@@ -739,13 +765,28 @@ function createQuestionCard(question) {
         <div class="question-card ${statusClass}" data-question-id="${questionId}">
             <div class="question-header">
                 <div class="question-meta">
-                    <span class="question-id">ID: ${question.question_id || questionId}</span>
+                    <span class="question-id" title="UUID Supabase: ${questionId}">
+                        ${question.question_id ? '📋' : '⚠️'} Question ID: <strong>${question.question_id || 'Non défini'}</strong>
+                    </span>
+                    <span class="uuid-info" style="font-size: 0.8em; color: #666; margin-left: 10px;">
+                        (UUID: ${questionId.substring(0, 8)}...)
+                    </span>
                     <span class="question-type">${questionType}</span>
                     <span class="question-status ${statusClass}">${statusText}</span>
+                    ${!question.question_id ? '<span style="color: #ff6b6b; font-size: 0.8em;">⚠️ ID manquant</span>' : ''}
                 </div>
             </div>
             
             <div class="question-content">
+                <div class="form-group">
+                    <label>Question ID :</label>
+                    <input type="text" value="${question.question_id || ''}" 
+                           onchange="updateQuestionField(${questionIdStr}, 'question_id', this.value)"
+                           class="question-id-input" placeholder="ID de la question (ex: javascript-1)"
+                           style="font-family: monospace; background-color: #f8f9fa; border: 1px solid #dee2e6;">
+                    <small style="color: #666; font-style: italic;">Identifiant unique pour identifier la question en base de données</small>
+                </div>
+                
                 <div class="form-group">
                     <label>Titre :</label>
                     <input type="text" value="${titleText}" 
@@ -853,13 +894,16 @@ async function deleteQuestion(questionId) {
     const cleanId = questionId.replace(/'/g, '');
     
     try {
+        console.log('🗑️ Tentative de suppression de la question avec ID:', cleanId);
+        
         const { error } = await supabase
             .from('quiz_questions')
             .update({ deleted: true })
-            .eq('id', cleanId);
+            .eq('id', cleanId);  // Utiliser l'UUID Supabase pour la suppression
         
         if (error) throw error;
         
+        console.log('✅ Question supprimée avec succès');
         showAlert('Question supprimée avec succès', 'success');
         await loadQuestionsForCategory();
         
@@ -875,13 +919,16 @@ async function restoreQuestion(questionId) {
     const cleanId = questionId.replace(/'/g, '');
     
     try {
+        console.log('↩️ Tentative de restauration de la question avec ID:', cleanId);
+        
         const { error } = await supabase
             .from('quiz_questions')
             .update({ deleted: false })
-            .eq('id', cleanId);
+            .eq('id', cleanId);  // Utiliser l'UUID Supabase pour la restauration
         
         if (error) throw error;
         
+        console.log('✅ Question restaurée avec succès');
         showAlert('Question restaurée avec succès', 'success');
         await loadQuestionsForCategory();
         
@@ -906,6 +953,25 @@ function updateQuestionField(questionId, field, value) {
     const cleanId = questionId.replace(/'/g, '');
     const question = currentQuestions.find(q => q.id === cleanId);
     if (question) {
+        // Validation spéciale pour question_id
+        if (field === 'question_id') {
+            // Vérifier l'unicité du question_id
+            const existingQuestion = currentQuestions.find(q => 
+                q.id !== cleanId && q.question_id === value && value.trim() !== ''
+            );
+            
+            if (existingQuestion) {
+                showAlert(`⚠️ Le question_id "${value}" est déjà utilisé par une autre question`, 'warning');
+                return;
+            }
+            
+            // Valider le format du question_id
+            if (value.trim() && !/^[a-zA-Z0-9-_]+$/.test(value.trim())) {
+                showAlert('⚠️ Le question_id ne peut contenir que des lettres, chiffres, tirets et underscores', 'warning');
+                return;
+            }
+        }
+        
         question[field] = value;
         console.log(`Champ ${field} mis à jour pour la question ${cleanId}:`, value);
         
@@ -984,6 +1050,7 @@ async function saveQuestion(questionId) {
         
         // Préparer les données à sauvegarder selon la vraie structure DB
         const updateData = {
+            question_id: question.question_id, // question_id en DB
             title: question.title, // title en DB
             code: question.code, // code en DB
             correct_answer: question.correct_answer,

@@ -144,7 +144,7 @@ async function createCategoryCard(category) {
         // Créer les fonctionnalités
         const features = [
             `${questionCount} questions`,
-            `Niveau : ${category.level || 'Expert'}`,
+            `Niveau : ${window.getLevelLabel ? window.getLevelLabel(category.level) || 'Expert' : (category.level || 'Expert')}`,
             category.description ? 'Avec descriptions' : 'Quiz standard'
         ];
         
@@ -158,7 +158,7 @@ async function createCategoryCard(category) {
                 <div class="category-icon">${category.icon || '🎯'}</div>
                 <div class="category-title">${highlightedName}</div>
                 <div class="category-description">${category.description || `Quiz ${category.display_name || category.name}`}</div>
-                <div class="category-level">${category.level || 'Expert'}</div>
+                <div class="category-level">${window.getLevelLabel ? window.getLevelLabel(category.level) || 'Expert' : (category.level || 'Expert')}</div>
                 <ul class="category-features">
                     ${features.map(feature => `<li>${feature}</li>`).join('')}
                 </ul>
@@ -216,6 +216,11 @@ function initializeFilters() {
     const levelFilter = document.getElementById('levelFilter');
     const applyFilter = document.getElementById('applyFilter');
     
+    // Générer les options de niveau
+    if (levelFilter && window.getLevelOptions) {
+        levelFilter.innerHTML = window.getLevelOptions(true);
+    }
+    
     if (levelFilter) {
         levelFilter.addEventListener('change', function() {
             currentFilter = this.value;
@@ -246,7 +251,7 @@ function applyLevelFilter() {
         } else {
             // Filtrer par niveau
             filteredCategories = categories.filter(category => {
-                const categoryLevel = category.level || 'Expert';
+                const categoryLevel = window.getLevelLabel ? window.getLevelLabel(category.level) || 'Expert' : (category.level || 'Expert');
                 return categoryLevel === currentFilter;
             });
         }

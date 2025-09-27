@@ -142,7 +142,7 @@ function updateSuggestions(results, searchTerm) {
                     <div class="suggestion-icon">${category.icon || '🎯'}</div>
                     <div class="suggestion-content">
                         <div class="suggestion-name">${highlightedName}</div>
-                        <div class="suggestion-level">Niveau: ${category.level || 'Expert'}</div>
+                        <div class="suggestion-level">Niveau: ${window.getLevelLabel ? window.getLevelLabel(category.level) || 'Expert' : (category.level || 'Expert')}</div>
                     </div>
                 </div>
             `;

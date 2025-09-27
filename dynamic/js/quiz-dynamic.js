@@ -54,7 +54,7 @@ async function loadCategoryInfo() {
             name: currentCategory,
             display_name: currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1),
             description: `Quiz ${currentCategory}`,
-            level: 'Expert',
+            level: window.getLevelLabel ? window.getLevelLabel('Expert') : 'Expert',
             color: '#667eea',
             icon: '🎯'
         };
@@ -83,7 +83,7 @@ function updateCategoryHeader() {
     
     // Mettre à jour le niveau
     const levelEl = document.getElementById('categoryLevel');
-    if (levelEl) levelEl.textContent = categoryInfo.level || 'Expert';
+    if (levelEl) levelEl.textContent = window.getLevelLabel ? window.getLevelLabel(categoryInfo.level) || 'Expert' : (categoryInfo.level || 'Expert');
     
     // Mettre à jour les couleurs
     const headerEl = document.getElementById('categoryHeader');

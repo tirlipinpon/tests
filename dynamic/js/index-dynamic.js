@@ -100,7 +100,7 @@ function generateFeatures(category, questionCount) {
     }
     
     // Niveau
-    features.push(`Niveau : ${category.level || 'Expert'}`);
+    features.push(`Niveau : ${window.getLevelLabel ? window.getLevelLabel(category.level) || 'Expert' : (category.level || 'Expert')}`);
     
     // Caractéristiques spécifiques selon la catégorie
     const specificFeatures = getCategorySpecificFeatures(category.name);

@@ -144,10 +144,12 @@ async function deleteQuestion(questionId) {
       return;
     }
 
+    console.log('🗑️ Tentative de suppression de la question avec question_id:', questionId);
+
     const { error } = await supabase
       .from('quiz_questions')
       .update({ deleted: true })
-      .eq('question_id', questionId);
+      .eq('question_id', questionId);  // Utiliser question_id pour la cohérence avec le système de quiz
 
     if (error) {
       console.error('❌ Erreur lors de la suppression:', error);
@@ -171,10 +173,12 @@ async function restoreQuestion(questionId) {
       return;
     }
 
+    console.log('↩️ Tentative de restauration de la question avec question_id:', questionId);
+
     const { error } = await supabase
       .from('quiz_questions')
       .update({ deleted: false })
-      .eq('question_id', questionId);
+      .eq('question_id', questionId);  // Utiliser question_id pour la cohérence avec le système de quiz
 
     if (error) {
       console.error('❌ Erreur lors de la restauration:', error);
