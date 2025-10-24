@@ -174,53 +174,35 @@ class QuizStats {
       transition: all 0.3s ease;
     `;
 
-    // Ajouter un bouton de fermeture
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '✕';
-    closeBtn.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 8px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    closeBtn.onclick = () => this.hideStats();
-
-    // Ajouter un bouton de minimisation
-    const minimizeBtn = document.createElement('button');
-    minimizeBtn.innerHTML = '−';
-    minimizeBtn.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 35px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    minimizeBtn.onclick = () => this.toggleMinimize();
-
-    this.statsContainer.appendChild(closeBtn);
-    this.statsContainer.appendChild(minimizeBtn);
+    // Ajouter les boutons de contrôle
+    this.addControlButtons();
 
     // Ajouter au body
     document.body.appendChild(this.statsContainer);
+  }
+
+  // Créer un bouton de contrôle réutilisable
+  createControlButton(innerHTML, onClick, rightPosition) {
+    const button = document.createElement('button');
+    button.innerHTML = innerHTML;
+    button.style.cssText = `
+      position: absolute;
+      top: 5px;
+      right: ${rightPosition}px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+    button.onclick = onClick;
+    return button;
   }
 
   // Afficher les statistiques
@@ -310,45 +292,8 @@ class QuizStats {
 
   // Ajouter les boutons de contrôle
   addControlButtons() {
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '✕';
-    closeBtn.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 8px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    closeBtn.onclick = () => this.hideStats();
-
-    const minimizeBtn = document.createElement('button');
-    minimizeBtn.innerHTML = '−';
-    minimizeBtn.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 35px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    minimizeBtn.onclick = () => this.toggleMinimize();
+    const closeBtn = this.createControlButton('✕', () => this.hideStats(), 8);
+    const minimizeBtn = this.createControlButton('−', () => this.toggleMinimize(), 35);
 
     this.statsContainer.appendChild(closeBtn);
     this.statsContainer.appendChild(minimizeBtn);

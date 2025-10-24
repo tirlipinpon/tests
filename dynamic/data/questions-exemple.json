@@ -1,0 +1,152 @@
+[
+  {
+    "question_id": "javascript-001",
+    "title": "Quelle est la syntaxe correcte pour déclarer une variable en JavaScript ?",
+    "code": "// Choisissez la bonne syntaxe :\\nvar x = 5;\\nlet y = 10;\\nconst z = 15;",
+    "question_type": "qcm",
+    "options": [
+      "var nomVariable = valeur;",
+      "variable nomVariable = valeur;",
+      "let nomVariable = valeur;",
+      "const nomVariable = valeur;"
+    ],
+    "correct_answer": "var nomVariable = valeur;",
+    "explanation": "En JavaScript, on peut déclarer une variable avec 'var', 'let' ou 'const'. 'var' est la syntaxe la plus ancienne et la plus courante.",
+    "exemple": "// Exemples de déclaration de variables :\\nvar age = 25;\\nlet nom = 'Jean';\\nconst PI = 3.14159;",
+    "category": "javascript",
+    "level": "Intermédiaire",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-002", 
+    "title": "Quelle est la différence entre 'let' et 'var' ?",
+    "code": "// Analyser ce code :\\nfor (var i = 0; i < 3; i++) {\\n  setTimeout(() => console.log(i), 100);\\n}",
+    "question_type": "input",
+    "correct_answer": "var a une portée de fonction, let a une portée de bloc",
+    "explanation": "'var' a une portée de fonction et est hissé (hoisted), tandis que 'let' a une portée de bloc et n'est pas hissé.",
+    "exemple": "// Avec var (portée de fonction) :\\nfunction test() {\\n  if (true) {\\n    var x = 1;\\n  }\\n  console.log(x); // 1 - accessible\\n}\\n\\n// Avec let (portée de bloc) :\\nfunction test2() {\\n  if (true) {\\n    let y = 1;\\n  }\\n  console.log(y); // ReferenceError\\n}",
+    "category": "javascript",
+    "level": "Avancé",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-003",
+    "title": "Que va afficher ce code ?",
+    "code": "const arr = [1, 2, 3];\\nconst result = arr.map(x => x * 2).filter(x => x > 3);\\nconsole.log(result);",
+    "input": "qcm",
+    "options": [
+      "[2, 4, 6]",
+      "[4, 6]", 
+      "[1, 2, 3]",
+      "Erreur"
+    ],
+    "correct_answer": "[4, 6]",
+    "explanation": "map(x => x * 2) transforme [1,2,3] en [2,4,6], puis filter(x => x > 3) garde seulement les éléments > 3, soit [4,6].",
+    "exemple": "// Étape par étape :\\nconst arr = [1, 2, 3];\\n// Étape 1: map(x => x * 2)\\nconst doubled = [2, 4, 6];\\n// Étape 2: filter(x => x > 3)\\nconst filtered = [4, 6];",
+    "category": "javascript",
+    "level": "Intermédiaire",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-004",
+    "title": "Qu'est-ce qu'une closure en JavaScript ?",
+    "code": "function createCounter() {\\n  let count = 0;\\n  return function() {\\n    return ++count;\\n  };\\n}",
+    "question_type": "input",
+    "correct_answer": "une fonction qui a accès aux variables de sa portée externe",
+    "explanation": "Une closure est une fonction qui 'ferme' sur les variables de sa portée externe, même après que la fonction externe ait terminé son exécution.",
+    "exemple": "// Exemple de closure :\\nfunction createMultiplier(factor) {\\n  return function(number) {\\n    return number * factor;\\n  };\\n}\\n\\nconst double = createMultiplier(2);\\nconsole.log(double(5)); // 10",
+    "category": "javascript", 
+    "level": "Expert",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-005",
+    "title": "Quelle méthode utilise-t-on pour créer une copie superficielle d'un objet ?",
+    "code": "const original = { a: 1, b: { c: 2 } };\\n// Comment créer une copie ?",
+    "question_type": "qcm",
+    "options": [
+      "Object.assign({}, original)",
+      "original.slice()",
+      "original.copy()",
+      "JSON.parse(JSON.stringify(original))"
+    ],
+    "correct_answer": "Object.assign({}, original)",
+    "explanation": "Object.assign({}, original) crée une copie superficielle. Pour une copie profonde, on utilise JSON.parse(JSON.stringify(original)).",
+    "exemple": "// Copie superficielle :\\nconst shallow = Object.assign({}, original);\\nshallow.b.c = 3;\\nconsole.log(original.b.c); // 3 (modifié)\\n\\n// Copie profonde :\\nconst deep = JSON.parse(JSON.stringify(original));\\ndeep.b.c = 4;\\nconsole.log(original.b.c); // 3 (inchangé)",
+    "category": "javascript",
+    "level": "Avancé", 
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-006",
+    "title": "Qu'est-ce que le hoisting en JavaScript ?",
+    "code": "console.log(x); // Que va afficher ?\\nvar x = 5;",
+    "question_type": "input",
+    "correct_answer": "le mécanisme qui déplace les déclarations en haut de leur portée",
+    "explanation": "Le hoisting fait que les déclarations de variables et de fonctions sont 'hissées' en haut de leur portée, mais pas leurs initialisations.",
+    "exemple": "// Exemple de hoisting :\\nconsole.log(a); // undefined (pas d'erreur)\\nconsole.log(b); // ReferenceError\\nvar a = 1;\\nlet b = 2;\\n\\n// Équivalent à :\\nvar a; // hissée\\nconsole.log(a); // undefined\\nconsole.log(b); // ReferenceError\\na = 1;\\nlet b = 2;",
+    "category": "javascript",
+    "level": "Expert",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-007",
+    "title": "Quelle est la différence entre == et === ?",
+    "code": "console.log(5 == '5');\\nconsole.log(5 === '5');",
+    "question_type": "qcm",
+    "options": [
+      "== compare les valeurs, === compare les valeurs et les types",
+      "== compare les types, === compare les valeurs",
+      "Aucune différence",
+      "== est plus rapide que ==="
+    ],
+    "correct_answer": "== compare les valeurs, === compare les valeurs et les types",
+    "explanation": "== effectue une conversion de type avant comparaison, === compare strictement sans conversion de type.",
+    "exemple": "// Exemples de comparaisons :\\nconsole.log(5 == '5');  // true (conversion de type)\\nconsole.log(5 === '5'); // false (types différents)\\nconsole.log(0 == false); // true (conversion)\\nconsole.log(0 === false); // false (types différents)",
+    "category": "javascript",
+    "level": "Intermédiaire",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-008",
+    "title": "Que fait la méthode Array.prototype.reduce() ?",
+    "code": "const numbers = [1, 2, 3, 4];\\nconst sum = numbers.reduce((acc, curr) => acc + curr, 0);",
+    "question_type": "input", 
+    "correct_answer": "réduit un tableau à une seule valeur en appliquant une fonction",
+    "explanation": "reduce() applique une fonction de réduction sur chaque élément du tableau pour le réduire à une seule valeur.",
+    "exemple": "// Exemples avec reduce :\\nconst numbers = [1, 2, 3, 4];\\n\\n// Somme\\nconst sum = numbers.reduce((acc, curr) => acc + curr, 0); // 10\\n\\n// Maximum\\nconst max = numbers.reduce((acc, curr) => Math.max(acc, curr)); // 4\\n\\n// Comptage\\nconst count = numbers.reduce((acc, curr) => acc + 1, 0); // 4",
+    "category": "javascript",
+    "level": "Avancé",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-009",
+    "title": "Qu'est-ce qu'une Promise en JavaScript ?",
+    "code": "const promise = new Promise((resolve, reject) => {\\n  setTimeout(() => resolve('Succès'), 1000);\\n});",
+    "question_type": "qcm",
+    "options": [
+      "Un objet représentant une opération asynchrone",
+      "Une fonction synchrone",
+      "Un type de variable",
+      "Une méthode de tableau"
+    ],
+    "correct_answer": "Un objet représentant une opération asynchrone",
+    "explanation": "Une Promise est un objet qui représente l'état d'une opération asynchrone (en attente, résolue, ou rejetée).",
+    "exemple": "// Exemple de Promise :\\nconst fetchData = () => {\\n  return new Promise((resolve, reject) => {\\n    setTimeout(() => {\\n      const success = Math.random() > 0.5;\\n      if (success) {\\n        resolve('Données récupérées');\\n      } else {\\n        reject('Erreur de récupération');\\n      }\\n    }, 1000);\\n  });\\n};\\n\\n// Utilisation :\\nfetchData()\\n  .then(data => console.log(data))\\n  .catch(error => console.error(error));",
+    "category": "javascript",
+    "level": "Avancé",
+    "deleted": false
+  },
+  {
+    "question_id": "javascript-010",
+    "title": "Comment déclarer une fonction fléchée (arrow function) ?",
+    "code": "// Convertir cette fonction classique :\\nfunction add(a, b) {\\n  return a + b;\\n}",
+    "question_type": "input",
+    "correct_answer": "const add = (a, b) => a + b;",
+    "explanation": "Les fonctions fléchées utilisent la syntaxe => et peuvent avoir un return implicite si le corps est une expression.",
+    "exemple": "// Différentes syntaxes de fonctions fléchées :\\n\\n// Avec return explicite :\\nconst add = (a, b) => {\\n  return a + b;\\n};\\n\\n// Avec return implicite :\\nconst add2 = (a, b) => a + b;\\n\\n// Un seul paramètre (parenthèses optionnelles) :\\nconst square = x => x * x;\\n\\n// Aucun paramètre :\\nconst greet = () => 'Hello!';\\n\\n// Corps de fonction complexe :\\nconst process = (arr) => {\\n  const doubled = arr.map(x => x * 2);\\n  return doubled.filter(x => x > 5);\\n};",
+    "category": "javascript",
+    "level": "Intermédiaire",
+    "deleted": false
+  }
+]
