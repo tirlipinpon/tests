@@ -75,6 +75,42 @@ pre {
     margin-bottom: 15px;
 }
 
+/* Code toggle container */
+.code-toggle-container {
+    margin-bottom: 15px;
+}
+
+.code-toggle-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.code-toggle-btn:hover {
+    background: #5a6268;
+}
+
+.code-block {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 10px;
+}
+
 /* Formulaires */
 label {
     display: block;

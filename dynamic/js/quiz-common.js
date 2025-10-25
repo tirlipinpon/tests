@@ -84,6 +84,22 @@ class QuizManager {
         this.renderQuestions();
     }
 
+    // Fonction globale pour toggler l'affichage du code
+    static toggleCode(index) {
+        const codeBlock = document.getElementById(`code${index}`);
+        const toggleBtn = document.querySelector(`button[onclick="toggleCode(${index})"]`);
+        
+        if (codeBlock && toggleBtn) {
+            if (codeBlock.style.display === 'none') {
+                codeBlock.style.display = 'block';
+                toggleBtn.innerHTML = '📝 Masquer le code';
+            } else {
+                codeBlock.style.display = 'none';
+                toggleBtn.innerHTML = '📝 Afficher le code';
+            }
+        }
+    }
+
 
     renderQuestions() {
         // Vider le conteneur
@@ -139,9 +155,19 @@ class QuizManager {
             `;
         }).join('');
         
+        // Ajouter le toggle pour le code seulement si il y a du code
+        const codeToggle = question.code ? `
+            <div class="code-toggle-container">
+                <button type="button" class="code-toggle-btn" onclick="toggleCode(${index})">
+                    📝 Afficher le code
+                </button>
+                <pre class="code-block" id="code${index}" style="display: none;">${question.code}</pre>
+            </div>
+        ` : '';
+        
         return `
             <h2>${question.titre}</h2>
-            <pre>${question.code || ''}</pre>
+            ${codeToggle}
             ${optionsHTML}
             <button id="btn${index}" disabled>Valider</button>
             <span id="result${index}" aria-live="polite"></span>
@@ -153,9 +179,19 @@ class QuizManager {
         const correctAnswerLength = question.correct_answer ? question.correct_answer.length : 0;
         const maxLength = Math.max(correctAnswerLength * 2, 100); // 2x la longueur de la réponse ou 100 minimum
         
+        // Ajouter le toggle pour le code seulement si il y a du code
+        const codeToggle = question.code ? `
+            <div class="code-toggle-container">
+                <button type="button" class="code-toggle-btn" onclick="toggleCode(${index})">
+                    📝 Afficher le code
+                </button>
+                <pre class="code-block" id="code${index}" style="display: none;">${question.code}</pre>
+            </div>
+        ` : '';
+        
         return `
             <h2>${question.titre}</h2>
-            <pre>${question.code || ''}</pre>
+            ${codeToggle}
             <div class="input-container">
                 <input type="text" id="input${index}" aria-label="Réponse" maxlength="${maxLength}">
                 <div class="smart-counter" id="smartCounter${index}">
@@ -682,6 +718,22 @@ window.toggleExample = function(index) {
         content.style.display = 'none';
         arrow.style.transform = 'rotate(0deg)';
         arrow.textContent = '▼';
+    }
+};
+
+// Fonction globale pour toggle le code
+window.toggleCode = function(index) {
+    const codeBlock = document.getElementById(`code${index}`);
+    const toggleBtn = document.querySelector(`button[onclick="toggleCode(${index})"]`);
+    
+    if (codeBlock && toggleBtn) {
+        if (codeBlock.style.display === 'none') {
+            codeBlock.style.display = 'block';
+            toggleBtn.innerHTML = '📝 Masquer le code';
+        } else {
+            codeBlock.style.display = 'none';
+            toggleBtn.innerHTML = '📝 Afficher le code';
+        }
     }
 };
 
